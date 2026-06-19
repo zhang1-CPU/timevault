@@ -17,13 +17,13 @@ export function generateICSReminder(
     return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   };
 
-  const uid = `timevault-${Date.now()}-${Math.random().toString(36).substring(2, 10)}@timevault.app`;
+  const uid = `timevault-${Date.now()}-${Math.random().toString(36).substring(2, 10)}@github.io`;
 
   const defaultDesc = `Your TimeVault sealed message is now unlockable.
 
 To reveal it:
 1. Find your sealed photo (the PNG file you downloaded from TimeVault)
-2. Visit https://timevault.app
+2. Visit https://zhang1-CPU.github.io/timevault/
 3. Upload your photo and enter your 4-digit PIN
 
 Remember: TimeVault stores nothing. If you lose the photo or forget your PIN, the message is gone forever.`;

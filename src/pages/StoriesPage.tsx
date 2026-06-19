@@ -124,7 +124,7 @@ export function StoriesPage({ navigate }: { navigate: (to: Page) => void }) {
       publisher: { '@type': 'Organization', name: 'TimeVault' },
       mainEntityOfPage: {
         '@type': 'WebPage',
-        '@id': 'https://timevault.online/#stories',
+        '@id': 'https://zhang1-CPU.github.io/timevault/#stories',
       },
     });
     document.head.appendChild(jsonLd);

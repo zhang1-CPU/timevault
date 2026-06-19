@@ -34,7 +34,7 @@ export function PrivacyPage({ navigate }: { navigate: (to: Page) => void }) {
               paragraphs={[
                 'TimeVault ("we", "us", or "our") is a free, privacy-first web application that lets you hide encrypted messages inside photographs. The entire application runs inside your web browser. There is no server-side processing of your content — no photo upload, no cloud storage, no analytics pipeline, no tracking cookie.',
                 'This Privacy Policy explains what information is processed, where it is processed, and what choices you have. Because TimeVault is designed to store and collect as little as possible, this document is intentionally short. If you have any question about it, please email us at privacy@timevault.online.',
-                'By using timevault.online you agree to the practices described in this policy. If you do not agree, please discontinue use of the service.',
+                'By using TimeVault you agree to the practices described in this policy. If you do not agree, please discontinue use of the service.',
               ]}
             />
 
@@ -79,7 +79,7 @@ export function PrivacyPage({ navigate }: { navigate: (to: Page) => void }) {
               title="5. Third-Party Services"
               paragraphs={[
                 'We rely on a small number of third-party services to deliver TimeVault. Each is listed here with its purpose and the data it may see:',
-                '• Hosting: timevault.online is served through static hosting (GitHub Pages / Cloudflare Pages). These providers may keep standard access logs (IP, user agent, requested URL) for a limited time to protect against abuse. This is a standard feature of web hosting and does not contain the content of your messages.',
+                '• Hosting: this site is served through static hosting (GitHub Pages). These providers may keep standard access logs (IP, user agent, requested URL) for a limited time to protect against abuse. This is a standard feature of web hosting and does not contain the content of your messages.',
                 '• drand time-lock beacon: when you encrypt or decrypt a time-locked message, your browser requests a public round value from drand.love. No personal data is sent; the response is public randomness.',
                 '• Optional email reminder: if you choose to leave an email address so that TimeVault can notify you on the unlock date, that email is stored only for this purpose and is deleted on request. Providing an email address is strictly optional.',
                 'Except for the items above, we do not integrate with third-party analytics, advertising networks, or social sharing SDKs.',

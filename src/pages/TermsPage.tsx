@@ -12,7 +12,7 @@ export function TermsPage({ navigate }: { navigate: (to: Page) => void }) {
     }
     meta.setAttribute(
       'content',
-      'Terms of Service for TimeVault — a free, browser-side privacy tool. Your use of timevault.online is subject to these terms.'
+      'Terms of Service for TimeVault — a free, browser-side privacy tool. Your use of this service is subject to these terms.'
     );
   }, []);
 
@@ -32,7 +32,7 @@ export function TermsPage({ navigate }: { navigate: (to: Page) => void }) {
             <Section
               title="1. Acceptance of Terms"
               paragraphs={[
-                'By accessing or using timevault.online ("the Service") you agree to be bound by these Terms of Service. If you disagree with any part of the terms, please discontinue your use.',
+                'By accessing or using TimeVault ("the Service") you agree to be bound by these Terms of Service. If you disagree with any part of the terms, please discontinue your use.',
                 'The Service is provided free of charge, for personal, non-commercial use. You may use it on as many devices as you like; you may share sealed photos with anyone you choose.',
                 'These Terms apply to every visitor and user of the Service, regardless of whether you have created an account (no account is required to use the core service).',
               ]}
@@ -119,7 +119,7 @@ export function TermsPage({ navigate }: { navigate: (to: Page) => void }) {
               title="9. Changes to the Service or Terms"
               paragraphs={[
                 'We may modify or discontinue the Service, or any feature within it, at any time without notice. We may also revise these Terms from time to time. When we do, we will update the "Last updated" date at the top of this page and, for material changes, add a short notice on the homepage.',
-                'Your continued use of timevault.online after a revision constitutes acceptance of the revised terms.',
+                'Your continued use of TimeVault after a revision constitutes acceptance of the revised terms.',
               ]}
             />
 

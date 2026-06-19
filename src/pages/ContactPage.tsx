@@ -105,7 +105,7 @@ export function ContactPage({ navigate }: { navigate: (to: Page) => void }) {
             We aim to reply within five business days. Security-related disclosures are reviewed within 72 hours.
           </p>
           <p className="text-white/15 text-xs font-light tracking-wide">
-            timevault.online — a quiet promise between you and the future.
+            TimeVault — a quiet promise between you and the future.
           </p>
           <div className="pt-6 mt-2">
             <button

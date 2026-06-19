@@ -191,11 +191,11 @@ function drawBrandWatermark(
   const lineGap = Math.max(4, Math.round(baseFont * 0.2));
   const corner = Math.max(6, Math.round(baseFont * 0.4));
 
-  // --- Measure line 1: [logo] timevault.online ---
+  // --- Measure line 1: [logo] TimeVault ---
   const iconSquare = Math.round(baseFont * 1.6); // noticeably bigger logo
   const iconGap = Math.round(baseFont * 0.45);
   ctx.font = `600 ${baseFont}px system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif`;
-  const line1Width = iconSquare + iconGap + ctx.measureText('timevault.online').width;
+  const line1Width = iconSquare + iconGap + ctx.measureText('TimeVault').width;
 
   // --- Measure line 2: Unlocks · YYYY-MM-DD HH:MM ---
   ctx.font = `${smallFont}px system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif`;
@@ -236,7 +236,7 @@ function drawBrandWatermark(
   ctx.arc(pillX + padX + dotR, dotY, dotR, 0, Math.PI * 2);
   ctx.fill();
 
-  // --- Line 1: hourglass logo + "timevault.online" ---
+  // --- Line 1: hourglass logo + "TimeVault" ---
   const line1BaseY = pillY + padY + baseFont + 1;
   const logoX = pillX + padX;
   const logoY = line1BaseY - iconSquare + 1; // align logo to text baseline
@@ -246,7 +246,7 @@ function drawBrandWatermark(
   ctx.font = `700 ${baseFont}px system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif`;
   ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'left';
-  ctx.fillText('timevault.online', logoX + iconSquare + iconGap, line1BaseY);
+  ctx.fillText('TimeVault', logoX + iconSquare + iconGap, line1BaseY);
 
   // --- Line 2: unlock information ---
   const line2BaseY = line1BaseY + lineGap + smallFont;
