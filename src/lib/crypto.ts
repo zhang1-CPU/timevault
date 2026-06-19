@@ -135,17 +135,42 @@ export async function revealMessage(
  * Check if a sealed image can be unlocked yet.
  * Does NOT need PIN — only checks time lock status.
  */
+/**
+ * Check if a sealed image can be unlocked yet.
+ * Does NOT need PIN — only checks time lock status.
+ *
+ * Important: only works on lossless formats (PNG, WebP-lossless).
+ * JPEG compression destroys LSB data, so a JPEG of a sealed photo
+ * will never be unlockable — we detect this case and warn the user.
+ */
 export async function checkImageStatus(imageFile: File): Promise<LockStatus> {
   try {
+    // Fast check: if the uploaded file is JPEG / JPG it is impossible to recover data
+    const isJpeg = /\.(jpe?g)$/i.test(imageFile.name) ||
+                   imageFile.type === 'image/jpeg' ||
+                   (imageFile.type === '' && imageFile.name.endsWith('.jpg'));
+    if (isJpeg) {
+      throw new Error('JPEG_COMPRESSION');
+    }
+
     const binaryData = await extractFromImage(imageFile);
     const tlockString = new TextDecoder().decode(binaryData);
     return checkStatus(tlockString);
-  } catch {
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : '';
+    if (msg === 'JPEG_COMPRESSION') {
+      return {
+        canUnlock: false,
+        unlockTime: null,
+        remainingSeconds: 0,
+        formattedRemaining: 'JPEG detected — re-upload as PNG (JPEG compression destroys hidden data)',
+      };
+    }
     return {
       canUnlock: false,
       unlockTime: null,
       remainingSeconds: 0,
-      formattedRemaining: 'No hidden data found',
+      formattedRemaining: 'No hidden data found — upload the sealed PNG you downloaded',
     };
   }
 }
@@ -359,81 +384,126 @@ function roundedRect(
  * Also draws a brand watermark (hourglass logo + timevault.online + unlock time)
  * in the bottom-right corner. Output: PNG Blob.
  */
-async function embedInImage(imageFile: File, data: Uint8Array, unlockDate: Date): Promise<Blob> {
+/**
+ * Load the input image into a canvas, applying EXIF orientation so that
+ * iOS Safari / Android Chrome produce pixel arrays that are aligned
+ * with the visual layout. Falls back to plain <img> onload when
+ * createImageBitmap is not available.
+ */
+async function loadImageToCanvas(imageFile: File): Promise<{ canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D }> {
+  // Prefer createImageBitmap (modern browsers & Safari 15+) with explicit orientation
+  // orientation: 'from-image' applies EXIF rotation onto pixels.
+  if (typeof createImageBitmap !== 'undefined') {
+    try {
+      const bitmap = await createImageBitmap(imageFile, { imageOrientation: 'from-image', premultiplyAlpha: 'none' });
+      const canvas = document.createElement('canvas');
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) throw new Error('Canvas 2D context not available');
+      ctx.drawImage(bitmap, 0, 0);
+      (bitmap as any).close?.();
+      return { canvas, ctx };
+    } catch {
+      // fall through to <img> fallback
+    }
+  }
+
+  // Fallback: plain <img> element — older browsers
   return new Promise((resolve, reject) => {
     const img = document.createElement('img');
     const url = URL.createObjectURL(imageFile);
-    let cleaned = false;
-    const cleanup = () => {
-      if (!cleaned) {
-        cleaned = true;
-        try { URL.revokeObjectURL(url); } catch { /* no-op */ }
-      }
-    };
-
     img.onload = () => {
       try {
-        if (!img.width || !img.height) {
-          cleanup();
-          reject(new Error('Image has no content'));
-          return;
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          cleanup();
-          reject(new Error('Canvas 2D context not available'));
-          return;
-        }
-
-        ctx.drawImage(img, 0, 0);
-
-        // Draw watermark (brand logo + website + unlock time) in bottom-right corner.
-        drawBrandWatermark(ctx, canvas.width, canvas.height, unlockDate);
-
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-        // Check capacity
-        const numPixels = imageData.data.length / 4;
-        const availableBits = numPixels * 3;
-        const neededBits = data.length * 8 + 32;
-        if (neededBits > availableBits) {
-          cleanup();
-          reject(
-            new Error(
-              `Image too small. Need ${Math.ceil(neededBits / 8)} bytes, have ${Math.floor(availableBits / 8)}. Use a larger image.`
-            )
-          );
-          return;
-        }
-
-        embedLsb(imageData, data);
-        ctx.putImageData(imageData, 0, 0);
-
-        canvas.toBlob(
-          (blob) => {
-            cleanup();
-            if (blob) resolve(blob);
-            else reject(new Error('Failed to create PNG blob'));
-          },
-          'image/png'
-        );
+        // Decode to ensure pixels are ready (needed on some iOS Safari versions)
+        const decoder = img.decode ? img.decode() : Promise.resolve();
+        (decoder as Promise<void>)
+          .then(() => {
+            if (!img.width || !img.height) {
+              URL.revokeObjectURL(url);
+              reject(new Error('Image has no content'));
+              return;
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            if (!ctx) {
+              URL.revokeObjectURL(url);
+              reject(new Error('Canvas 2D context not available'));
+              return;
+            }
+            ctx.drawImage(img, 0, 0);
+            URL.revokeObjectURL(url);
+            resolve({ canvas, ctx });
+          })
+          .catch(() => {
+            URL.revokeObjectURL(url);
+            reject(new Error('Failed to decode image'));
+          });
       } catch (err) {
-        cleanup();
+        URL.revokeObjectURL(url);
         reject(err);
       }
     };
-
     img.onerror = () => {
-      cleanup();
+      URL.revokeObjectURL(url);
       reject(new Error('Failed to load image'));
     };
-
     img.src = url;
+  });
+}
+
+async function embedInImage(imageFile: File, data: Uint8Array, unlockDate: Date): Promise<Blob> {
+  const { canvas, ctx } = await loadImageToCanvas(imageFile);
+
+  if (!canvas.width || !canvas.height) {
+    throw new Error('Image has no content');
+  }
+
+  // Draw watermark (brand logo + website + unlock time) in bottom-right corner.
+  drawBrandWatermark(ctx, canvas.width, canvas.height, unlockDate);
+
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+  // Check capacity: 4 bytes magic "TVLT" + 4 bytes length + data
+  const numPixels = imageData.data.length / 4;
+  const availableBits = numPixels * 3;
+  const neededBits = MAGIC_BYTES.length * 8 + 32 + data.length * 8;
+  if (neededBits > availableBits) {
+    throw new Error(
+      `Image too small. Need ${Math.ceil(neededBits / 8)} bytes, have ${Math.floor(availableBits / 8)}. Use a larger image.`
+    );
+  }
+
+  embedLsb(imageData, data);
+  ctx.putImageData(imageData, 0, 0);
+
+  // Produce PNG blob; on iOS Safari canvas.toBlob may be missing on old versions.
+  return new Promise<Blob>((resolve, reject) => {
+    const done = (blob: Blob | null) => {
+      if (blob) resolve(blob);
+      else reject(new Error('Failed to create PNG blob'));
+    };
+    if (typeof (canvas as any).mozGetAsFile !== 'undefined') {
+      // Firefox legacy path
+      done((canvas as any).mozGetAsFile('timevault.png', 'image/png'));
+    } else if (typeof canvas.toBlob !== 'undefined') {
+      // Standard path — toBlob is asynchronous on every modern browser.
+      canvas.toBlob(done, 'image/png');
+    } else {
+      // Fallback: toDataURL + manual Blob
+      try {
+        const dataUrl = canvas.toDataURL('image/png');
+        const base64 = dataUrl.split(',')[1] || '';
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        done(new Blob([bytes], { type: 'image/png' }));
+      } catch (err) {
+        reject(err);
+      }
+    }
   });
 }
 
@@ -441,56 +511,25 @@ async function embedInImage(imageFile: File, data: Uint8Array, unlockDate: Date)
  * Extract binary data from LSB-steganography image.
  */
 async function extractFromImage(imageFile: File): Promise<Uint8Array> {
-  return new Promise((resolve, reject) => {
-    const img = document.createElement('img');
-    const url = URL.createObjectURL(imageFile);
-    let cleaned = false;
-    const cleanup = () => {
-      if (!cleaned) {
-        cleaned = true;
-        try { URL.revokeObjectURL(url); } catch { /* no-op */ }
-      }
-    };
+  const { canvas, ctx } = await loadImageToCanvas(imageFile);
 
-    img.onload = () => {
-      try {
-        if (!img.width || !img.height) {
-          cleanup();
-          reject(new Error('Image has no content'));
-          return;
-        }
+  if (!canvas.width || !canvas.height) {
+    throw new Error('Image has no content');
+  }
 
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = extractLsb(imageData);
 
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          cleanup();
-          reject(new Error('Canvas 2D context not available'));
-          return;
-        }
-        ctx.drawImage(img, 0, 0);
-
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = extractLsb(imageData);
-
-        cleanup();
-        resolve(data);
-      } catch (err) {
-        cleanup();
-        reject(err);
-      }
-    };
-
-    img.onerror = () => {
-      cleanup();
-      reject(new Error('Failed to load image'));
-    };
-
-    img.src = url;
-  });
+  return data;
 }
+
+// ─── Magic Bytes ──────────────────────────────────────────────
+
+// 4-byte magic identifier: "TVLT" (TimeVaulT) — written before
+// the 32-bit length header so the unlock page can quickly tell
+// whether a PNG is a valid TimeVault sealed image.
+const MAGIC_BYTES = new Uint8Array([0x54, 0x56, 0x4c, 0x54]); // "TVLT"
+const MAGIC_LENGTH = MAGIC_BYTES.length;
 
 // ─── LSB Implementation ──────────────────────────────────────
 
@@ -506,13 +545,20 @@ function embedLsb(imageData: ImageData, data: Uint8Array): void {
     bitIndex++;
   };
 
-  // Write 32-bit length header (big-endian)
+  // Step 1: write 4-byte magic "TVLT" (32 bits)
+  for (let byteIdx = 0; byteIdx < MAGIC_LENGTH; byteIdx++) {
+    for (let bitOffset = 7; bitOffset >= 0; bitOffset--) {
+      writeBit((MAGIC_BYTES[byteIdx] >>> bitOffset) & 1);
+    }
+  }
+
+  // Step 2: write 32-bit length header (big-endian)
   const length = data.length;
   for (let i = 31; i >= 0; i--) {
     writeBit((length >>> i) & 1);
   }
 
-  // Write data bytes
+  // Step 3: write data bytes
   for (let byteIdx = 0; byteIdx < data.length; byteIdx++) {
     for (let bitOffset = 7; bitOffset >= 0; bitOffset--) {
       writeBit((data[byteIdx] >>> bitOffset) & 1);
@@ -534,25 +580,43 @@ function extractLsb(imageData: ImageData): Uint8Array {
     return bit;
   };
 
-  // Read 32-bit length header
-  if (numPixels < 11) { // Need at least 32 bits = 11 pixels (11*3=33 bits available)
+  // Step 1: verify minimum size — need at least magic (4 bytes = 32 bits) + length (32 bits) = 64 bits ≈ 22 pixels
+  const minPixelsNeeded = Math.ceil((MAGIC_LENGTH * 8 + 32) / 3);
+  if (numPixels < minPixelsNeeded) {
     throw new Error('No hidden data found in this image');
   }
 
+  // Step 2: read 4-byte magic and validate ("TVLT")
+  let magicBytes = new Uint8Array(MAGIC_LENGTH);
+  for (let byteIdx = 0; byteIdx < MAGIC_LENGTH; byteIdx++) {
+    let byte = 0;
+    for (let bitOffset = 7; bitOffset >= 0; bitOffset--) {
+      byte = (byte << 1) | readBit();
+    }
+    magicBytes[byteIdx] = byte;
+  }
+
+  for (let i = 0; i < MAGIC_LENGTH; i++) {
+    if (magicBytes[i] !== MAGIC_BYTES[i]) {
+      throw new Error('No hidden data found in this image');
+    }
+  }
+
+  // Step 3: read 32-bit length header
   let length = 0;
   for (let i = 0; i < 32; i++) {
     length = (length << 1) | readBit();
   }
 
-  // Validate: length must be positive AND fit within remaining pixels
-  // After 32-bit header: remaining bits = (numPixels * 3) - 32
-  // Available data bytes = Math.floor(((numPixels * 3) - 32) / 8)
-  const maxDataBytes = Math.max(0, Math.floor(((numPixels * 3) - 32) / 8));
-  if (length <= 0 || length > maxDataBytes) {
+  // Step 4: validate — length must fit in remaining pixels
+  const totalBitBudget = numPixels * 3;
+  const consumedBits = bitIndex;
+  const availableBytes = Math.max(0, Math.floor((totalBitBudget - consumedBits) / 8));
+  if (length <= 0 || length > availableBytes || length > 2 * 1024 * 1024) {
     throw new Error('No hidden data found in this image');
   }
 
-  // Read data
+  // Step 5: read data
   const data = new Uint8Array(length);
   for (let byteIdx = 0; byteIdx < length; byteIdx++) {
     let byte = 0;
