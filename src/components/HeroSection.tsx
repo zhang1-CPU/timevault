@@ -8,7 +8,8 @@ interface HeroSectionProps {
 
 export function HeroSection({ onEncrypt, onDecrypt, onCouple }: HeroSectionProps) {
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 relative overflow-hidden pt-12 pb-20">
+    <section className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 relative overflow-hidden pb-20">
+      {/* Layout 的 main 已提供 pt，这里不再重复加 padding-top */}
       {/* Floating hearts & sparkles */}
       <FloatingDecor />
 

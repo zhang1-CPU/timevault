@@ -122,8 +122,8 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header — noticeably bigger back button & brand */}
+    <div className="min-h-screen flex flex-col pt-[72px] sm:pt-[80px]">
+      {/* Header — pt 预留顶部 NavBar 高度，避免在移动端被 fixed NavBar 覆盖 */}
       <header className="px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between border-b border-white/[0.04] relative z-10 bg-[#0a0612]/80 backdrop-blur-md">
         <button
           onClick={onBack}
@@ -145,8 +145,9 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
       </header>
 
       {/* Content */}
-      <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-6 sm:py-8">
-        <div className="w-full max-w-xl">
+      <main className="flex-1 flex items-start justify-center px-4 sm:px-6 py-6 sm:py-8">
+        {/* items-start 替代 items-center：让内容从顶部自然开始，避免短步骤时内容在屏幕中间"漂浮" */}
+        <div className="w-full max-w-xl mx-auto">
           {/* Error */}
           {error && (
             <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm text-center flex items-center justify-center gap-2">

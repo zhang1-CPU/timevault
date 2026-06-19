@@ -432,12 +432,13 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   //  RENDER
   // ════════════════════════════════════════════════════════════
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col pt-[72px] sm:pt-[80px]">
+      {/* pt 预留顶部 NavBar 高度，避免在移动端被 fixed NavBar 覆盖 */}
       <CoupleHeader onBack={goBack} title={headerTitle} />
       <MobilePromptBanner />
 
       <main className="flex-1 flex items-start justify-center px-4 sm:px-6 py-6 sm:py-8">
-        <div className="w-full max-w-lg">
+        <div className="w-full max-w-lg mx-auto">
           {/* Error */}
           {error && (
             <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm text-center flex items-start justify-center gap-2">
@@ -885,7 +886,7 @@ function AQRStep({ qrCode, leftPreview, unlockDate, onCopyLink, copied }: {
         )}
         <a href={leftPreview} download={`timevault-half-a-${Date.now()}.png`}
           className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-rose-500/[0.08] border border-rose-400/15
-                     text-rose-200/60 text-sm hover:bg-rose-500/[0.15] hover:text-rose-100 transition-all min-h-[52px]">
+                     text-rose-200/60 text-sm hover:bg-rose-500/[0.15] hover:text-rose-100 transition-all min-h-[52px] no-underline">
           <Download className="w-4 h-4" /> Download My Half
         </a>
       </div>
@@ -1043,7 +1044,7 @@ function BDoneStep({ sealedBlob, onHome }: { sealedBlob: Blob | null; onHome: ()
           <a href={blobUrl} download={`timevault-half-b-${Date.now()}.png`}
             className="inline-flex items-center gap-2 px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-violet-500/95 to-rose-500/95 rounded-2xl
                        text-white font-medium text-sm sm:text-lg transition-all duration-300
-                       hover:shadow-[0_0_60px_rgba(139,92,246,0.3)] hover:scale-[1.02] active:scale-[0.97] min-h-[56px]">
+                       hover:shadow-[0_0_60px_rgba(139,92,246,0.3)] hover:scale-[1.02] active:scale-[0.97] min-h-[56px] no-underline">
             <Download className="w-5 h-5 sm:w-6 sm:h-6" /> Download My Sealed Half
           </a>
         </div>

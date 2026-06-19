@@ -118,21 +118,11 @@ export function EncryptPanel({ onBack }: EncryptPanelProps) {
     }
   };
 
-  const handleDownload = () => {
-    if (!resultBlob) return;
-    const url = URL.createObjectURL(resultBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `timevault-${Date.now()}.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+  const downloadFilename = `timevault-${Date.now()}.png`;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
+    <div className="min-h-screen flex flex-col pt-[72px] sm:pt-[80px]">
+      {/* Header — pt 预留顶部 NavBar 高度，避免在移动端被 fixed NavBar 覆盖 */}
       <header className="px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between border-b border-white/[0.04] relative z-10 bg-[#0a0612]/80 backdrop-blur-md">
         <button
           onClick={onBack}
@@ -155,8 +145,9 @@ export function EncryptPanel({ onBack }: EncryptPanelProps) {
       </header>
 
       {/* Content */}
-      <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-6 sm:py-8">
-        <div className="w-full max-w-xl animate-page-enter">
+      <main className="flex-1 flex items-start justify-center px-4 sm:px-6 py-6 sm:py-8">
+        {/* items-start 替代 items-center：让内容从顶部自然开始，避免短步骤时内容在屏幕中间"漂浮" */}
+        <div className="w-full max-w-xl mx-auto animate-page-enter">
 
           {/* Progress indicator */}
           {step !== 'done' && step !== 'sealing' && (
@@ -496,16 +487,17 @@ export function EncryptPanel({ onBack }: EncryptPanelProps) {
                 </ul>
               </div>
 
-              <button
-                onClick={handleDownload}
+              <a
+                href={resultUrl}
+                download={downloadFilename}
                 className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl text-white
                            font-medium text-sm sm:text-base transition-all duration-300
                            hover:shadow-[0_0_60px_rgba(16,185,129,0.3)] hover:scale-[1.02] active:scale-[0.97]
-                           flex items-center justify-center gap-2 min-h-[56px]"
+                           flex items-center justify-center gap-2 min-h-[56px] no-underline"
               >
                 <Download className="w-5 h-5" />
                 Download Sealed Photo
-              </button>
+              </a>
 
               <ReminderSection unlockDate={unlockDate} />
 
