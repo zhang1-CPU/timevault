@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#1a0f2b"/>
+      <stop offset="65%" stop-color="#0d0818"/>
+      <stop offset="100%" stop-color="#050310"/>
+    </radialGradient>
+    <linearGradient id="sand" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8c8d8"/>
+      <stop offset="45%" stop-color="#e8a8bf"/>
+      <stop offset="75%" stop-color="#c9a8e8"/>
+      <stop offset="100%" stop-color="#b5c8f0"/>
+    </linearGradient>
+    <linearGradient id="halo" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e11d48" stop-opacity="0.35"/>
+      <stop offset="55%" stop-color="#8b5cf6" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0.12"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Outer soft halo -->
+  <circle cx="256" cy="256" r="240" fill="url(#halo)"/>
+
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="224" fill="url(#bg)" stroke="url(#sand)" stroke-width="2" stroke-opacity="0.35"/>
+
+  <!-- Inner vignette -->
+  <circle cx="256" cy="256" r="190" fill="none" stroke="url(#sand)" stroke-width="1" stroke-opacity="0.15"/>
+
+  <!-- Large hourglass -->
+  <g transform="translate(128, 112)">
+    <!-- Top bar -->
+    <rect x="0" y="0" width="256" height="14" rx="7" fill="url(#sand)" opacity="0.92"/>
+    <!-- Bottom bar -->
+    <rect x="0" y="274" width="256" height="14" rx="7" fill="url(#sand)" opacity="0.92"/>
+
+    <!-- Left outer diagonals -->
+    <line x1="0" y1="7" x2="128" y2="144" stroke="url(#sand)" stroke-width="5" stroke-linejoin="round" opacity="0.9"/>
+    <line x1="256" y1="7" x2="128" y2="144" stroke="url(#sand)" stroke-width="5" stroke-linejoin="round" opacity="0.9"/>
+    <line x1="0" y1="281" x2="128" y2="144" stroke="url(#sand)" stroke-width="5" stroke-linejoin="round" opacity="0.9"/>
+    <line x1="256" y1="281" x2="128" y2="144" stroke="url(#sand)" stroke-width="5" stroke-linejoin="round" opacity="0.9"/>
+
+    <!-- Upper chamber (sand draining) -->
+    <path d="M 28 18 L 228 18 L 144 138 L 112 138 Z" fill="url(#sand)" opacity="0.78"/>
+    <!-- Lower chamber (sand pile) -->
+    <path d="M 104 150 L 152 150 L 228 268 L 28 268 Z" fill="url(#sand)" opacity="0.55"/>
+
+    <!-- Falling sand stream -->
+    <rect x="126" y="140" width="8" height="10" fill="#f5c8a0" opacity="0.95"/>
+    <!-- Three falling grains -->
+    <circle cx="130" cy="160" r="3" fill="#f5c8a0" opacity="0.9"/>
+    <circle cx="130" cy="195" r="2.5" fill="#f5c8a0" opacity="0.7"/>
+    <circle cx="130" cy="230" r="2" fill="#f5c8a0" opacity="0.55"/>
+
+    <!-- Subtle sparkles around the hourglass -->
+    <circle cx="16" cy="10" r="3" fill="#f8c8d8" opacity="0.6">
+      <animate attributeName="opacity" values="0.2;0.9;0.2" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="240" cy="20" r="2" fill="#c9a8e8" opacity="0.55">
+      <animate attributeName="opacity" values="0.2;0.85;0.2" dur="3.1s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="248" cy="295" r="3.5" fill="#b5c8f0" opacity="0.55">
+      <animate attributeName="opacity" values="0.2;0.8;0.2" dur="2.7s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="12" cy="285" r="2.5" fill="#f8c8d8" opacity="0.5">
+      <animate attributeName="opacity" values="0.15;0.8;0.15" dur="2.9s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Brand wordmark below -->
+  <text x="256" y="455"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="38"
+        font-weight="300"
+        letter-spacing="4"
+        text-anchor="middle"
+        fill="url(#sand)"
+        opacity="0.75">
+    TimeVault
+  </text>
+</svg>

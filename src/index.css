@@ -1,0 +1,630 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 260 40% 4%;
+    --foreground: 0 0% 95%;
+    --card: 260 30% 8%;
+    --card-foreground: 0 0% 95%;
+    --popover: 260 30% 8%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 340 75% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 260 20% 14%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 260 20% 18%;
+    --muted-foreground: 260 10% 55%;
+    --accent: 340 75% 55%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 260 15% 16%;
+    --input: 260 15% 16%;
+    --ring: 340 75% 55%;
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  /* ─── Accessibility: keyboard focus ring ─────────────
+     :focus-visible 只在键盘导航时显示，避免点击时出现蓝色方框，
+     同时保证键盘用户（无障碍）可以清晰地看到焦点位置。
+     ────────────────────────────────────────────────── */
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid rgba(251, 113, 133, 0.8);
+    outline-offset: 2px;
+    border-radius: 8px;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+  }
+
+  /* Respect user's reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* Romantic display font — think wedding invitation, love letters */
+  h1, h2, h3, .font-display {
+    font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, Cambria, 'Times New Roman', Times, serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
+  /* ─── Shimmer gradient text (多彩流光，模仿参考图效果)
+     从左到右：粉色 → 品红 → 紫色 → 蓝紫 → 蓝色 → 青色 → 回到粉色 ───── */
+  .gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      90deg,
+      #ff5a8a 0%,
+      #ff6bcb 12%,
+      #d946ef 25%,
+      #a855f7 40%,
+      #6366f1 55%,
+      #3b82f6 70%,
+      #22d3ee 85%,
+      #ff5a8a 100%
+    );
+    background-size: 300% 100%;
+    animation: shimmer 2.5s linear infinite;
+  }
+
+  /* Darker version for sub-headers */
+  .gradient-text-soft {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 90, 138, 0.7) 0%,
+      rgba(217, 70, 239, 0.65) 40%,
+      rgba(34, 211, 238, 0.6) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 3.5s linear infinite;
+  }
+
+  /* The classic shimmer keyframe */
+  @keyframes shimmer {
+    0% { background-position: 0% center; }
+    100% { background-position: 300% center; }
+  }
+
+  .animate-shimmer {
+    background-size: 200% 100%;
+    animation: shimmer 2.5s linear infinite;
+  }
+
+  /* ════════════════════════════════════════════════
+     星空氛围动画（简单、神秘、不动静）
+     ════════════════════════════════════════════════ */
+
+  /* 星云呼吸 — 极弱、极慢 */
+  @keyframes nebula-breathe {
+    0%, 100% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
+  /* 星星脉动 4 种模式 */
+  @keyframes star-pulse-0 {
+    0%, 100% {
+      opacity: 0.15;
+      transform: scale(0.6);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.3);
+    }
+  }
+
+  @keyframes star-pulse-1 {
+    0%, 100% {
+      opacity: 0.25;
+      transform: scale(0.8);
+    }
+    40% {
+      opacity: 1;
+      transform: scale(1.6);
+    }
+    70% {
+      opacity: 0.4;
+      transform: scale(0.9);
+    }
+  }
+
+  @keyframes star-pulse-2 {
+    0%, 100% {
+      opacity: 0.1;
+      transform: scale(0.5);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.4);
+    }
+  }
+
+  @keyframes star-pulse-3 {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(0.9);
+    }
+    33% {
+      opacity: 1;
+      transform: scale(1.5);
+    }
+    66% {
+      opacity: 0.2;
+      transform: scale(0.7);
+    }
+  }
+
+  /* 爱心向上漂浮 */
+  @keyframes heart-float {
+    0% {
+      transform: translateY(0) translateX(0) rotate(0deg) scale(1);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.8;
+    }
+    50% {
+      transform: translateY(-60vh) translateX(15px) rotate(5deg) scale(1.05);
+      opacity: 0.7;
+    }
+    90% {
+      opacity: 0.4;
+    }
+    100% {
+      transform: translateY(-120vh) translateX(-15px) rotate(-5deg) scale(0.95);
+      opacity: 0;
+    }
+  }
+
+  /* ─── Fade in up (multi-step) ───────────────────────────────────── */
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.8s ease-out forwards;
+  }
+
+  .animate-fade-in-up-delay-1 {
+    animation: fade-in-up 0.8s ease-out 0.25s forwards;
+    opacity: 0;
+  }
+
+  .animate-fade-in-up-delay-2 {
+    animation: fade-in-up 0.8s ease-out 0.5s forwards;
+    opacity: 0;
+  }
+
+  .animate-fade-in-up-delay-3 {
+    animation: fade-in-up 0.8s ease-out 0.75s forwards;
+    opacity: 0;
+  }
+
+  .animate-fade-in-up-delay-4 {
+    animation: fade-in-up 0.8s ease-out 1s forwards;
+    opacity: 0;
+  }
+
+  /* ─── Gentle breathing ─────────────────────────────────────────── */
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.05); opacity: 1; }
+  }
+
+  .animate-breathe {
+    animation: breathe 4.5s ease-in-out infinite;
+  }
+
+  /* ─── Sand fall inside hourglass ───────────────────────────────── */
+  @keyframes sand-fall {
+    0% { transform: translateY(-40%); opacity: 0.2; }
+    50% { opacity: 0.95; }
+    100% { transform: translateY(55%); opacity: 0; }
+  }
+
+  .animate-sand-fall {
+    animation: sand-fall 3.5s ease-in-out infinite;
+  }
+
+  /* ─── Hourglass twinkle ────────────────────────────────────────── */
+  @keyframes hourglass-twinkle {
+    0%, 100% { opacity: 0.35; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.18); }
+  }
+
+  .animate-hourglass-twinkle {
+    animation: hourglass-twinkle 2.2s ease-in-out infinite;
+  }
+
+  /* ─── Floating decorations — 加速版（2-4s 快速循环） ── */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0) translateX(0) scale(1);
+      opacity: 0;
+    }
+    15% { opacity: 0.9; }
+    50% {
+      transform: translateY(-50vh) translateX(30px) scale(1.15);
+      opacity: 0.9;
+    }
+    85% { opacity: 0.5; }
+    100% {
+      transform: translateY(-110vh) translateX(-30px) scale(0.9);
+      opacity: 0;
+    }
+  }
+
+  .animate-float {
+    animation: float ease-in-out infinite;
+    animation-duration: 3.5s;
+  }
+
+  /* ─── Soft glow (romantic) ─────────────────────────────────────── */
+  @keyframes soft-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(225, 120, 140, 0.18), 0 0 60px rgba(180, 140, 220, 0.1); }
+    50% { box-shadow: 0 0 40px rgba(225, 120, 140, 0.35), 0 0 100px rgba(180, 140, 220, 0.2); }
+  }
+
+  .animate-soft-glow {
+    animation: soft-glow 3s ease-in-out infinite;
+  }
+
+  /* ─── Twinkle stars ───────────────────────────────────────────── */
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.25; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+  }
+
+  .animate-twinkle {
+    animation: twinkle 1.5s ease-in-out infinite;
+  }
+
+  /* ─── Slow rotation for decorative elements ───────────────────── */
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .animate-rotate-slow {
+    animation: rotate 20s linear infinite;
+  }
+
+  /* ─── Scrollbar (dark, romantic) ──────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, rgba(225, 120, 140, 0.15), rgba(139, 92, 246, 0.15));
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, rgba(225, 120, 140, 0.3), rgba(139, 92, 246, 0.3));
+  }
+
+  /* ─── Glass card base ─────────────────────────────────────────── */
+  .glass {
+    @apply bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm;
+  }
+
+  .glass-hover {
+    @apply hover:bg-white/[0.06] hover:border-white/[0.1] transition-all duration-300;
+  }
+
+  /* ─── Romantic glass variant (rose/violet gradient) ───────────── */
+  .glass-romantic {
+    background: linear-gradient(135deg, rgba(225, 120, 140, 0.05), rgba(180, 140, 220, 0.05));
+    border: 1px solid rgba(225, 120, 140, 0.1);
+    backdrop-filter: blur(12px);
+  }
+
+  .glass-romantic:hover {
+    background: linear-gradient(135deg, rgba(225, 120, 140, 0.08), rgba(180, 140, 220, 0.08));
+    border-color: rgba(225, 120, 140, 0.18);
+    box-shadow: 0 0 30px rgba(225, 120, 140, 0.08);
+  }
+
+  /* ─── Bokeh drift — large blurred light blobs floating (更快) ── */
+  @keyframes bokeh-drift {
+    0%, 100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.7; }
+    25% { transform: translateY(-40px) translateX(30px) scale(1.1); opacity: 0.95; }
+    50% { transform: translateY(-20px) translateX(-25px) scale(0.95); opacity: 0.55; }
+    75% { transform: translateY(-60px) translateX(20px) scale(1.08); opacity: 0.8; }
+  }
+
+  .animate-bokeh-drift {
+    animation: bokeh-drift ease-in-out infinite;
+  }
+
+  /* ─── Star twinkle variants ──────────────────────────────────── */
+  @keyframes twinkle-fast {
+    0%, 100% { opacity: 0.15; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+  }
+  @keyframes twinkle-slow {
+    0%, 100% { opacity: 0.1; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.3); }
+  }
+
+  /* ─── Page entrance — stagger fade in from below ──────────────── */
+  @keyframes page-enter {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-page-enter {
+    animation: page-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  /* ─── Scroll reveal — fade in up when entering viewport ────────── */
+  @keyframes reveal-up {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal-item {
+    opacity: 0;
+  }
+  .reveal-item.is-visible {
+    animation: reveal-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  /* ─── Glass shimmer sweep (hover effect) ───────────────────────── */
+  @keyframes glass-shimmer {
+    0%   { transform: translateX(-120%) skewX(-15deg); opacity: 0; }
+    20%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { transform: translateX(200%) skewX(-15deg); opacity: 0; }
+  }
+
+  .glass-romantic { position: relative; overflow: hidden; }
+  .glass-romantic:hover {
+    background: linear-gradient(135deg, rgba(225, 120, 140, 0.08), rgba(180, 140, 220, 0.08));
+    border-color: rgba(225, 120, 140, 0.18);
+    box-shadow: 0 0 30px rgba(225, 120, 140, 0.08);
+  }
+  .glass-romantic .shimmer-sweep::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+      100deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.05) 40%,
+      rgba(255, 255, 255, 0.14) 50%,
+      rgba(255, 255, 255, 0.05) 60%,
+      transparent 100%
+    );
+    animation: glass-shimmer 2.2s ease-in-out 0.1s;
+  }
+
+  /* ─── Seal ceremony glow burst ───────────────────────────────── */
+  @keyframes seal-burst {
+    0%   { box-shadow: 0 0 20px rgba(225, 120, 140, 0.2), 0 0 60px rgba(139, 92, 246, 0.1); transform: scale(1); }
+    40%  { box-shadow: 0 0 80px rgba(225, 120, 140, 0.7), 0 0 160px rgba(139, 92, 246, 0.4); transform: scale(1.06); }
+    70%  { box-shadow: 0 0 40px rgba(225, 120, 140, 0.4), 0 0 100px rgba(139, 92, 246, 0.25); transform: scale(1.03); }
+    100% { box-shadow: 0 0 20px rgba(225, 120, 140, 0.2), 0 0 60px rgba(139, 92, 246, 0.1); transform: scale(1); }
+  }
+
+  .animate-seal-burst {
+    animation: seal-burst 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ─── Hourglass reverse animation (for sealing ceremony) ──────── */
+  @keyframes hourglass-reverse {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(180deg); }
+  }
+
+  .animate-hourglass-reverse {
+    animation: hourglass-reverse 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    transform-origin: center center;
+  }
+
+  /* ─── Success ripple ─────────────────────────────────────── */
+  @keyframes success-ripple {
+    0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); opacity: 1; }
+    100% { box-shadow: 0 0 0 24px rgba(34, 197, 94, 0); opacity: 0; }
+  }
+
+  .animate-success-ripple {
+    animation: success-ripple 0.9s ease-out forwards;
+  }
+
+  /* ─── Success message fade in ────────────────────────────── */
+  @keyframes success-appear {
+    0%   { opacity: 0; transform: scale(0.92) translateY(8px); }
+    30%  { opacity: 1; transform: scale(1) translateY(0); }
+    70%  { opacity: 1; transform: scale(1) translateY(0); }
+    100% { opacity: 0; transform: scale(1.04) translateY(-4px); }
+  }
+
+  .animate-success-appear {
+    animation: success-appear 2s ease-out forwards;
+  }
+
+  /* ─── Input focus pulse glow ──────────────────────────────────── */
+  @keyframes input-focus-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(225, 120, 140, 0); }
+    50%  { box-shadow: 0 0 0 3px rgba(225, 120, 140, 0.18); }
+  }
+
+  /* ─── Heart bob ─────────────────────────────────────────── */
+  @keyframes heart-bob {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    33%  { transform: translateY(-6px) rotate(-4deg); }
+    66%  { transform: translateY(-3px) rotate(4deg); }
+  }
+
+  .animate-heart-bob {
+    animation: heart-bob 4s ease-in-out infinite;
+  }
+
+  /* ─── Slow orbit ─────────────────────────────────────────── */
+  @keyframes slow-orbit {
+    0%   { transform: rotate(0deg) translateX(60px) rotate(0deg); }
+    100% { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+  }
+
+  .animate-slow-orbit {
+    animation: slow-orbit 24s linear infinite;
+  }
+
+  /* ─── Gentle shake (error feedback) ─────────────────────── */
+  @keyframes gentle-shake {
+    0%, 100% { transform: translateX(0); }
+    15%  { transform: translateX(-4px); }
+    30%  { transform: translateX(4px); }
+    45%  { transform: translateX(-3px); }
+    60%  { transform: translateX(3px); }
+    75%  { transform: translateX(-2px); }
+  }
+
+  .animate-gentle-shake {
+    animation: gentle-shake 0.6s ease-in-out;
+  }
+
+  /* ═══ NEW: Logo & Hero 专属动画 ═════════════════════ */
+
+  /* 沙漏 Logo 外围光晕呼吸 */
+  @keyframes logo-halo {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.08); opacity: 1; }
+  }
+
+  /* 外围装饰虚线环旋转 */
+  @keyframes ring-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Logo 内部脉冲光晕 */
+  @keyframes pulse-glow {
+    0%, 100% { transform: scale(1); opacity: 0.85; }
+    50% { transform: scale(1.15); opacity: 1; }
+  }
+
+  /* 整个 Logo 容器呼吸 */
+  @keyframes logo-breathe {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 90px rgba(236,72,153,0.28), 0 0 160px rgba(168,85,247,0.18);
+    }
+    50% {
+      transform: scale(1.04);
+      box-shadow: 0 0 120px rgba(236,72,153,0.4), 0 0 200px rgba(168,85,247,0.25);
+    }
+  }
+
+  /* 沙漏上方沙子：逐渐缩小（视觉上"流下去"） */
+  @keyframes sand-top {
+    0%, 100% {
+      transform: scaleY(1) translateY(0);
+      opacity: 0.95;
+    }
+    40% {
+      transform: scaleY(0.4) translateY(12px);
+      opacity: 0.7;
+    }
+    50% {
+      transform: scaleY(0.2) translateY(16px);
+      opacity: 0.5;
+    }
+  }
+
+  /* 沙漏下方沙子：逐渐堆积 */
+  @keyframes sand-bottom {
+    0%, 100% {
+      transform: scaleY(0.6) translateY(14px);
+      opacity: 0.6;
+    }
+    50% {
+      transform: scaleY(1.05) translateY(0);
+      opacity: 0.9;
+    }
+  }
+
+  /* CTA 按钮的持续脉冲光晕 */
+  @keyframes cta-glow {
+    0%, 100% {
+      box-shadow: 0 0 80px rgba(219,39,119,0.3);
+    }
+    50% {
+      box-shadow: 0 0 110px rgba(219,39,119,0.5);
+    }
+  }
+
+  /* 心型图标上下浮动 */
+  @keyframes heart-bob {
+    0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+    33% { transform: translateY(-5px) rotate(-5deg) scale(1.08); }
+    66% { transform: translateY(-2px) rotate(4deg) scale(1.03); }
+  }
+
+  /* NEW 徽章脉冲 */
+  @keyframes badge-pulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 18px rgba(244,63,94,0.7);
+    }
+    50% {
+      transform: scale(1.12);
+      box-shadow: 0 0 28px rgba(244,63,94,0.95), 0 0 40px rgba(236,72,153,0.4);
+    }
+  }
+
+  /* Scroll 指示器上下跳动 */
+  @keyframes bounce-indicator {
+    0%, 100% { transform: translateY(0); opacity: 0.6; }
+    50% { transform: translateY(6px); opacity: 1; }
+  }
+
+  /* 通用淡入向上 */
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 旋转 ring（已被 ring-spin 替代，但保留以防被其他组件引用） */
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .animate-rotate-slow {
+    animation: rotate 20s linear infinite;
+  }
+}

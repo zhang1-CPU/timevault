@@ -1,0 +1,28 @@
+{
+  "name": "TimeVault — Hide a Message in a Photo",
+  "short_name": "TimeVault",
+  "description": "Write a letter to tomorrow. Seal it inside a photo with time-lock encryption. Your photo is the vault. Zero storage. Complete privacy.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0612",
+  "theme_color": "#0a0612",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["utilities", "lifestyle", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

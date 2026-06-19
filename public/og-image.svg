@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <!-- Background gradients: deep space with romantic nebulae -->
+    <radialGradient id="bgBase" cx="50%" cy="45%" r="80%">
+      <stop offset="0%" stop-color="#150a2b"/>
+      <stop offset="55%" stop-color="#0a0618"/>
+      <stop offset="100%" stop-color="#03010a"/>
+    </radialGradient>
+
+    <radialGradient id="nebulaLeft" cx="20%" cy="65%" r="45%">
+      <stop offset="0%" stop-color="#ec4899" stop-opacity="0.25"/>
+      <stop offset="60%" stop-color="#a855f7" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="nebulaRight" cx="82%" cy="30%" r="40%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.18"/>
+      <stop offset="55%" stop-color="#6366f1" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="glowHalo" cx="25%" cy="55%" r="35%">
+      <stop offset="0%" stop-color="#ff8fab" stop-opacity="0.30"/>
+      <stop offset="70%" stop-color="#d946ef" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#d946ef" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Hourglass frame gradient: rose → magenta → violet → cyan -->
+    <linearGradient id="hourglassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff5a8a"/>
+      <stop offset="35%" stop-color="#d946ef"/>
+      <stop offset="70%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+
+    <!-- Sand gradient: golden pink → magenta -->
+    <linearGradient id="sandGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fcd34d"/>
+      <stop offset="50%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#f472b6"/>
+    </linearGradient>
+
+    <!-- Brand gradient: rose → violet → cyan (same as homepage gradient-text) -->
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff5a8a"/>
+      <stop offset="20%" stop-color="#ff6bcb"/>
+      <stop offset="40%" stop-color="#d946ef"/>
+      <stop offset="60%" stop-color="#a855f7"/>
+      <stop offset="80%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+
+    <!-- Glass glow on hourglass -->
+    <linearGradient id="glassGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Soft drop shadow for the hourglass silhouette -->
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feColorMatrix in="blur" type="matrix"
+        values="1 0 0 0 0.9
+                0 1 0 0 0.4
+                0 0 1 0 0.9
+                0 0 0 0.6 0"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- ===== Deep-space background ===== -->
+  <rect width="1200" height="630" fill="url(#bgBase)"/>
+  <rect width="1200" height="630" fill="url(#nebulaLeft)"/>
+  <rect width="1200" height="630" fill="url(#nebulaRight)"/>
+  <rect width="1200" height="630" fill="url(#glowHalo)"/>
+
+  <!-- ===== Starfield (3 layers of stars) ===== -->
+  <!-- Layer 1: small background stars -->
+  <g fill="#ffffff" opacity="0.20">
+    <circle cx="60"  cy="45"  r="1"/>
+    <circle cx="120" cy="90"  r="1.2"/>
+    <circle cx="200" cy="30"  r="0.8"/>
+    <circle cx="290" cy="120" r="1"/>
+    <circle cx="340" cy="60"  r="1.1"/>
+    <circle cx="430" cy="100" r="0.9"/>
+    <circle cx="520" cy="40"  r="1"/>
+    <circle cx="620" cy="80"  r="1.3"/>
+    <circle cx="720" cy="140" r="0.8"/>
+    <circle cx="800" cy="70"  r="1"/>
+    <circle cx="880" cy="125" r="1.1"/>
+    <circle cx="960" cy="55"  r="0.9"/>
+    <circle cx="1040" cy="105" r="1"/>
+    <circle cx="1105" cy="40"  r="1.2"/>
+    <circle cx="1160" cy="95"  r="0.8"/>
+    <circle cx="80"  cy="580" r="1"/>
+    <circle cx="240" cy="560" r="0.9"/>
+    <circle cx="400" cy="590" r="1.1"/>
+    <circle cx="560" cy="545" r="1"/>
+    <circle cx="700" cy="585" r="0.8"/>
+    <circle cx="860" cy="565" r="1.2"/>
+    <circle cx="1020" cy="600" r="1"/>
+    <circle cx="1140" cy="555" r="0.9"/>
+    <circle cx="150" cy="200" r="1"/>
+    <circle cx="375" cy="260" r="0.8"/>
+    <circle cx="555" cy="180" r="1.1"/>
+    <circle cx="750" cy="230" r="0.9"/>
+    <circle cx="930" cy="200" r="1"/>
+    <circle cx="1080" cy="250" r="1"/>
+  </g>
+
+  <!-- Layer 2: brighter mid stars with glows -->
+  <g>
+    <circle cx="100" cy="150" r="1.5" fill="#ffc4dc" opacity="0.85"/>
+    <circle cx="100" cy="150" r="5" fill="#ff5a8a" opacity="0.15"/>
+    <circle cx="260" cy="90" r="1.4" fill="#c9a8ff" opacity="0.8"/>
+    <circle cx="260" cy="90" r="5" fill="#a855f7" opacity="0.15"/>
+    <circle cx="470" cy="50" r="1.3" fill="#b5dcff" opacity="0.75"/>
+    <circle cx="470" cy="50" r="5" fill="#60a5fa" opacity="0.12"/>
+    <circle cx="680" cy="130" r="1.6" fill="#ffd6a5" opacity="0.8"/>
+    <circle cx="680" cy="130" r="6" fill="#fb923c" opacity="0.12"/>
+    <circle cx="860" cy="180" r="1.5" fill="#ffb4d8" opacity="0.7"/>
+    <circle cx="860" cy="180" r="5" fill="#ff5a8a" opacity="0.12"/>
+    <circle cx="1020" cy="330" r="1.4" fill="#c9a8ff" opacity="0.8"/>
+    <circle cx="1020" cy="330" r="5" fill="#a855f7" opacity="0.15"/>
+    <circle cx="1120" cy="180" r="1.5" fill="#8ee7ff" opacity="0.75"/>
+    <circle cx="1120" cy="180" r="5" fill="#22d3ee" opacity="0.15"/>
+    <circle cx="60"  cy="450" r="1.4" fill="#ffc4dc" opacity="0.8"/>
+    <circle cx="60"  cy="450" r="5" fill="#ff5a8a" opacity="0.12"/>
+    <circle cx="220" cy="480" r="1.5" fill="#b5dcff" opacity="0.75"/>
+    <circle cx="220" cy="480" r="5" fill="#60a5fa" opacity="0.12"/>
+    <circle cx="480" cy="510" r="1.4" fill="#c9a8ff" opacity="0.75"/>
+    <circle cx="480" cy="510" r="5" fill="#a855f7" opacity="0.12"/>
+    <circle cx="790" cy="470" r="1.5" fill="#ffd6a5" opacity="0.8"/>
+    <circle cx="790" cy="470" r="5" fill="#fb923c" opacity="0.12"/>
+    <circle cx="970" cy="500" r="1.3" fill="#ffb4d8" opacity="0.7"/>
+    <circle cx="970" cy="500" r="5" fill="#ff5a8a" opacity="0.12"/>
+  </g>
+
+  <!-- Layer 3: one prominent "twinkle star" -->
+  <g transform="translate(1080, 80)">
+    <circle r="3" fill="#ffffff" opacity="0.95"/>
+    <circle r="10" fill="#ff8fab" opacity="0.30"/>
+    <circle r="20" fill="#ff8fab" opacity="0.10"/>
+  </g>
+
+  <!-- ===== Elegant hourglass on the left ===== -->
+  <g transform="translate(140, 115)" filter="url(#softGlow)">
+    <!-- Top cap -->
+    <rect x="0" y="0" width="280" height="14" rx="7" fill="url(#hourglassGrad)" opacity="0.98"/>
+    <!-- Bottom cap -->
+    <rect x="0" y="380" width="280" height="14" rx="7" fill="url(#hourglassGrad)" opacity="0.98"/>
+
+    <!-- Glass outline (smooth curve hourglass) -->
+    <path d="M 14 14
+             Q 14 30 90 85
+             Q 120 115 140 195
+             Q 160 275 220 330
+             Q 266 360 266 380
+             M 266 14
+             Q 266 30 190 85
+             Q 160 115 140 195
+             Q 120 275 60 330
+             Q 14 360 14 380"
+          fill="none"
+          stroke="url(#hourglassGrad)"
+          stroke-width="4"
+          stroke-linejoin="round"
+          opacity="0.9"/>
+
+    <!-- Glass inner highlight -->
+    <path d="M 30 18 Q 30 32 92 88 Q 118 115 138 195 Q 158 275 210 328 Q 250 358 250 376
+             L 250 380 L 30 380
+             Q 30 360 70 328 Q 122 275 142 195 Q 162 115 188 88 Q 250 32 250 18 Z"
+          fill="url(#glassGlow)" opacity="0.5"/>
+
+    <!-- Top sand pile (dwindling) -->
+    <path d="M 30 20 L 250 20 Q 210 75 170 110 Q 150 130 140 195 L 140 200 L 140 195 Q 130 130 110 110 Q 70 75 30 20 Z"
+          fill="url(#sandGrad)" opacity="0.88"/>
+
+    <!-- Bottom sand pile (accumulating) -->
+    <path d="M 70 360 Q 100 340 140 335 Q 180 340 210 360 L 250 380 L 30 380 Z"
+          fill="url(#sandGrad)" opacity="0.80"/>
+
+    <!-- Center sand stream (narrowing) -->
+    <rect x="138" y="195" width="4" height="140" fill="url(#sandGrad)" opacity="0.7"/>
+
+    <!-- Falling sand grains -->
+    <circle cx="140" cy="345" r="2.2" fill="#fcd34d" opacity="0.95"/>
+    <circle cx="140" cy="355" r="1.8" fill="#fb923c" opacity="0.85"/>
+    <circle cx="140" cy="365" r="1.5" fill="#f472b6" opacity="0.7"/>
+    <circle cx="140" cy="372" r="1.2" fill="#f472b6" opacity="0.55"/>
+
+    <!-- Decorative corner dots -->
+    <circle cx="20" cy="7" r="3.5" fill="#ff5a8a" opacity="0.85"/>
+    <circle cx="260" cy="7" r="3.5" fill="#22d3ee" opacity="0.75"/>
+    <circle cx="20" cy="387" r="3.5" fill="#a855f7" opacity="0.8"/>
+    <circle cx="260" cy="387" r="3.5" fill="#ff6bcb" opacity="0.8"/>
+  </g>
+
+  <!-- ===== Brand text on the right ===== -->
+  <g>
+    <!-- Brand wordmark -->
+    <text x="760" y="275"
+          font-family="Georgia, 'Times New Roman', serif"
+          font-size="112"
+          font-weight="400"
+          letter-spacing="6"
+          text-anchor="middle"
+          fill="url(#brandGrad)">
+      TimeVault
+    </text>
+
+    <!-- Tagline (the official slogan) -->
+    <text x="760" y="345"
+          font-family="Georgia, 'Times New Roman', serif"
+          font-size="32"
+          font-weight="300"
+          font-style="italic"
+          letter-spacing="3"
+          text-anchor="middle"
+          fill="#fce7f3"
+          opacity="0.85">
+      Write a letter to tomorrow.
+    </text>
+
+    <!-- Thin decorative separator -->
+    <line x1="590" y1="395" x2="930" y2="395"
+          stroke="url(#brandGrad)" stroke-width="1" opacity="0.55"/>
+
+    <!-- Feature bullets -->
+    <g font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#e9d5ff" opacity="0.75" font-weight="300">
+      <text x="760" y="440" text-anchor="middle">Seal a secret inside a photo.</text>
+      <text x="760" y="475" text-anchor="middle">Time-locked. Private. Beautiful.</text>
+      <text x="760" y="510" text-anchor="middle">We store nothing. Your photo is the vault.</text>
+    </g>
+
+    <!-- Bottom accent: brand URL -->
+    <text x="760" y="575"
+          font-family="Georgia, serif"
+          font-size="20"
+          font-weight="300"
+          letter-spacing="6"
+          text-anchor="middle"
+          fill="#c4b5fd"
+          opacity="0.75">
+      timevault.online
+    </text>
+  </g>
+
+  <!-- ===== A few floating hearts (signature couple-mode feel) ===== -->
+  <g transform="translate(980, 215) scale(0.7)" fill="#ff6bcb" opacity="0.55">
+    <path d="M 12 2 C 7 2 2 7 2 13 C 2 22 12 32 12 32 C 12 32 22 22 22 13 C 22 7 17 2 12 2 Z
+             M 12 2 C 17 2 22 7 22 13 C 22 22 12 32 12 32 C 12 32 2 22 2 13 C 2 7 7 2 12 2 Z"/>
+  </g>
+
+  <g transform="translate(180, 500) scale(0.5)" fill="#a855f7" opacity="0.45">
+    <path d="M 12 2 C 7 2 2 7 2 13 C 2 22 12 32 12 32 C 12 32 22 22 22 13 C 22 7 17 2 12 2 Z
+             M 12 2 C 17 2 22 7 22 13 C 22 22 12 32 12 32 C 12 32 2 22 2 13 C 2 7 7 2 12 2 Z"/>
+  </g>
+
+  <!-- Corner frame: subtle brackets -->
+  <g stroke="#ff5a8a" stroke-width="1.5" opacity="0.3" fill="none">
+    <path d="M 30 30 L 30 60 L 60 60"/>
+    <path d="M 1170 30 L 1170 60 L 1140 60"/>
+    <path d="M 30 600 L 30 570 L 60 570"/>
+    <path d="M 1170 600 L 1170 570 L 1140 570"/>
+  </g>
+</svg>
