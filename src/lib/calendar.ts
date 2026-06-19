@@ -23,7 +23,7 @@ export function generateICSReminder(
 
 To reveal it:
 1. Find your sealed photo (the PNG file you downloaded from TimeVault)
-2. Visit https://zhang1-CPU.github.io/timevault/
+2. Visit https://timevault.online/
 3. Upload your photo and enter your 4-digit PIN
 
 Remember: TimeVault stores nothing. If you lose the photo or forget your PIN, the message is gone forever.`;
