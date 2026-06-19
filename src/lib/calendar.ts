@@ -99,7 +99,7 @@ export function getGoogleCalendarLink(
   const formatDate = (d: Date) =>
     d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   const desc = encodeURIComponent(
-    `Your TimeVault sealed message is now unlockable.\n\nVisit https://zhang1-CPU.github.io/timevault/ to reveal it with your sealed photo and PIN.`
+    `Your TimeVault sealed message is now unlockable.\n\nVisit https://timevault.online/ to reveal it with your sealed photo and PIN.`
   );
 
   return (
