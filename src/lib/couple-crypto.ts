@@ -41,17 +41,20 @@ export type CoupleRole = 'A' | 'B';
 export interface InviteParams {
   sid: string;
   u: string;
-  pin_a: string;        // A's PIN (shared with B so B can encrypt B's message with it)
-  msg_a: string;        // A's message in plain text (B needs it to encrypt with PIN-B)
-  split_x: string;      // split ratio 0-1, e.g. "0.5"
+  pin_a: string;        // A's PIN — used by B to encrypt B's message (A decrypts at unlock)
+  msg_a: string;        // A's message in plain text — B encrypts it with PIN-B
+  split_x: string;      // split ratio 0-1
   a_side: 'left' | 'right'; // which half A keeps
-  a_half: string;       // A's half photo (compressed data URL) — B re-seals with both messages
+  a_half?: string;      // (deprecated) tiny compressed preview — no longer used for downloads
 }
 
 export interface MergeParams {
   sid: string;
   u: string;
-  a_half: string;       // A's half (with both messages encrypted, re-compressed) — A downloads directly from QR
+  pin_b: string;        // B's PIN — A uses it to encrypt A's message at merge time
+  msg_b: string;        // B's message in plain text
+  split_x: string;      // same split ratio A used
+  a_side: 'left' | 'right'; // which half A keeps, so A can re-split correctly
 }
 
 // ─── Local Storage ───────────────────────────────────────────
@@ -143,10 +146,7 @@ export function generateInviteURL(params: InviteParams): string {
   p.set('msg_a', params.msg_a);
   p.set('split_x', params.split_x);
   p.set('a_side', params.a_side);
-  // a_half is large — only add if short enough (QR capacity limit)
-  if (params.a_half.length < 1500) {
-    p.set('a_half', params.a_half);
-  }
+  // No a_half in QR anymore — it was too small to be useful for downloads.
   return `${buildBase()}#couple-b?${p.toString()}`;
 }
 
@@ -154,10 +154,12 @@ export function generateMergeURL(params: MergeParams): string {
   const p = new URLSearchParams();
   p.set('sid', params.sid);
   p.set('u', params.u);
-  // a_half: A's final half with both messages — A downloads directly from QR
-  if (params.a_half.length < 1800) {
-    p.set('a_half', params.a_half);
-  }
+  p.set('pin_b', params.pin_b);
+  p.set('msg_b', params.msg_b);
+  p.set('split_x', params.split_x);
+  p.set('a_side', params.a_side);
+  // A will re-upload the original photo, re-split at split_x, and seal
+  // both messages into A's half locally — no photo data in QR.
   return `${buildBase()}#couple-a?${p.toString()}`;
 }
 
@@ -174,9 +176,8 @@ export function parseInviteURL(hash: string): InviteParams | null {
     const msg_a = params.get('msg_a') || '';
     const split_x = params.get('split_x') || '';
     const a_side = params.get('a_side') as 'left' | 'right' | null;
-    const a_half = params.get('a_half') || '';
     if (!sid || !u || !pin_a || !split_x || !a_side) return null;
-    return { sid, u, pin_a, msg_a, split_x, a_side, a_half };
+    return { sid, u, pin_a, msg_a, split_x, a_side };
   } catch {
     return null;
   }
@@ -189,9 +190,12 @@ export function parseMergeURL(hash: string): MergeParams | null {
     const params = new URLSearchParams(paramStr);
     const sid = params.get('sid');
     const u = params.get('u');
-    const a_half = params.get('a_half') || '';
-    if (!sid || !u || !a_half) return null;
-    return { sid, u, a_half };
+    const pin_b = params.get('pin_b');
+    const msg_b = params.get('msg_b') || '';
+    const split_x = params.get('split_x') || '';
+    const a_side = params.get('a_side') as 'left' | 'right' | null;
+    if (!sid || !u || !pin_b || !split_x || !a_side) return null;
+    return { sid, u, pin_b, msg_b, split_x, a_side };
   } catch {
     return null;
   }
