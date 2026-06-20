@@ -313,7 +313,7 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
           <FeatureCard
             icon={<Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
             title="Invisible to All"
-            desc="Even if someone finds your GitHub repo, there's nothing to steal."
+            desc="Only your photo can reveal it — nothing else exists anywhere."
           />
         </div>
 
@@ -336,12 +336,12 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
             Your secrets never touch our servers
           </h3>
           <p className="text-white/40 text-sm sm:text-base leading-relaxed max-w-lg mx-auto mb-4">
-            Every time capsule is sealed <strong className="text-white/60">inside your photo</strong> using military-grade encryption (AES-GCM).
+            Every time capsule is sealed <strong className="text-white/60">inside your photo</strong> with end-to-end encryption.
             The message lives only in the image file — <strong className="text-white/60">not in our database, not in our logs, not anywhere else.</strong>
           </p>
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm">
             <PrivacyBadge icon={<Server className="w-3.5 h-3.5" />} text="Zero server storage" />
-            <PrivacyBadge icon={<Shield className="w-3.5 h-3.5" />} text="AES-GCM encryption" />
+            <PrivacyBadge icon={<Shield className="w-3.5 h-3.5" />} text="End-to-end encrypted" />
             <PrivacyBadge icon={<Lock className="w-3.5 h-3.5" />} text="Only you hold the key" />
           </div>
         </div>
