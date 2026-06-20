@@ -17,8 +17,8 @@ export function Layout({
       {/* Global ambient atmosphere: film grain, bokeh, stars */}
       <AmbientLayer />
       <NavBar page={page} navigate={navigate} />
-      {/* pt-[72px] sm:pt-[80px] 预留顶部 NavBar 高度，避免在移动端被 fixed NavBar 覆盖 */}
-      <main className="flex-1 relative z-10 pt-[72px] sm:pt-[80px]">
+      {/* Only a tiny offset below the fixed NavBar; pages manage their own inner spacing. */}
+      <main className="flex-1 relative z-10">
         {children}
       </main>
       <Footer navigate={navigate} />

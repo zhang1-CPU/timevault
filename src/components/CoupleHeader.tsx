@@ -8,9 +8,8 @@ interface CoupleHeaderProps {
 
 export function CoupleHeader({ onBack, title, subtitle }: CoupleHeaderProps) {
   return (
-    <header className="px-4 sm:px-6 py-4 sm:py-5 border-b border-white/[0.04] relative z-10 bg-[#0a0612]/80 backdrop-blur-md">
+    <header className="mt-[64px] sm:mt-[70px] px-4 sm:px-6 py-3 sm:py-4 border-b border-white/[0.04] relative z-10 bg-[#0a0612]/80 backdrop-blur-md">
       <div className="flex items-center justify-between">
-        {/* Back button — bigger, more touchable */}
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm sm:text-base min-h-[40px] px-2 py-1 rounded-lg hover:bg-white/[0.03] active:scale-[0.98] transition-transform"
@@ -27,18 +26,9 @@ export function CoupleHeader({ onBack, title, subtitle }: CoupleHeaderProps) {
           </div>
         )}
 
-        {/* Brand logo + name */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-rose-500/15 to-pink-500/10 flex items-center justify-center border border-white/5">
-            <svg viewBox="0 0 64 64" className="w-4 h-4 text-rose-200/80" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M20 16 L44 16 L34 32 L44 48 L20 48 L30 32 Z" fill="currentColor" fillOpacity="0.22" />
-            </svg>
-          </div>
-          <div className="flex flex-col items-end hidden sm:flex">
-            <span className="text-sm text-white/45 font-display tracking-wide">TimeVault</span>
-            <span className="text-rose-300/35 text-[10px] font-light">For Two</span>
-          </div>
-          <span className="text-rose-300/40 text-[10px] font-light sm:hidden">Two</span>
+        {/* Brand hint (no duplicate logo — the fixed NavBar already has one) */}
+        <div className="text-rose-300/35 text-[10px] sm:text-xs font-light tracking-wide sm:text-right">
+          For Two
         </div>
       </div>
     </header>

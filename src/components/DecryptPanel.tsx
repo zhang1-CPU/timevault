@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { revealMessage, checkImageStatus, type LockStatus } from '@/lib/crypto';
 import { ArrowLeft, Upload, Unlock, Clock, AlertCircle, Image, FileKey } from 'lucide-react';
 import { RevealCeremony } from './RevealCeremony';
+import { useScrollToTop } from '@/lib/download-utils';
 
 interface DecryptPanelProps {
   onBack: () => void;
@@ -122,10 +123,13 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
     }
   };
 
+  // Scroll to top every time the user moves to a new step.
+  useScrollToTop([step]);
+
   return (
-    <div className="min-h-screen flex flex-col pt-[72px] sm:pt-[80px]">
-      {/* Header — pt 预留顶部 NavBar 高度，避免在移动端被 fixed NavBar 覆盖 */}
-      <header className="px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between border-b border-white/[0.04] relative z-10 bg-[#0a0612]/80 backdrop-blur-md">
+    <div className="min-h-screen flex flex-col">
+      {/* Header sits directly below the fixed NavBar. */}
+      <header className="mt-[64px] sm:mt-[70px] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-white/[0.04] relative z-10 bg-[#0a0612]/80 backdrop-blur-md">
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm sm:text-base min-h-[40px] px-2 py-1 rounded-lg hover:bg-white/[0.03] active:scale-[0.98] transition-transform"
@@ -133,15 +137,9 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
           <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           <span className="font-light">Back</span>
         </button>
-        {/* Brand logo + name */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-emerald-500/15 to-teal-500/10 flex items-center justify-center border border-white/5">
-            <Unlock className="w-4 h-4 text-emerald-200/80" />
-          </div>
-          <div className="flex flex-col items-end">
-            <span className="text-sm sm:text-base text-white/45 font-display tracking-wide">TimeVault</span>
-            <span className="text-[9px] sm:text-[10px] text-white/15 font-light tracking-wider hidden sm:block">Open what the wait has kept</span>
-          </div>
+        {/* No secondary logo — the top NavBar already carries the brand. */}
+        <div className="text-white/30 text-xs sm:text-sm font-light tracking-wide">
+          Unlock a Message
         </div>
       </header>
 

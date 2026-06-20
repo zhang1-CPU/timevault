@@ -16,6 +16,7 @@ import {
   Upload, Lock, Scissors, QrCode, Check, Timer, FileKey,
   AlertCircle, Download, Copy, Heart,
 } from 'lucide-react';
+import { useScrollToTop, downloadBlob } from '@/lib/download-utils';
 
 // ═══════════════════════════════════════════════════════════════
 //  Types
@@ -439,12 +440,15 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   // ─── Cleanup on unmount ────────────────────────────────────
   useEffect(() => () => revokeAllUrls(), [revokeAllUrls]);
 
+  // Scroll to top every time the user moves to a new step.
+  useScrollToTop([step]);
+
   // ════════════════════════════════════════════════════════════
   //  RENDER
   // ════════════════════════════════════════════════════════════
   return (
-    <div className="min-h-screen flex flex-col pt-[72px] sm:pt-[80px]">
-      {/* pt 预留顶部 NavBar 高度，避免在移动端被 fixed NavBar 覆盖 */}
+    <div className="min-h-screen flex flex-col">
+      {/* CoupleHeader now provides the offset below the fixed NavBar itself. */}
       <CoupleHeader onBack={goBack} title={headerTitle} />
       <MobilePromptBanner />
 
@@ -498,6 +502,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
             <AQRStep
               qrCode={qrCode}
               leftPreview={leftPreview}
+              leftHalfBlob={leftHalfBlob}
               unlockDate={unlockDate}
               onCopyLink={() => {
                 if (session) {
@@ -868,9 +873,9 @@ function AWriteStep({
 }
 
 // ─── A QR ────────────────────────────────────────────────────
-function AQRStep({ qrCode, leftPreview, unlockDate, onCopyLink, copied, mountTime }: {
-  qrCode: string; leftPreview: string; unlockDate: string;
-  onCopyLink: () => void; copied: boolean;
+function AQRStep({ qrCode, leftPreview, leftHalfBlob, unlockDate, onCopyLink, copied, mountTime }: {
+  qrCode: string; leftPreview: string; leftHalfBlob: Blob | null;
+  unlockDate: string; onCopyLink: () => void; copied: boolean;
   mountTime: number;
 }) {
   const date = unlockDate ? new Date(unlockDate) : null;
@@ -907,11 +912,12 @@ function AQRStep({ qrCode, leftPreview, unlockDate, onCopyLink, copied, mountTim
             Unlocks {date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
           </p>
         )}
-        <a href={leftPreview} download={`timevault-half-a-${mountTime}.png`}
+        <button
+          onClick={() => leftHalfBlob && downloadBlob(leftHalfBlob, `timevault-half-a-${mountTime}.png`)}
           className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-rose-500/[0.08] border border-rose-400/15
-                     text-rose-200/60 text-sm hover:bg-rose-500/[0.15] hover:text-rose-100 transition-all min-h-[52px] no-underline">
+                     text-rose-200/60 text-sm hover:bg-rose-500/[0.15] hover:text-rose-100 transition-all min-h-[52px] w-full">
           <Download className="w-4 h-4" /> Download My Half
-        </a>
+        </button>
       </div>
 
       <p className="text-center text-white/15 text-xs italic font-display">

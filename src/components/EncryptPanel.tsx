@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { sealMessage } from '@/lib/crypto';
 import { ReminderSection } from './ReminderSection';
 import { ArrowLeft, Upload, Lock, Download, Sparkles, Image, FileKey, Calendar } from 'lucide-react';
+import { useScrollToTop, downloadBlob } from '@/lib/download-utils';
 
 interface EncryptPanelProps {
   onBack: () => void;
@@ -120,10 +121,13 @@ export function EncryptPanel({ onBack }: EncryptPanelProps) {
 
   const [downloadFilename] = useState(() => `timevault-${Date.now()}.png`);
 
+  // Scroll to top every time the user moves to a new step.
+  useScrollToTop([step]);
+
   return (
-    <div className="min-h-screen flex flex-col pt-[72px] sm:pt-[80px]">
-      {/* Header — pt 预留顶部 NavBar 高度，避免在移动端被 fixed NavBar 覆盖 */}
-      <header className="px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between border-b border-white/[0.04] relative z-10 bg-[#0a0612]/80 backdrop-blur-md">
+    <div className="min-h-screen flex flex-col">
+      {/* Header sits directly below the fixed NavBar (which is ~64-70px tall). */}
+      <header className="mt-[64px] sm:mt-[70px] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-white/[0.04] relative z-10 bg-[#0a0612]/80 backdrop-blur-md">
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm sm:text-base min-h-[40px] px-2 py-1 rounded-lg hover:bg-white/[0.03] active:scale-[0.98]"
@@ -131,16 +135,9 @@ export function EncryptPanel({ onBack }: EncryptPanelProps) {
           <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           <span className="font-light">Back</span>
         </button>
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-rose-500/15 to-violet-500/10 flex items-center justify-center border border-white/5">
-            <svg viewBox="0 0 64 64" className="w-5 h-5 text-rose-200/80" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M20 16 L44 16 L34 32 L44 48 L20 48 L30 32 Z" fill="currentColor" fillOpacity="0.22" />
-            </svg>
-          </div>
-          <div className="flex flex-col items-end">
-            <span className="text-sm sm:text-base text-white/45 font-display tracking-wide">TimeVault</span>
-            <span className="text-[9px] sm:text-[10px] text-white/15 font-light tracking-wider hidden sm:block">Seal a message in time</span>
-          </div>
+        {/* No secondary logo here — the top NavBar already carries the brand. */}
+        <div className="text-white/30 text-xs sm:text-sm font-light tracking-wide">
+          Seal a Message
         </div>
       </header>
 
@@ -487,9 +484,8 @@ export function EncryptPanel({ onBack }: EncryptPanelProps) {
                 </ul>
               </div>
 
-              <a
-                href={resultUrl}
-                download={downloadFilename}
+              <button
+                onClick={() => resultBlob && downloadBlob(resultBlob, downloadFilename)}
                 className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl text-white
                            font-medium text-sm sm:text-base transition-all duration-300
                            hover:shadow-[0_0_60px_rgba(16,185,129,0.3)] hover:scale-[1.02] active:scale-[0.97]
@@ -497,7 +493,7 @@ export function EncryptPanel({ onBack }: EncryptPanelProps) {
               >
                 <Download className="w-5 h-5" />
                 Download Sealed Photo
-              </a>
+              </button>
 
               <ReminderSection unlockDate={unlockDate} />
 
