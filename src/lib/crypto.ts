@@ -28,6 +28,7 @@ export interface LockStatus {
   unlockTime: Date | null;
   remainingSeconds: number;
   formattedRemaining: string;
+  checkTimeMs?: number;
 }
 
 // ─── PIN-Based AES Encryption ────────────────────────────────

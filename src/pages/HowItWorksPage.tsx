@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Shield, Lock, Clock, Image, Eye, Zap, Users, Smartphone, ArrowRight, Sparkles } from 'lucide-react';
-import { ScrollReveal } from '../hooks/useScrollReveal';
+import { ScrollReveal } from '../components/ScrollReveal';
 import type { Page } from '../App';
 
 const TECH_STEPS = [

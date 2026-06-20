@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Heart, Gift, Star, Users, Calendar, BookOpen, Plane, Leaf, Sparkles, Moon, Globe } from 'lucide-react';
-import { ScrollReveal } from '../hooks/useScrollReveal';
+import { ScrollReveal } from '../components/ScrollReveal';
 import type { Page } from '../App';
 
 const STORIES = [

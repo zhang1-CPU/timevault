@@ -34,7 +34,7 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
         setStep('pin');
         return;
       }
-      const remaining = status.remainingSeconds - Math.floor((Date.now() - (status as any)._checkTime) / 1000);
+      const remaining = status.remainingSeconds - Math.floor((Date.now() - (status.checkTimeMs || Date.now())) / 1000);
       if (remaining <= 0) {
         setStep('pin');
         return;
@@ -76,7 +76,7 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
 
     try {
       const lockStatus = await checkImageStatus(file);
-      (lockStatus as any)._checkTime = Date.now();
+      lockStatus.checkTimeMs = Date.now();
       setStatus(lockStatus);
 
       if (!lockStatus.unlockTime) {

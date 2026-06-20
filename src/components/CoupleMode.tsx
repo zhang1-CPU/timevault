@@ -53,6 +53,13 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   const [error, setError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // ─── Mount-time values (keep render pure, no Date.now calls) ───
+  const mountTime = useMemo(() => Date.now(), []);
+  const minUnlockDate = useMemo(
+    () => new Date(mountTime + 60000).toISOString().slice(0, 16),
+    [mountTime]
+  );
+
   // ─── Photo data ────────────────────────────────────────────
   const [originalImage, setOriginalImage] = useState<File | null>(null);
   const originalPreviewRef = useRef<string>('');
@@ -80,6 +87,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   // ─── B's data ──────────────────────────────────────────────
   const [bPreviewFromQR, setBPreviewFromQR] = useState('');
   const [bUnlockTime, setBUnlockTime] = useState('');
+  const bUnlockTimeRef = useRef('');
   const [bSessionId, setBSessionId] = useState('');
   const [messageB, setMessageB] = useState('');
   const [pinB, setPinB] = useState('');
@@ -242,7 +250,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       setRightHalfBlob(rightBlob);
       setLeftPreview(trackUrl(URL.createObjectURL(leftBlob)));
       setRightPreview(trackUrl(URL.createObjectURL(rightBlob)));
-      // BUG FIX #2: Go to fade transition step
       setStep('cut-fade');
       safeSetTimeout(() => setStep('a-write'), 1800);
     } catch (err) {
@@ -250,7 +257,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     } finally {
       setIsProcessing(false);
     }
-  }, [originalImage, splitX, clearError, withError, trackUrl]);
+  }, [originalImage, splitX, clearError, withError, trackUrl, safeSetTimeout]);
 
   // ─── Step: A Write → Generate QR ──────────────────────────
   const handleAGenerateQR = useCallback(async () => {
@@ -326,12 +333,14 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         if (sess.qrUsed || sess.bCompleted) {
           setBPreviewFromQR(sess.bHalfPreview || '');
           setBUnlockTime(sess.unlockTime || '');
+          bUnlockTimeRef.current = sess.unlockTime || '';
           setStep('b-done');
           setError('This link has already been used.');
           return;
         }
         setBPreviewFromQR(sess.bHalfPreview || '');
         setBUnlockTime(sess.unlockTime || '');
+        bUnlockTimeRef.current = sess.unlockTime || '';
       }
 
       // Cross-device fallback: preview embedded in URL
@@ -342,8 +351,9 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
       // Decode unlock time from URL if available
       const urlUnlock = params.get('u');
-      if (urlUnlock && !bUnlockTime) {
+      if (urlUnlock && !bUnlockTimeRef.current) {
         setBUnlockTime(urlUnlock);
+        bUnlockTimeRef.current = urlUnlock;
       }
 
       // Direct to welcome page
@@ -825,7 +835,7 @@ function AWriteStep({
             <Timer className="w-3 h-3" /> When to Unlock
           </label>
           <input type="datetime-local" value={unlockDate} onChange={(e) => setUnlockDate(e.target.value)}
-            min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
+            min={minUnlockDate}
             className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-sm
                        focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 transition-all [color-scheme:dark]" />
         </div>
@@ -884,7 +894,7 @@ function AQRStep({ qrCode, leftPreview, unlockDate, onCopyLink, copied }: {
             Unlocks {date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
           </p>
         )}
-        <a href={leftPreview} download={`timevault-half-a-${Date.now()}.png`}
+        <a href={leftPreview} download={`timevault-half-a-${mountTime}.png`}
           className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-rose-500/[0.08] border border-rose-400/15
                      text-rose-200/60 text-sm hover:bg-rose-500/[0.15] hover:text-rose-100 transition-all min-h-[52px] no-underline">
           <Download className="w-4 h-4" /> Download My Half
@@ -1041,7 +1051,7 @@ function BDoneStep({ sealedBlob, onHome }: { sealedBlob: Blob | null; onHome: ()
 
       {sealedBlob && blobUrl && (
         <div className="flex justify-center">
-          <a href={blobUrl} download={`timevault-half-b-${Date.now()}.png`}
+          <a href={blobUrl} download={`timevault-half-b-${mountTime}.png`}
             className="inline-flex items-center gap-2 px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-violet-500/95 to-rose-500/95 rounded-2xl
                        text-white font-medium text-sm sm:text-lg transition-all duration-300
                        hover:shadow-[0_0_60px_rgba(139,92,246,0.3)] hover:scale-[1.02] active:scale-[0.97] min-h-[56px] no-underline">

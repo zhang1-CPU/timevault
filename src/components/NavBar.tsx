@@ -17,7 +17,9 @@ const ACTION_LINKS: { to: Page; label: string; accent?: boolean; heart?: boolean
 ];
 
 export function NavBar({ page, navigate }: { page: Page; navigate: (to: Page) => void }) {
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState(() =>
+    typeof window !== 'undefined' && window.scrollY > 40
+  );
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleScroll = useCallback(() => {
@@ -26,7 +28,6 @@ export function NavBar({ page, navigate }: { page: Page; navigate: (to: Page) =>
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
 

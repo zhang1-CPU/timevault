@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { sealMessage } from '@/lib/crypto';
 import { ReminderSection } from './ReminderSection';
 import { ArrowLeft, Upload, Lock, Download, Sparkles, Image, FileKey, Calendar } from 'lucide-react';
@@ -118,7 +118,7 @@ export function EncryptPanel({ onBack }: EncryptPanelProps) {
     }
   };
 
-  const downloadFilename = `timevault-${Date.now()}.png`;
+  const downloadFilename = useMemo(() => `timevault-${Date.now()}.png`, []);
 
   return (
     <div className="min-h-screen flex flex-col pt-[72px] sm:pt-[80px]">
