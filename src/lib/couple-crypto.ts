@@ -146,8 +146,13 @@ export function generateInviteURL(params: InviteParams): string {
   p.set('pina', params.pina);
   p.set('msga', params.msga);
   p.set('half', params.half);
-  // Increase preview limit - QR codes can handle more data
-  p.set('preview', params.preview.length > 1500 ? params.preview.substring(0, 1400) : params.preview);
+  // Limit preview to keep URL scannable by phones (~500-1000 chars for dense QR)
+  const previewLen = params.preview.length;
+  if (previewLen > 800) {
+    p.set('preview', params.preview.substring(0, 700));
+  } else {
+    p.set('preview', params.preview);
+  }
   return `${buildBase()}#couple-b?${p.toString()}`;
 }
 
@@ -332,7 +337,7 @@ export async function splitPhotoSimple(
 
 // ─── Image Compression ───────────────────────────────────────
 
-export async function compressForQR(imageFile: File, maxWidth = 120, quality = 0.3): Promise<string> {
+export async function compressForQR(imageFile: File, maxWidth = 60, quality = 0.25): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = document.createElement('img');
     const url = URL.createObjectURL(imageFile);
