@@ -910,12 +910,12 @@ function BWelcomeStep({
         <p className="text-white/25 text-sm">Scanned from a TimeVault capsule — sealed until today</p>
       </div>
 
-      {/* Preview */}
+      {/* Preview — this is YOUR half of the photo */}
       {previewUrl ? (
-        <div className="rounded-2xl overflow-hidden border border-violet-400/15 max-w-[220px] mx-auto relative">
-          <img src={previewUrl} alt="Their half" className="w-full" />
+        <div className="rounded-2xl overflow-hidden border border-violet-400/15 max-w-[320px] mx-auto relative">
+          <img src={previewUrl} alt="Your half of the photo" className="w-full" />
           <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/50 text-violet-300/70 text-[10px] font-medium">
-            TA&apos;s Half
+            Your Half
           </div>
         </div>
       ) : (
@@ -923,14 +923,6 @@ function BWelcomeStep({
           <QrCode className="w-10 h-10 text-violet-300/20" />
         </div>
       )}
-
-      {/* A's message */}
-      <div className="glass-romantic rounded-2xl p-5 space-y-3 border border-white/[0.05]">
-        <p className="text-xs text-white/20 uppercase tracking-widest text-center">TA Wrote</p>
-        <p className="text-white/70 text-sm leading-relaxed font-serif italic text-center">
-          &ldquo;{params.msga}&rdquo;
-        </p>
-      </div>
 
       {/* Unlock date */}
       <div className="text-center">
@@ -945,8 +937,9 @@ function BWelcomeStep({
       {/* Info */}
       <div className="glass rounded-xl p-4 border border-white/[0.04]">
         <p className="text-white/20 text-xs text-center leading-relaxed">
-          Write your reply below. Your message will be hidden inside your half of the photo —
-          only TA, with your key, can read it.
+          Write your reply. Your message will be hidden inside your half of the photo —
+          only TA, with your key, can read it. TA&apos;s message is already hidden in this half —
+          you can read it at unlock time with your own key.
         </p>
       </div>
 
