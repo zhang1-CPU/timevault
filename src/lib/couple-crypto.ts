@@ -22,16 +22,16 @@ export interface CoupleSession {
   unlockTime: string;           // ISO string
   // A's data (filled by A at creation)
   msgA?: string;
-  pinA?: string;
-  pinB?: string;              // A sets this and shares with B
-  sealedAtA?: string;         // ISO time A sealed
+  pinA?: string;               // A's PIN only — B sets their own PIN
+  sealedAtA?: string;          // ISO time A sealed
   // B's data (filled by B)
   msgB?: string;
+  pinB?: string;               // B's PIN (set by B)
   // Merge state
   merged: boolean;
   mergedAt?: string;
-  // Stored blob data for A's half (as base64 for localStorage)
-  _halfBlobA?: string;         // base64-encoded PNG for session persistence
+  // Stored blob data (for session persistence)
+  _halfBlobA?: string;         // base64-encoded PNG — legacy, kept for compat
 }
 
 export type CoupleRole = 'A' | 'B';
@@ -41,22 +41,17 @@ export type CoupleRole = 'A' | 'B';
 export interface InviteParams {
   sid: string;
   u: string;
-  pina: string;
-  msga_cipher: string; // A's message encrypted with PIN-A
-  split_x: string; // split ratio 0-1, e.g. "0.5"
+  pin_a: string;        // A's PIN (shared with B so B can encrypt B's message with it)
+  msg_a: string;        // A's message in plain text (B needs it to encrypt with PIN-B)
+  split_x: string;      // split ratio 0-1, e.g. "0.5"
   a_side: 'left' | 'right'; // which half A keeps
-  a_half: string; // A's half photo (compressed data URL) for QR transfer
+  a_half: string;       // A's half photo (compressed data URL) — B re-seals with both messages
 }
 
 export interface MergeParams {
   sid: string;
   u: string;
-  pinb: string;
-  msgb_cipher: string; // B's message encrypted with PIN-A
-  sealedat: string;
-  split_x: string; // split ratio so A can re-split same photo
-  a_side: 'left' | 'right'; // which half A keeps
-  a_half: string; // A's half (with B's message embedded) — A downloads this from QR
+  a_half: string;       // A's half (with both messages encrypted, re-compressed) — A downloads directly from QR
 }
 
 // ─── Local Storage ───────────────────────────────────────────
@@ -144,12 +139,12 @@ export function generateInviteURL(params: InviteParams): string {
   const p = new URLSearchParams();
   p.set('sid', params.sid);
   p.set('u', params.u);
-  p.set('pina', params.pina);
-  p.set('msga_cipher', params.msga_cipher);
+  p.set('pin_a', params.pin_a);
+  p.set('msg_a', params.msg_a);
   p.set('split_x', params.split_x);
   p.set('a_side', params.a_side);
-  // a_half is large — only add if short enough (QR capacity limit ~2000 chars for full URL)
-  if (params.a_half.length < 1800) {
+  // a_half is large — only add if short enough (QR capacity limit)
+  if (params.a_half.length < 1500) {
     p.set('a_half', params.a_half);
   }
   return `${buildBase()}#couple-b?${p.toString()}`;
@@ -159,12 +154,7 @@ export function generateMergeURL(params: MergeParams): string {
   const p = new URLSearchParams();
   p.set('sid', params.sid);
   p.set('u', params.u);
-  p.set('pinb', params.pinb);
-  p.set('msgb_cipher', params.msgb_cipher);
-  p.set('sealedat', params.sealedat);
-  p.set('split_x', params.split_x);
-  p.set('a_side', params.a_side);
-  // a_half (A's half with B's message embedded) — put last so it's truncated first if URL too long
+  // a_half: A's final half with both messages — A downloads directly from QR
   if (params.a_half.length < 1800) {
     p.set('a_half', params.a_half);
   }
@@ -180,13 +170,13 @@ export function parseInviteURL(hash: string): InviteParams | null {
     const params = new URLSearchParams(paramStr);
     const sid = params.get('sid');
     const u = params.get('u');
-    const pina = params.get('pina');
-    const msga_cipher = params.get('msga_cipher') || '';
+    const pin_a = params.get('pin_a');
+    const msg_a = params.get('msg_a') || '';
     const split_x = params.get('split_x') || '';
     const a_side = params.get('a_side') as 'left' | 'right' | null;
     const a_half = params.get('a_half') || '';
-    if (!sid || !u || !pina || !split_x || !a_side) return null;
-    return { sid, u, pina, msga_cipher, split_x, a_side, a_half };
+    if (!sid || !u || !pin_a || !split_x || !a_side) return null;
+    return { sid, u, pin_a, msg_a, split_x, a_side, a_half };
   } catch {
     return null;
   }
@@ -199,14 +189,9 @@ export function parseMergeURL(hash: string): MergeParams | null {
     const params = new URLSearchParams(paramStr);
     const sid = params.get('sid');
     const u = params.get('u');
-    const pinb = params.get('pinb');
-    const msgb_cipher = params.get('msgb_cipher');
-    const sealedat = params.get('sealedat');
-    const split_x = params.get('split_x') || '';
-    const a_side = params.get('a_side') as 'left' | 'right' | null;
     const a_half = params.get('a_half') || '';
-    if (!sid || !u || !pinb || !msgb_cipher || !sealedat || !split_x || !a_side) return null;
-    return { sid, u, pinb, msgb_cipher, sealedat, split_x, a_side, a_half };
+    if (!sid || !u || !a_half) return null;
+    return { sid, u, a_half };
   } catch {
     return null;
   }
