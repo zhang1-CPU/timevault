@@ -1,26 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Heart } from 'lucide-react';
 
 interface RevealCeremonyProps {
   message: string;
-  sealedAt?: Date | null;    // when the message was sealed (not always available)
-  unlockedAt?: Date | null;  // when it unlocks / was unlocked
+  sealedAt?: Date | null;
+  unlockedAt?: Date | null;
   onDismiss?: () => void;
-  autoOpenDelay?: number;    // ms before auto-opening. default 1600
 }
 
-// Romantic brand preamble. Picks 1 of 3 intros, uses the brand tagline.
+type Phase = 'fly-in' | 'waiting' | 'opening' | 'revealed';
+
+// ─── 浪漫品牌文案 ──────────────────────────────────
 function buildPreamble(messageLen: number, sealedAt?: Date | null, unlockedAt?: Date | null): string[] {
-  const now = new Date();
-  const un = unlockedAt || now;
+  const un = unlockedAt;
   const seal = sealedAt;
 
   const lines: string[] = [];
   if (seal) {
     const sealStr = seal.toLocaleDateString(undefined, {
-      month: 'long', day: 'numeric', year: 'numeric',
-    });
-    const unStr = un.toLocaleDateString(undefined, {
       month: 'long', day: 'numeric', year: 'numeric',
     });
     const intro = [
@@ -30,7 +27,7 @@ function buildPreamble(messageLen: number, sealedAt?: Date | null, unlockedAt?: 
     ];
     lines.push(intro[Math.floor(Math.random() * intro.length)]);
 
-    if (sealStr !== unStr) {
+    if (un) {
       const diffMs = Math.max(0, un.getTime() - seal.getTime());
       const days = Math.round(diffMs / 86_400_000);
       if (days > 0) {
@@ -38,11 +35,8 @@ function buildPreamble(messageLen: number, sealedAt?: Date | null, unlockedAt?: 
       } else {
         lines.push(`After a short wait, your letter is ready to be read.`);
       }
-    } else {
-      lines.push(`Kept safe, just for a little while. Now —`);
     }
   } else {
-    // fallback — no seal date known
     const intro = [
       `A secret kept by time, now ready to be read.`,
       `Time has come to open what you have kept.`,
@@ -52,324 +46,351 @@ function buildPreamble(messageLen: number, sealedAt?: Date | null, unlockedAt?: 
   }
 
   lines.push(`\u201cOpen what the wait has kept.\u201d  — TimeVault`);
-  lines.push('');
-  void messageLen; // reserved for future length-aware styling
+  void messageLen;
   return lines;
 }
 
 /**
- * Typewriter: progressively reveal the message, one character at a time.
- * Returns the current visible text + whether it is still typing.
- */
-function useTypewriter(text: string, start: boolean, cps: number): [string, boolean] {
-  const [shown, setShown] = useState('');
-  const [typing, setTyping] = useState(false);
-
-  useEffect(() => {
-    if (!start) {
-      setShown('');
-      setTyping(false);
-      return;
-    }
-    setShown('');
-    setTyping(true);
-
-    const total = text.length;
-    const intervalMs = 1000 / cps;
-    let i = 0;
-
-    // Chunk bigger pieces so very long messages reveal fast enough
-    const chunk = Math.max(1, Math.round(total / 300));
-    const timer = setInterval(() => {
-      i = Math.min(total, i + chunk);
-      setShown(text.slice(0, i));
-      if (i >= total) {
-        clearInterval(timer);
-        setTyping(false);
-      }
-    }, intervalMs * chunk);
-
-    return () => clearInterval(timer);
-  }, [text, start, cps]);
-
-  return [shown, typing];
-}
-
-type Phase = 'flying-in' | 'waiting' | 'opening' | 'revealed';
-
-/**
- * Full-screen romantic envelope ceremony.
+ * 浪漫信封 + 信纸展示仪式。
  *
- * Phases:
- *  1. envelope flies in
- *  2. floats gently; "Open the letter" prompt appears
- *  3. user clicks (or auto) → seal breaks, lid opens, letter slides out
- *  4. letter expands → preamble fades in → message is typed
+ * 设计要点：
+ * 1. 最外层 `fixed inset-0` + 高 z-index + 不透光背景遮罩，彻底隔离页面其他内容
+ * 2. 用单一 `phase` 状态 + CSS className 切换驱动动画阶段，避免 React StrictMode 下动画时序错乱
+ * 3. 打字机效果改用 "显示遮罩宽度动画" 而非逐字符 setState，避免中文长文本跳动
  */
 export function RevealCeremony({
-  message,
-  sealedAt,
-  unlockedAt,
-  onDismiss,
-  autoOpenDelay = 1600,
+  message, sealedAt, unlockedAt, onDismiss,
 }: RevealCeremonyProps) {
-  const [phase, setPhase] = useState<Phase>('flying-in');
-  const [sealBroken, setSealBroken] = useState(false);
-  const [lidOpen, setLidOpen] = useState(false);
-  const [letterOut, setLetterOut] = useState(false);
-  const [preamble, setPreamble] = useState<string[]>([]);
-  const [typewriterStart, setTypewriterStart] = useState(false);
+  const [phase, setPhase] = useState<Phase>('fly-in');
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [letterReady, setLetterReady] = useState(false);
+  const [typingDone, setTypingDone] = useState(false);
+  const [visibleChars, setVisibleChars] = useState(0);
+  const preambleRef = useRef<string[]>(buildPreamble(message.length, sealedAt, unlockedAt));
+  const timeoutsRef = useRef<number[]>([]);
+  const intervalRef = useRef<number | null>(null);
+  const mountedOnceRef = useRef(false);
 
-  // Phase transitions
-  useEffect(() => {
-    // 1. Envelope finishes flying in after ~ 1100 ms
-    const t1 = setTimeout(() => setPhase('waiting'), 1150);
-    return () => clearTimeout(t1);
-  }, []);
+  // 注册一个 timeout，自动纳入清理
+  const addTimeout = (fn: () => void, ms: number) => {
+    const id = window.setTimeout(fn, ms);
+    timeoutsRef.current.push(id);
+  };
 
-  // Once in waiting: prepare the preamble text (deterministic on message + dates)
+  // 主时序控制 —— 通过 mountedOnceRef 防止 StrictMode 下 double-mount 导致的时序错乱
   useEffect(() => {
-    if (phase === 'waiting') {
-      setPreamble(buildPreamble(message.length, sealedAt, unlockedAt));
-      // Auto open after delay (user can also click earlier)
-      const auto = setTimeout(() => setPhase('opening'), autoOpenDelay);
-      return () => clearTimeout(auto);
+    if (mountedOnceRef.current) return;
+    mountedOnceRef.current = true;
+
+    // Phase 1: fly-in (信封飞入) → ~900ms
+    // Phase 2: waiting (信封悬停, 出现提示) → ~1200ms (用户可点击蜡封提前开启)
+    // Phase 3: opening (蜡封爆开 + 盖子翻起 + 信纸滑出) → ~1400ms
+    // Phase 4: revealed (信纸展开 + 打字机)
+
+    const startTypingAt = 900 + 1200 + 1400;
+    const typingMs = Math.max(1200, Math.min(6000, Math.ceil(message.length / 30) * 1000));
+
+    addTimeout(() => { setPhase('waiting'); setShowPrompt(true); }, 900);
+    addTimeout(() => { setPhase('opening'); setShowPrompt(false); }, 900 + 1200);
+    addTimeout(() => { setPhase('revealed'); setLetterReady(true); }, startTypingAt);
+
+    // 打字机 interval
+    const perChar = Math.max(20, Math.round(typingMs / message.length));
+    addTimeout(() => {
+      let chars = 0;
+      intervalRef.current = window.setInterval(() => {
+        chars += Math.max(1, Math.ceil(message.length / 120));
+        if (chars >= message.length) {
+          chars = message.length;
+          if (intervalRef.current !== null) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+          setTypingDone(true);
+        }
+        setVisibleChars(chars);
+      }, perChar);
+    }, startTypingAt);
+
+    return () => {
+      if (intervalRef.current !== null) clearInterval(intervalRef.current);
+      timeoutsRef.current.forEach((id) => clearTimeout(id));
+      timeoutsRef.current = [];
+    };
+  }, [message.length]);
+
+  // 用户点击蜡封也能立刻进入 opening
+  const handleSealClick = () => {
+    if (phase !== 'waiting') return;
+    // 清理所有 waiting → opening 的定时器
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
-  }, [phase, message, sealedAt, unlockedAt, autoOpenDelay]);
+    timeoutsRef.current.forEach((id) => clearTimeout(id));
+    timeoutsRef.current = [];
 
-  // Phase -> opening: choreograph animation sequence
-  useEffect(() => {
-    if (phase !== 'opening') return;
-    setSealBroken(true);
-    const t2 = setTimeout(() => setLidOpen(true), 450);
-    const t3 = setTimeout(() => setLetterOut(true), 1300);
-    const t4 = setTimeout(() => {
-      setPhase('revealed');
-      setTypewriterStart(true);
-    }, 2900);
-    return () => { clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
-  }, [phase]);
+    setShowPrompt(false);
+    setPhase('opening');
 
-  const [typed, isTyping] = useTypewriter(message, typewriterStart, 55);
+    const typingMs = Math.max(1200, Math.min(6000, Math.ceil(message.length / 30) * 1000));
+    const perChar = Math.max(20, Math.round(typingMs / message.length));
 
-  // Particles — 12 glowing specks that burst when seal breaks
-  const particles = Array.from({ length: 12 }, (_, i) => {
-    const angle = (i / 12) * Math.PI * 2;
-    const dist = 110 + (i % 5) * 18;
+    addTimeout(() => { setPhase('revealed'); setLetterReady(true); }, 1500);
+
+    addTimeout(() => {
+      let chars = 0;
+      intervalRef.current = window.setInterval(() => {
+        chars += Math.max(1, Math.ceil(message.length / 120));
+        if (chars >= message.length) {
+          chars = message.length;
+          if (intervalRef.current !== null) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+          setTypingDone(true);
+        }
+        setVisibleChars(chars);
+      }, perChar);
+    }, 1500);
+  };
+
+  const preamble = preambleRef.current;
+
+  // 12 颗彩色粒子 —— 蜡封爆开时向外辐射
+  const particles = Array.from({ length: 14 }, (_, i) => {
+    const angle = (i / 14) * Math.PI * 2;
+    const dist = 140 + (i % 5) * 25;
     const tx = Math.cos(angle) * dist;
-    const ty = Math.sin(angle) * dist - 20;
-    const palette = ['#f472b6', '#a855f7', '#fbbf24', '#60a5fa', '#fca5a5'];
-    return { tx, ty, color: palette[i % palette.length], delay: i * 0.02, key: i };
+    const ty = Math.sin(angle) * dist - 10;
+    const palette = ['#f472b6', '#c084fc', '#fbbf24', '#60a5fa', '#fca5a5', '#a78bfa'];
+    return { tx, ty, color: palette[i % palette.length], delay: i * 0.025, key: i };
   });
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none">
-      {/* Romantic glow backdrop — only during the dramatic moment */}
+    <div
+      className="fixed inset-0 z-[9999] overflow-hidden"
+      style={{
+        background:
+          'radial-gradient(ellipse 120% 90% at 50% 50%, rgba(20, 10, 40, 0.97) 0%, rgba(8, 5, 20, 0.99) 60%, #02010a 100%)',
+        backdropFilter: 'blur(6px)',
+      }}
+      role="dialog"
+      aria-modal="true"
+    >
+      {/* 装饰性柔光斑 */}
       <div
-        className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
+        className="absolute pointer-events-none"
         style={{
-          opacity: phase === 'opening' || phase === 'revealed' ? 1 : 0.35,
+          top: '-20%', left: '-10%', width: '120%', height: '140%',
           background:
-            'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(244,114,182,0.10) 0%, rgba(139,92,246,0.06) 35%, transparent 70%)',
+            'radial-gradient(circle 300px at 20% 30%, rgba(244,114,182,0.18), transparent 60%),' +
+            'radial-gradient(circle 400px at 80% 70%, rgba(139,92,246,0.15), transparent 60%)',
         }}
       />
 
-      {/* Stage */}
-      <div className="envelope-stage relative flex flex-col items-center pointer-events-auto w-full max-w-2xl px-4">
-        {/* ── Phase: flying / waiting / opening — envelope visuals ── */}
+      <div className="relative w-full h-full flex items-center justify-center px-4 sm:px-6">
+        {/* ── Stage 1-3: 信封阶段 ── */}
         {phase !== 'revealed' && (
-          <div
-            className="relative"
-            style={{
-              width: 'min(92vw, 520px)',
-              animation:
-                phase === 'flying-in'
-                  ? 'envelope-fly-in 1.15s cubic-bezier(0.2, 0.8, 0.25, 1) forwards'
-                  : undefined,
-            }}
-          >
-            <div className="envelope-body relative mx-auto" style={{ height: 340 }}>
-              {/* Envelope body */}
-              <svg
-                viewBox="0 0 520 340"
-                className="w-full h-full"
-                style={{ filter: 'drop-shadow(0 25px 50px rgba(0,0,0,0.45))' }}
+          <div className="relative flex flex-col items-center">
+            <div
+              className="relative transition-transform ease-out"
+              style={{
+                width: 'min(92vw, 520px)',
+                transitionDuration: '400ms',
+              }}
+            >
+              {/* 信封主体 + 蜡封 */}
+              <div
+                className="envelope-body relative mx-auto"
+                style={{
+                  height: 340,
+                  // fly-in 900ms，然后进入 float 循环（float 从 900ms 开始）
+                  animation:
+                    phase === 'fly-in'
+                      ? 'envelope-fly-in 900ms cubic-bezier(0.2, 0.8, 0.25, 1) forwards'
+                      : 'envelope-float 4.5s ease-in-out infinite',
+                }}
               >
-                <defs>
-                  <linearGradient id="envPaper" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#f8efe0" />
-                    <stop offset="50%" stopColor="#efe0c8" />
-                    <stop offset="100%" stopColor="#e5d3b8" />
-                  </linearGradient>
-                  <linearGradient id="envPaperDark" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#d9c3a2" />
-                    <stop offset="100%" stopColor="#b89b77" />
-                  </linearGradient>
-                  <linearGradient id="envFlap" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#fff5e3" />
-                    <stop offset="100%" stopColor="#e5d3b8" />
-                  </linearGradient>
-                  <radialGradient id="waxGrad" cx="0.35" cy="0.35" r="0.7">
-                    <stop offset="0%" stopColor="#fca5a5" />
-                    <stop offset="40%" stopColor="#ef4444" />
-                    <stop offset="100%" stopColor="#7f1d1d" />
-                  </radialGradient>
-                </defs>
+                <svg
+                  viewBox="0 0 520 340"
+                  className="w-full h-full"
+                  style={{ filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.55))' }}
+                >
+                  <defs>
+                    <linearGradient id="envPaper" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#fdf4e0" />
+                      <stop offset="50%" stopColor="#f5e3c6" />
+                      <stop offset="100%" stopColor="#e6cfae" />
+                    </linearGradient>
+                    <linearGradient id="envPaperDark" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#d9be98" />
+                      <stop offset="100%" stopColor="#b08c63" />
+                    </linearGradient>
+                    <linearGradient id="envFlap" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#fffaea" />
+                      <stop offset="100%" stopColor="#e6cfae" />
+                    </linearGradient>
+                    <radialGradient id="waxGrad" cx="0.35" cy="0.35" r="0.75">
+                      <stop offset="0%" stopColor="#fca5a5" />
+                      <stop offset="40%" stopColor="#ef4444" />
+                      <stop offset="100%" stopColor="#7f1d1d" />
+                    </radialGradient>
+                    <radialGradient id="letterPaper" cx="0.5" cy="0.3" r="0.8">
+                      <stop offset="0%" stopColor="#fffdf6" />
+                      <stop offset="100%" stopColor="#f5e6c8" />
+                    </radialGradient>
+                  </defs>
 
-                {/* Letter peeking out (only when opened) */}
-                {letterOut && (
-                  <g style={{ animation: 'letter-slide-out 1.4s cubic-bezier(0.16,1,0.3,1) forwards' }}>
-                    <rect x="70" y="60" width="380" height="200" rx="4" fill="#fdf6ea" opacity="0.95" />
-                    <rect x="85" y="80" width="350" height="1" fill="#d7c2a0" opacity="0.5" />
-                    <rect x="85" y="100" width="330" height="1" fill="#d7c2a0" opacity="0.45" />
-                    <rect x="85" y="120" width="300" height="1" fill="#d7c2a0" opacity="0.4" />
-                    <rect x="85" y="140" width="340" height="1" fill="#d7c2a0" opacity="0.4" />
-                    <rect x="85" y="160" width="280" height="1" fill="#d7c2a0" opacity="0.35" />
+                  {/* 信封面 (底层) */}
+                  <rect x="20" y="20" width="480" height="300" rx="10" fill="url(#envPaper)" />
+                  {/* 左右三角侧翼 */}
+                  <polygon points="20,20 260,170 260,320 20,320" fill="url(#envPaperDark)" opacity="0.55" />
+                  <polygon points="500,20 260,170 260,320 500,320" fill="url(#envPaperDark)" opacity="0.65" />
+                  {/* 底部折痕（最前方，最暗） */}
+                  <polygon points="20,320 260,170 500,320" fill="#b08c63" opacity="0.75" />
+                  {/* 装饰缝线 */}
+                  <rect x="30" y="30" width="460" height="280" rx="7"
+                        fill="none" stroke="#a08050" strokeDasharray="4 6" strokeWidth="0.8" opacity="0.4" />
+
+                  {/* 信纸 (只在 opening 阶段滑出) */}
+                  {phase === 'opening' && (
+                    <g className="envelope-paper">
+                      <rect x="70" y="55" width="380" height="210" rx="6" fill="url(#letterPaper)" />
+                      <rect x="85" y="80" width="340" height="1" fill="#c9a97a" opacity="0.55" />
+                      <rect x="85" y="105" width="330" height="1" fill="#c9a97a" opacity="0.45" />
+                      <rect x="85" y="130" width="340" height="1" fill="#c9a97a" opacity="0.4" />
+                      <rect x="85" y="155" width="310" height="1" fill="#c9a97a" opacity="0.4" />
+                      <rect x="85" y="180" width="340" height="1" fill="#c9a97a" opacity="0.35" />
+                      <rect x="85" y="205" width="280" height="1" fill="#c9a97a" opacity="0.3" />
+                    </g>
+                  )}
+
+                  {/* 盖子（最上层，带翻转动画） */}
+                  <g className={`envelope-flap ${phase === 'opening' ? 'is-open' : ''}`}
+                     style={{ transformOrigin: '50% 20px' }}>
+                    <polygon points="20,20 260,170 500,20" fill="url(#envFlap)" />
+                    <polygon points="20,20 260,170 260,130" fill="#ffffff" opacity="0.06" />
                   </g>
+                </svg>
+
+                {/* 蜡封 (HTML 圆形按钮，SVG 内无法带交互) */}
+                {phase !== 'opening' && (
+                  <button
+                    onClick={handleSealClick}
+                    className="wax-seal absolute left-1/2 -translate-x-1/2 rounded-full flex items-center justify-center focus:outline-none"
+                    style={{
+                      top: '42%',
+                      width: 86, height: 86,
+                      background:
+                        'radial-gradient(circle at 35% 30%, #fca5a5 0%, #ef4444 35%, #7f1d1d 100%)',
+                      border: '2px solid rgba(127,29,29,0.55)',
+                      boxShadow: '0 0 30px 3px rgba(244,63,94,0.45)',
+                      cursor: phase === 'waiting' ? 'pointer' : 'default',
+                    }}
+                    aria-label="Open the letter"
+                    title="Tap the seal to open"
+                  >
+                    <Heart className="w-9 h-9 text-white/90" strokeWidth={2.2} fill="rgba(255,255,255,0.38)" />
+                  </button>
                 )}
 
-                {/* Envelope body (back) */}
-                <rect x="20" y="20" width="480" height="300" rx="6" fill="url(#envPaper)" />
-
-                {/* Folded sides (two triangles forming a pocket) */}
-                <polygon points="20,20 260,180 500,20" fill="url(#envFlap)" opacity="0.95" />
-
-                {/* Bottom fold — visible */}
-                <polygon points="20,320 260,180 500,320" fill="url(#envPaperDark)" opacity="0.85" />
-
-                {/* Decorative stitching */}
-                <rect x="26" y="26" width="468" height="288" rx="4"
-                      fill="none" stroke="#c2a374" strokeDasharray="4 5" strokeWidth="1" opacity="0.35" />
-
-                {/* Flap (top triangle) — with 3D flip animation when opened */}
-                <g
-                  className={`envelope-lid ${lidOpen ? 'is-open' : ''}`}
-                  style={{
-                    transformOrigin: '50% 20px',
-                    backfaceVisibility: 'hidden',
-                  }}
-                >
-                  <polygon points="20,20 260,180 500,20" fill="url(#envFlap)" />
-                  {/* subtle highlight */}
-                  <polygon points="20,20 260,180 260,140" fill="#ffffff" opacity="0.06" />
-                </g>
-              </svg>
-
-              {/* Wax seal (on top of envelope, clickable) */}
-              {!letterOut && (
-                <button
-                  onClick={() => phase === 'waiting' && setPhase('opening')}
-                  className={`wax-seal absolute left-1/2 -translate-x-1/2 cursor-pointer rounded-full flex items-center justify-center ${sealBroken ? 'is-broken' : ''}`}
-                  style={{
-                    top: '42%',
-                    width: 78,
-                    height: 78,
-                    background:
-                      'radial-gradient(circle at 35% 30%, #fca5a5 0%, #ef4444 35%, #991b1b 100%)',
-                    border: '2px solid rgba(127,29,29,0.55)',
-                    boxShadow: '0 0 28px 2px rgba(244,63,94,0.45)',
-                  }}
-                  aria-label="Open the letter"
-                  title="Tap the seal to open"
-                >
-                  <Heart className="w-9 h-9 text-white/90" strokeWidth={2.2} fill="rgba(255,255,255,0.35)" />
-                </button>
-              )}
-
-              {/* Particles that burst out when seal breaks */}
-              {sealBroken && (
-                <div className="absolute left-1/2 top-[46%] -translate-x-1/2 pointer-events-none" style={{ width: 1, height: 1 }}>
-                  {particles.map((p) => (
-                    <span
-                      key={p.key}
-                      className="ceremony-particle"
-                      style={{
-                        // @ts-expect-error — CSS custom properties
-                        '--tx': `${p.tx}px`,
-                        '--ty': `${p.ty}px`,
-                        background: p.color,
-                        boxShadow: `0 0 14px 3px ${p.color}`,
-                        animationDelay: `${p.delay}s`,
-                        left: 0,
-                        top: 0,
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
+                {/* 蜡封爆开的粒子 */}
+                {phase === 'opening' && (
+                  <div className="absolute left-1/2 top-[44%] -translate-x-1/2 pointer-events-none" style={{ width: 1, height: 1 }}>
+                    {particles.map((p) => (
+                      <span
+                        key={p.key}
+                        className="ceremony-particle"
+                        style={{
+                          ['--tx' as any]: `${p.tx}px`,
+                          ['--ty' as any]: `${p.ty}px`,
+                          background: p.color,
+                          boxShadow: `0 0 14px 3px ${p.color}`,
+                          animationDelay: `${p.delay}s`,
+                          left: 0, top: 0,
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Waiting prompt */}
-            {phase === 'waiting' && (
-              <div className="reveal-prompt text-center mt-8">
-                <button
-                  onClick={() => setPhase('opening')}
-                  className="text-white/55 text-base sm:text-lg font-display tracking-wide hover:text-white/90 transition-colors px-6 py-3 rounded-xl hover:bg-white/5"
-                >
-                  Tap the seal to open your letter
-                </button>
+            {/* 下方提示 */}
+            {showPrompt && (
+              <div className="reveal-prompt mt-10 text-center">
+                <p className="text-white/55 text-base sm:text-lg font-display tracking-wide">
+                  {phase === 'waiting' ? 'Tap the heart to open' : ''}
+                </p>
               </div>
             )}
           </div>
         )}
 
-        {/* ── Phase: revealed — letter on parchment with preamble + typewriter ── */}
+        {/* ── Stage 4: 信纸展开 ── */}
         {phase === 'revealed' && (
-          <div className="ceremony-letter w-full parchment rounded-2xl p-8 sm:p-12 border border-amber-900/10"
-               style={{
-                 boxShadow:
-                   '0 0 80px 10px rgba(244,114,182,0.18), 0 0 160px 30px rgba(139,92,246,0.12), 0 25px 60px rgba(0,0,0,0.35)',
-               }}
+          <div
+            className={`ceremony-letter w-full parchment rounded-2xl px-6 sm:px-14 py-10 sm:py-14 border border-amber-900/10 transition-all duration-[1200ms] ${letterReady ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+            style={{
+              maxWidth: 780,
+              maxHeight: '86vh',
+              overflowY: 'auto',
+              boxShadow:
+                '0 0 80px 10px rgba(244,114,182,0.18), 0 0 160px 30px rgba(139,92,246,0.12), 0 25px 60px rgba(0,0,0,0.45)',
+              animation: 'letter-bloom 1.6s ease-out forwards',
+            }}
           >
-            {/* Decorative top flourish */}
-            <div className="flex items-center justify-center gap-3 mb-6 opacity-60">
-              <span className="h-px bg-amber-900/20 w-16" />
-              <Heart className="w-4 h-4 text-rose-400/70" strokeWidth={1.8} />
-              <span className="h-px bg-amber-900/20 w-16" />
+            {/* 顶部装饰 */}
+            <div className="flex items-center justify-center gap-3 mb-8 opacity-60">
+              <span className="h-px bg-amber-900/30 w-16 sm:w-24" />
+              <Heart className="w-5 h-5 text-rose-500/70" strokeWidth={1.8} fill="rgba(244,63,94,0.28)" />
+              <span className="h-px bg-amber-900/30 w-16 sm:w-24" />
             </div>
 
-            {/* Preamble — lines fade in one at a time */}
-            <div className="text-center mb-8 space-y-3">
+            {/* 开场白 */}
+            <div className="text-center mb-10 space-y-4">
               {preamble.map((line, idx) => (
                 <p
                   key={idx}
                   className="preamble-line text-stone-700 font-display text-sm sm:text-base italic leading-relaxed"
-                  style={{ animationDelay: `${0.15 + idx * 0.5}s` }}
+                  style={{ animationDelay: `${0.2 + idx * 0.6}s` }}
                 >
-                  {line === '' ? '\u00A0' : line}
+                  {line}
                 </p>
               ))}
             </div>
 
-            {/* Separator with brand tagline feel */}
-            <div className="flex items-center justify-center gap-3 mb-8 opacity-50">
-              <span className="h-px bg-stone-500/30 w-24 sm:w-32" />
-              <span className="text-stone-500 text-[10px] uppercase tracking-[0.35em]">your words</span>
-              <span className="h-px bg-stone-500/30 w-24 sm:w-32" />
+            {/* 分隔线 */}
+            <div className="flex items-center justify-center gap-3 mb-10 opacity-50">
+              <span className="h-px bg-stone-500/40 w-20 sm:w-32" />
+              <span className="text-stone-500 text-[10px] sm:text-xs uppercase tracking-[0.4em] font-display">
+                your words
+              </span>
+              <span className="h-px bg-stone-500/40 w-20 sm:w-32" />
             </div>
 
-            {/* The message — typewriter */}
-            <div className="text-stone-800 font-display text-base sm:text-lg leading-[1.85] whitespace-pre-wrap min-h-[120px] text-center px-2 sm:px-6">
-              {typed}
-              {isTyping && <span className="typewriter-cursor" style={{ height: '1.2em' }} />}
+            {/* 消息 —— 逐字符切片显示 */}
+            <div className="relative text-stone-800 font-display text-base sm:text-lg leading-[1.95] whitespace-pre-wrap text-center px-1 sm:px-4 min-h-[120px]">
+              <span className="block">{message.slice(0, visibleChars)}</span>
             </div>
 
-            {/* Bottom flourish */}
-            <div className="flex items-center justify-center gap-3 mt-10 opacity-60">
-              <span className="h-px bg-amber-900/20 w-16" />
-              <Heart className="w-4 h-4 text-rose-400/70" strokeWidth={1.8} />
-              <span className="h-px bg-amber-900/20 w-16" />
+            {/* 底部装饰 */}
+            <div className="flex items-center justify-center gap-3 mt-14 opacity-60">
+              <span className="h-px bg-amber-900/30 w-16 sm:w-24" />
+              <Heart className="w-5 h-5 text-rose-500/70" strokeWidth={1.8} fill="rgba(244,63,94,0.28)" />
+              <span className="h-px bg-amber-900/30 w-16 sm:w-24" />
             </div>
 
-            {/* Dismiss */}
+            {/* Dismiss 按钮 */}
             {onDismiss && (
-              <div className="mt-10 flex justify-center">
+              <div className="mt-12 flex justify-center">
                 <button
                   onClick={onDismiss}
-                  disabled={isTyping}
-                  className="text-stone-600 text-sm font-display hover:text-stone-900 px-6 py-3 rounded-xl hover:bg-stone-900/5 transition-colors disabled:opacity-40"
+                  disabled={!typingDone}
+                  className="text-stone-600 text-sm font-display hover:text-stone-900 px-8 py-3 rounded-xl hover:bg-stone-900/[0.05] transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  {isTyping ? 'Still reading…' : 'Close this letter'}
+                  {typingDone ? 'Close this letter' : 'Still reading…'}
                 </button>
               </div>
             )}

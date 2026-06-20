@@ -751,13 +751,15 @@
     animation: envelope-float 4.5s ease-in-out infinite;
   }
 
-  .envelope-lid {
+  .envelope-lid,
+  .envelope-flap {
     transform-origin: top center;
     transform-style: preserve-3d;
     z-index: 3;
   }
 
-  .envelope-lid.is-open {
+  .envelope-lid.is-open,
+  .envelope-flap.is-open {
     animation: lid-open 1.1s cubic-bezier(0.25, 0.8, 0.3, 1) forwards;
   }
 
