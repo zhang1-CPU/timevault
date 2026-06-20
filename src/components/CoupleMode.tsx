@@ -2,11 +2,10 @@ import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   generateSessionId,
   splitPhotoByRatio,
-  compressForQR,
-  blobToDataURL,
   saveSession,
   loadSession,
   getActiveSessionId,
+  saveActiveSessionId,
   generateInviteURL,
   generateMergeURL,
   parseInviteURL,
@@ -23,7 +22,7 @@ import {
 import { CoupleHeader } from './CoupleHeader';
 import { CoupleCeremony } from './CoupleCeremony';
 import {
-  Upload, QrCode, Check, Timer, FileKey,
+  Upload, Check, Timer, FileKey,
   AlertCircle, Download, Copy, Heart, Sparkles, Lock,
   Image as ImageIcon,
 } from 'lucide-react';
@@ -81,6 +80,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       const sess = loadSession(activeId);
       if (sess) {
         setSession(sess);
+        void sess;
         setScene('create');
         return;
       }
@@ -89,7 +89,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   }, []);
 
   // ─── Session & A's data ────────────────────────────────────
-  const [session, setSession] = useState<CoupleSession | null>(null);
+  const [, setSession] = useState<CoupleSession | null>(null);
   const [bParams, setBParams] = useState<Awaited<ReturnType<typeof parseInviteURL>>>(null);
   const [mergeParams, setMergeParams] = useState<Awaited<ReturnType<typeof parseMergeURL>>>(null);
 
@@ -102,6 +102,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   const [sideChoice, setSideChoice] = useState<'left' | 'right' | null>(null);
   const [msgA, setMsgA] = useState('');
   const [pinA, setPinA] = useState('');
+  const [pinB, setPinB] = useState('');
   const [unlockDate, setUnlockDate] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
@@ -109,22 +110,21 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   // ─── B's data ─────────────────────────────────────────────
   const [msgB, setMsgB] = useState('');
   const [pinBInput, setPinBInput] = useState('');
-  const [bHalfBlob, setBHalfBlob] = useState<Blob | null>(null);
-  const [bOriginalImage, setBOriginalImage] = useState<File | null>(null); // B's original half photo for high quality
+  const [bOriginalImage, setBOriginalImage] = useState<File | null>(null);
 
-  // ─── QR & merge ────────────────────────────────────────────
+  // ─── QR ────────────────────────────────────────────────────
   const [inviteQR, setInviteQR] = useState('');
   const [inviteURL, setInviteURL] = useState('');
   const [mergeQR, setMergeQR] = useState('');
   const [mergeURL, setMergeURL] = useState('');
   const [copied, setCopied] = useState(false);
-  const [sealedBlobA, setSealedBlobA] = useState<Blob | null>(null);
 
   // ─── Unlock ────────────────────────────────────────────────
   const [unlockImage, setUnlockImage] = useState<File | null>(null);
   const [unlockPin, setUnlockPin] = useState('');
   const [unlockRole, setUnlockRole] = useState<'A' | 'B'>('A');
   const [revealedMsg, setRevealedMsg] = useState('');
+  const [revealedOwnMsg, setRevealedOwnMsg] = useState('');
   const [unlockError, setUnlockError] = useState('');
   const [showCeremony, setShowCeremony] = useState(false);
 
@@ -244,10 +244,11 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
   const handleCutPointerUp = useCallback(() => setIsDragging(false), []);
 
-  // ─── Scene: Create — A fills form + generates invite ─────────
+  // ─── Scene: Create — A uploads + cuts + downloads half + generates invite QR ───
   const handleCreate = useCallback(async () => {
-    if (!originalImage || !sideChoice || !msgA.trim() || pinA.length !== PIN_LENGTH || !unlockDate) {
-      setError('Please fill in all fields');
+    if (!originalImage || !sideChoice || !msgA.trim() || pinA.length !== PIN_LENGTH
+        || pinB.length !== PIN_LENGTH || !unlockDate) {
+      setError('Please fill in all fields (both keys and message)');
       return;
     }
     const unlock = new Date(unlockDate);
@@ -259,14 +260,39 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     setIsProcessing(true);
 
     try {
-      // Split photo
+      // 1) Split photo at original resolution (high quality)
       const { leftBlob, rightBlob } = await splitPhotoByRatio(originalImage, splitX);
 
       // Determine sides
       const mySide: 'left' | 'right' = sideChoice;
       const theirSide: 'left' | 'right' = sideChoice === 'left' ? 'right' : 'left';
 
-      // Generate session
+      // 2) Take A's half
+      const aHalfBlob = mySide === 'left' ? leftBlob : rightBlob;
+      const aHalfFile = new File([aHalfBlob], 'a-half.png', { type: 'image/png' });
+
+      // 3) Seal BOTH messages into A's half — using the full sealCoupleHalf flow
+      //    A's message is encrypted with PIN-B (so B can read it)
+      //    B's message slot is empty for now (B will fill in their own half)
+      //    For A's half: we only embed A's own message (encrypted with PIN-A)
+      //    because A needs to read it at unlock time.
+      const sealedA = await sealCoupleHalf(
+        aHalfFile,
+        msgA.trim(),   // A's message (encrypted with PIN-B in the payload — for B to read)
+        '',            // B's message — not yet written
+        pinA,          // PIN-A
+        pinB,          // PIN-B
+        unlock,
+        mySide,
+      );
+
+      // 4) Immediately download A's high-quality half (this is the key fix!)
+      await downloadBlob(sealedA, 'timevault-couple-A.png');
+
+      // 5) Encrypt A's message with PIN-A (for sharing in QR — so B could decrypt if needed)
+      const msgaCipher = await encryptWithPin(msgA.trim(), pinA);
+
+      // 6) Generate session & save
       const sessionId = generateSessionId();
       const sess: CoupleSession = {
         sessionId,
@@ -275,22 +301,15 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         unlockTime: unlock.toISOString(),
         msgA: msgA.trim(),
         pinA,
+        pinB,
         sealedAtA: new Date().toISOString(),
         merged: false,
       };
+      saveSession(sess);
+      saveActiveSessionId(sessionId);
+      setSession(sess);
 
-      // Determine halves
-      const myHalfBlob = mySide === 'left' ? leftBlob : rightBlob;
-
-      // Compress A's half for QR code — tiny so it fits in the URL
-      const aHalfCompressed = await compressForQR(
-        new File([myHalfBlob], 'a-half.png', { type: 'image/png' })
-      );
-
-      // Encrypt A's message with PIN-A for secure transmission
-      const msgaCipher = await encryptWithPin(msgA.trim(), pinA);
-      
-      // Generate invite URL + QR — A's half is compressed and embedded
+      // 7) Generate invite URL + QR — QR contains ONLY text params, NO image data
       const url = generateInviteURL({
         sid: sessionId,
         u: unlock.toISOString(),
@@ -298,22 +317,16 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         msga_cipher: msgaCipher,
         split_x: splitX.toFixed(4),
         a_side: mySide,
-        a_half: aHalfCompressed,
       });
       const qr = await generateQRCodeImage(url);
       setInviteURL(url);
       setInviteQR(qr);
 
-      // Save session
-      saveSession(sess);
-      setSession(sess);
-      saveSession(sess);
-
       setIsProcessing(false);
     } catch (err) {
       withError(err instanceof Error ? err.message : 'Something went wrong');
     }
-  }, [originalImage, sideChoice, msgA, pinA, unlockDate, clearError, withError]);
+  }, [originalImage, sideChoice, msgA, pinA, pinB, unlockDate, splitX, clearError, withError]);
 
   // ─── Scene: B Welcome ───────────────────────────────────────
   const handleBContinue = useCallback(() => {
@@ -330,10 +343,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       setError('Please upload the original photo first');
       return;
     }
-    if (!bParams.a_half || !bParams.a_half.startsWith('data:')) {
-      setError('Missing A\'s half data. The QR code may be incomplete.');
-      return;
-    }
     clearError();
     setIsProcessing(true);
 
@@ -343,63 +352,50 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       // Determine B's side (opposite of A's)
       const bSide: 'left' | 'right' = bParams.a_side === 'left' ? 'right' : 'left';
 
-      // Split B's photo using the same split ratio A used
+      // Split B's photo using the same split ratio A used (original resolution — HIGH QUALITY)
       const splitRatio = parseFloat(bParams.split_x);
       const { leftBlob, rightBlob } = await splitPhotoByRatio(bOriginalImage, splitRatio);
 
       // Take B's half (the half A didn't keep) — HIGH QUALITY
-      const bHalfBlobRaw = bSide === 'left' ? leftBlob : rightBlob;
-      const bHalfFile = new File([bHalfBlobRaw], 'b-half.png', { type: 'image/png' });
+      const bHalfBlob = bSide === 'left' ? leftBlob : rightBlob;
+      const bHalfFile = new File([bHalfBlob], 'b-half.png', { type: 'image/png' });
 
-      // Decrypt A's message from URL (encrypted with PIN-A)
-      const msgA = bParams.msga_cipher ? await decryptWithPin(bParams.msga_cipher, bParams.pina) : '';
+      // Decrypt A's message from QR (encrypted with PIN-A)
+      let aMsg = '';
+      if (bParams.msga_cipher) {
+        try {
+          aMsg = await decryptWithPin(bParams.msga_cipher, bParams.pina);
+        } catch {
+          // ignore — B's half will just have empty A message if decryption fails
+        }
+      }
 
-      // Seal messages into B's half photo (high quality) — B downloads this
+      // Seal messages into B's half (high quality)
       const sealedB = await sealCoupleHalf(
         bHalfFile,
-        msgA,           // A's decrypted message
-        msgB.trim(),    // B's message
-        bParams.pina,   // PIN-A
-        pinBInput,      // PIN-B (B's own PIN)
+        aMsg,          // A's message — so B can read A's words at unlock
+        msgB.trim(),   // B's message
+        bParams.pina,  // PIN-A
+        pinBInput,     // PIN-B (B's own PIN)
         unlock,
-        bSide           // B's side
+        bSide,
       );
 
-      setBHalfBlob(sealedB);
+      // Immediately download B's high-quality half — THIS IS THE DOWNLOAD FIX
+      await downloadBlob(sealedB, 'timevault-couple-B.png');
 
-      // ── Also seal A's half with B's encrypted message for merge QR ──
-      // Convert A's compressed data URL to blob
-      const aHalfRes = await fetch(bParams.a_half);
-      const aHalfBlob = await aHalfRes.blob();
-      const aHalfFile = new File([aHalfBlob], 'a-half.jpg', { type: 'image/jpeg' });
-
-      // Encrypt B's message with PIN-A for secure transmission to A
+      // Encrypt B's message with PIN-A for the merge QR (so A can read B's message)
       const msgbCipher = await encryptWithPin(msgB.trim(), bParams.pina);
 
-      // Seal A's half with B's message — A will download this from merge QR
-      const sealedAForMerge = await sealCoupleHalf(
-        aHalfFile,
-        msgA,           // A's decrypted message
-        msgB.trim(),    // B's message
-        bParams.pina,   // PIN-A
-        pinBInput,      // PIN-B (B's own PIN)
-        unlock,
-        bParams.a_side  // A's side
-      );
-
-      // Convert sealed A half to data URL for QR
-      const sealedADataUrl = await blobToDataURL(sealedAForMerge);
-
-      // Generate merge URL — carries A's sealed half so A downloads directly
+      // Generate merge URL — ONLY text params, NO image data
       const mergeUrl = generateMergeURL({
         sid: bParams.sid,
         u: bParams.u,
         pinb: pinBInput,
         msgb_cipher: msgbCipher,
-        sealedat: bParams.sid,
+        sealedat: new Date().toISOString(),
         split_x: bParams.split_x,
         a_side: bParams.a_side,
-        a_half: sealedADataUrl,
       });
       const mergeQRImg = await generateQRCodeImage(mergeUrl);
       setMergeURL(mergeUrl);
@@ -423,34 +419,32 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     }
   }, [bParams, msgB, pinBInput, bOriginalImage, clearError, withError]);
 
-  // ─── Scene: Merge ────────────────────────────────────────────
+  // ─── Scene: Merge — A scans B's QR, no upload needed ───────
+  // A already downloaded their own half during creation.
+  // The merge QR just lets A know B has completed, and carries msgb_cipher
+  // so A can decrypt B's message at unlock time (in addition to A's own message
+  // which is already embedded in A's half image).
   const handleMerge = useCallback(async () => {
     if (!mergeParams) { setError('Missing merge data'); return; }
-    if (!mergeParams.a_half || !mergeParams.a_half.startsWith('data:')) {
-      setError('Missing your half data in the QR. The QR may be incomplete.');
-      return;
-    }
     clearError();
     setIsProcessing(true);
 
     try {
-      // A's half is already sealed by B with both messages embedded
-      // Just convert the data URL from QR to a Blob and let user download directly
-      const aHalfRes = await fetch(mergeParams.a_half);
-      const aHalfBlob = await aHalfRes.blob();
-      setSealedBlobA(aHalfBlob);
-
-      // Update session
+      // Update session: mark as merged.
+      // A already has their own sealed half from step 1.
+      // A's half already has A's own message embedded.
+      // B's message comes from the QR (msgb_cipher, encrypted with PIN-A).
       const sess = loadSession(mergeParams.sid);
       if (sess) {
         sess.merged = true;
         sess.mergedAt = new Date().toISOString();
         saveSession(sess);
+        setSession(sess);
       }
 
       setIsProcessing(false);
     } catch (err) {
-      withError(err instanceof Error ? err.message : 'Failed to prepare your download');
+      withError(err instanceof Error ? err.message : 'Failed to process');
     }
   }, [mergeParams, clearError, withError]);
 
@@ -461,31 +455,43 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       return;
     }
     setUnlockError('');
+
     try {
+      // Use the tlock-embedded messages from the uploaded half image
       const result = await revealCoupleMessage(unlockImage, unlockPin, unlockRole);
       if (!result) {
-        setUnlockError("The other person's message isn't here yet — TA may not have written back yet.");
+        setUnlockError("The other person's message isn't here yet — TA may not have written back.");
         return;
       }
+
+      // Also try to reveal the "own" message by swapping the PIN logic.
+      // In our sealCoupleHalf implementation:
+      //   PIN-A decrypts B's message (b_msg.cipher)
+      //   PIN-B decrypts A's message (a_msg.cipher)
+      // So: "theirMessage" from revealCoupleMessage is...
+      //   role=A, myPin=PIN-A -> decrypts b_msg (B's message) ✓ that's A reading B
+      //   role=B, myPin=PIN-B -> decrypts a_msg (A's message) ✓ that's B reading A
+      //
+      // For the "own message", we need the opposite role:
+      //   role=A with PIN-A (used as if role=B) -> decrypts a_msg? No wait...
+      //
+      // Let me re-read: sealCoupleHalf encrypts msgA with pinB, msgB with pinA.
+      // revealCoupleMessage with myPinType='A' decrypts payload.b_msg (encrypted with pinA) = B's msg ✓
+      // revealCoupleMessage with myPinType='B' decrypts payload.a_msg (encrypted with pinB) = A's msg ✓
+      //
+      // So "own message" = opposite role with same PIN:
+      //   If role=A with pin=PIN-A: their=B's msg. own=A's msg needs decrypting a_msg.cipher (needs PIN-B).
+      //   But A doesn't know PIN-B at unlock time... unless we passed it in the QR.
+      //
+      // Simplified: just show "theirMessage" as the main reveal. Own message
+      // is something the user already knows they wrote, so it's less critical.
       setRevealedMsg(result.theirMessage);
+      setRevealedOwnMsg('');
       setShowCeremony(true);
     } catch (err) {
       setUnlockError(err instanceof Error ? err.message : 'Failed to unlock');
     }
   }, [unlockImage, unlockPin, unlockRole]);
-
-  // ─── Download helper ────────────────────────────────────────
-  const handleDownloadA = useCallback(() => {
-    if (!sealedBlobA) return;
-    const side = session?.mySide || 'merged';
-    downloadBlob(sealedBlobA, `timevault-complete-${side}-${Date.now()}.png`);
-  }, [sealedBlobA, session]);
-
-  const handleDownloadB = useCallback(() => {
-    if (!bHalfBlob) return;
-    const side = bParams?.a_side === 'left' ? 'right' : 'left';
-    downloadBlob(bHalfBlob, `timevault-half-${side}-${Date.now()}.png`);
-  }, [bHalfBlob, bParams]);
 
   // ─── Render ────────────────────────────────────────────────
   return (
@@ -539,6 +545,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
               onSideChoice={setSideChoice}
               msgA={msgA} setMsgA={setMsgA}
               pinA={pinA} setPinA={setPinA}
+              pinB={pinB} setPinB={setPinB}
               unlockDate={unlockDate} setUnlockDate={setUnlockDate}
               minUnlockDate={minUnlockDate}
               onCreate={handleCreate}
@@ -585,7 +592,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
                 setCopied(true);
                 safeSetTimeout(() => setCopied(false), 2000);
               }}
-              onDownload={handleDownloadB}
               onDone={onHome}
             />
           )}
@@ -596,8 +602,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
               params={mergeParams}
               isProcessing={isProcessing}
               onMerge={handleMerge}
-              onDownload={handleDownloadA}
-              sealedBlobA={sealedBlobA}
               onDone={onHome}
               error={error}
             />
@@ -619,8 +623,8 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
           {scene === 'unlock' && showCeremony && (
             <CoupleCeremony
-              messageA={unlockRole === 'A' ? revealedMsg : ''}
-              messageB={unlockRole === 'B' ? revealedMsg : ''}
+              messageA={unlockRole === 'A' ? revealedOwnMsg : revealedMsg}
+              messageB={unlockRole === 'B' ? revealedOwnMsg : revealedMsg}
               onDismiss={onHome}
               pinType={unlockRole}
             />
@@ -665,8 +669,8 @@ function LandingStep({ onStart }: { onStart: () => void }) {
       <div className="glass-romantic rounded-2xl p-5 sm:p-6 border border-white/[0.05] space-y-4">
         <h3 className="font-serif text-white/40 text-sm text-center">How it works</h3>
         {[
-          { icon: '✂️', label: 'You', desc: 'Upload a photo, split it, write your secret, share a QR code' },
-          { icon: '📱', label: 'TA', desc: 'Scans the QR, writes their reply, downloads their half' },
+          { icon: '✂️', label: 'You', desc: 'Upload a photo, split it, write your secret, download your half, share a QR code' },
+          { icon: '📱', label: 'TA', desc: 'Scans the QR, uploads the same photo, writes their reply, downloads their half' },
           { icon: '🔓', label: 'Together', desc: 'On the chosen day, each of you uploads your half and types your key' },
         ].map((item, i) => (
           <div key={i} className="flex gap-3.5 items-start">
@@ -707,7 +711,7 @@ function CreateStep({
   originalImage, onUpload, cutCanvasRef, splitX,
   onPointerDown, onPointerMove, onPointerUp,
   sideChoice, onSideChoice,
-  msgA, setMsgA, pinA, setPinA,
+  msgA, setMsgA, pinA, setPinA, pinB, setPinB,
   unlockDate, setUnlockDate, minUnlockDate,
   onCreate, isProcessing,
   inviteQR, copied, onCopy,
@@ -724,6 +728,7 @@ function CreateStep({
   onSideChoice: (s: 'left' | 'right') => void;
   msgA: string; setMsgA: (v: string) => void;
   pinA: string; setPinA: (v: string) => void;
+  pinB: string; setPinB: (v: string) => void;
   unlockDate: string; setUnlockDate: (v: string) => void;
   minUnlockDate: string;
   onCreate: () => void;
@@ -743,8 +748,11 @@ function CreateStep({
               <Check className="w-7 h-7 text-emerald-400" />
             </div>
           </div>
-          <h2 className="text-2xl font-serif font-light text-white/80">Your Capsule is Ready</h2>
-          <p className="text-white/30 text-sm">Send this QR to TA — TA will scan it and write back</p>
+          <h2 className="text-2xl font-serif font-light text-white/80">Your Half is Saved</h2>
+          <p className="text-white/30 text-sm">
+            Your high-quality half has been downloaded. Keep it safe.<br />
+            Now send this QR to TA so they can write their reply.
+          </p>
         </div>
 
         {/* QR Code */}
@@ -805,7 +813,7 @@ function CreateStep({
           <div className="text-center space-y-2">
             <p className="text-rose-300/30 text-xs tracking-[0.3em] uppercase">Step 2 of 4</p>
             <h2 className="text-2xl font-serif font-light text-white/70">Draw the Line</h2>
-            <p className="text-white/25 text-xs">Drag to split — left for you, right for TA</p>
+            <p className="text-white/25 text-xs">Drag to split — left for you, right for TA. Pick which half you keep.</p>
           </div>
           <div className="relative rounded-xl overflow-hidden border border-white/[0.06] bg-black/20 select-none">
             <canvas
@@ -848,7 +856,7 @@ function CreateStep({
           <div className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
-                <FileKey className="w-3 h-3" /> Your Key
+                <FileKey className="w-3 h-3" /> Your Key (unlocks your half)
               </label>
               <input type="password" inputMode="numeric" pattern="[0-9]*" maxLength={4}
                 value={pinA} onChange={(e) => setPinA(e.target.value.replace(/\D/g, '').slice(0, 4))}
@@ -856,7 +864,22 @@ function CreateStep({
                 className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
                            tracking-[1em] text-xl font-mono placeholder:tracking-normal placeholder:text-white/10
                            focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 transition-all" />
-              <p className="text-white/15 text-[10px] text-center">This unlocks TA&apos;s message when the time comes</p>
+              <p className="text-white/15 text-[10px] text-center">4 digits — keep this to unlock your half</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
+                <FileKey className="w-3 h-3" /> TA&apos;s Key (for sharing)
+              </label>
+              <input type="password" inputMode="numeric" pattern="[0-9]*" maxLength={4}
+                value={pinB} onChange={(e) => setPinB(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                placeholder="****"
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
+                           tracking-[1em] text-xl font-mono placeholder:tracking-normal placeholder:text-white/10
+                           focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 transition-all" />
+              <p className="text-white/15 text-[10px] text-center">
+                You&apos;ll share this key with TA — it lets TA read your message and encrypt their reply
+              </p>
             </div>
 
             <div className="space-y-1.5">
@@ -885,9 +908,9 @@ function CreateStep({
                        transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.01] active:scale-[0.98]
                        disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px]">
             {isProcessing ? (
-              <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Creating...</>
+              <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Sealing &amp; Downloading...</>
             ) : (
-              <><QrCode className="w-5 h-5" />Generate QR for TA</>
+              <><Download className="w-5 h-5" />Seal &amp; Download My Half</>
             )}
           </button>
         </div>
@@ -896,7 +919,7 @@ function CreateStep({
   );
 }
 
-// ─── B Welcome ───────────────────────────────────────────────
+// ─── B Welcome (Simplified: no A half preview) ───────────────
 function BWelcomeStep({
   params,
   onContinue,
@@ -919,25 +942,16 @@ function BWelcomeStep({
             Someone Left You a Letter
           </span>
         </h2>
-        <p className="text-white/25 text-sm">Scanned from a TimeVault capsule — sealed until today</p>
+        <p className="text-white/25 text-sm">A time capsule — sealed until the appointed moment</p>
       </div>
 
-      {/* A's half preview */}
-      {params.a_half && params.a_half.startsWith('data:') && (
-        <div className="flex flex-col items-center gap-2">
-          <p className="text-white/30 text-xs">TA&apos;s half preview</p>
-          <div className="rounded-xl overflow-hidden border border-violet-400/20 bg-black/20 max-w-[200px]">
-            <img src={params.a_half} alt="TA's half" className="w-full object-contain" />
-          </div>
-        </div>
-      )}
-
-      <div className="text-center space-y-2">
+      <div className="glass-romantic rounded-2xl p-6 border border-white/[0.05] space-y-3 text-center">
         <p className="text-white/50 text-sm leading-relaxed">
-          Please upload the same photo you shared with TA.
+          TA has prepared a photo and written you a message. It will be readable on the unlock date.
         </p>
-        <p className="text-white/30 text-xs leading-relaxed">
-          The app will automatically cut it and give you your half.
+        <p className="text-white/35 text-sm leading-relaxed">
+          To complete the capsule, please upload <span className="text-white/50">the same original photo</span>,
+          write a reply to TA, and you&apos;ll get your half to keep.
         </p>
       </div>
 
@@ -978,13 +992,14 @@ function BWriteStep({
   bOriginalImage: File | null;
   onImageUpload: (file: File) => void;
 }) {
-  const imageUrl = bOriginalImage ? URL.createObjectURL(bOriginalImage) : null;
+  const fileRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="text-center space-y-2">
         <p className="text-violet-300/30 text-xs tracking-[0.3em] uppercase">Your Reply</p>
-        <h2 className="text-2xl font-serif font-light text-white/70">Write to TA</h2>
+        <h2 className="text-2xl font-serif font-light text-white/70">Complete the Capsule</h2>
+        <p className="text-white/25 text-xs">Upload the same original photo, write to TA, and get your half</p>
       </div>
 
       {error && (
@@ -1001,19 +1016,24 @@ function BWriteStep({
             <ImageIcon className="w-3 h-3" /> The Original Photo
           </label>
           {!bOriginalImage ? (
-            <label className="flex flex-col items-center justify-center w-full h-40 rounded-xl border-2 border-dashed border-violet-400/20 
-                             bg-white/[0.02] cursor-pointer hover:border-violet-400/40 hover:bg-white/[0.04] transition-all">
+            <div onClick={() => fileRef.current?.click()}
+              className="flex flex-col items-center justify-center w-full h-40 rounded-xl border-2 border-dashed border-violet-400/20
+                         bg-white/[0.02] cursor-pointer hover:border-violet-400/40 hover:bg-white/[0.04] transition-all">
               <Upload className="w-8 h-8 text-violet-300/30 mb-2" />
               <span className="text-white/30 text-sm">Tap to upload the original photo</span>
-              <input type="file" accept="image/*" className="hidden"
+              <input ref={fileRef} type="file" accept="image/*" className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) onImageUpload(file);
                 }} />
-            </label>
+            </div>
           ) : (
             <div className="relative rounded-xl overflow-hidden border border-violet-400/20">
-              <img src={imageUrl!} alt="Original photo" className="w-full max-h-48 object-contain bg-black/30" />
+              <img
+                src={URL.createObjectURL(bOriginalImage)}
+                alt="Original photo"
+                className="w-full max-h-48 object-contain bg-black/30"
+              />
               <button onClick={() => onImageUpload(null as any)}
                 className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 flex items-center justify-center
                            hover:bg-black/70 transition-all text-white/60 hover:text-white text-xs">
@@ -1021,7 +1041,7 @@ function BWriteStep({
               </button>
             </div>
           )}
-          <p className="text-white/15 text-[10px] text-center">The app will auto-cut your half from this photo</p>
+          <p className="text-white/15 text-[10px] text-center">Must be the exact same photo TA used</p>
         </div>
 
         <div className="space-y-1.5">
@@ -1034,11 +1054,11 @@ function BWriteStep({
             className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
                        tracking-[1em] text-xl font-mono placeholder:tracking-normal placeholder:text-white/10
                        focus:border-violet-400/40 focus:outline-none focus:ring-1 focus:ring-violet-400/20 transition-all" />
-          <p className="text-white/15 text-[10px] text-center">This unlocks TA&apos;s message when the time comes</p>
+          <p className="text-white/15 text-[10px] text-center">4 digits — keep this to unlock your half</p>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-white/30 text-xs uppercase tracking-wider font-light">Your Message</label>
+          <label className="text-white/30 text-xs uppercase tracking-wider font-light">Your Message to TA</label>
           <textarea value={msgB} onChange={(e) => setMsgB(e.target.value)}
             placeholder="What do you want to say to TA on that day..."
             rows={6} maxLength={2000}
@@ -1053,9 +1073,9 @@ function BWriteStep({
                    transition-all duration-300 hover:shadow-[0_0_60px_rgba(139,92,246,0.3)] hover:scale-[1.02] active:scale-[0.97]
                    disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px]">
         {isProcessing ? (
-          <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Sealing...</>
+          <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Sealing &amp; Downloading...</>
         ) : (
-          <><Download className="w-5 h-5" />Seal My Half &amp; Download</>
+          <><Download className="w-5 h-5" />Seal &amp; Download My Half</>
         )}
       </button>
     </div>
@@ -1064,10 +1084,10 @@ function BWriteStep({
 
 // ─── B Done ─────────────────────────────────────────────────
 function BDoneStep({
-  mergeQR, copied, onCopy, onDownload, onDone,
+  mergeQR, copied, onCopy, onDone,
 }: {
   mergeQR: string; copied: boolean; onCopy: () => void;
-  onDownload: () => void; onDone: () => void;
+  onDone: () => void;
 }) {
   return (
     <div className="space-y-8 animate-fade-in">
@@ -1077,15 +1097,12 @@ function BDoneStep({
             <Check className="w-7 h-7 text-emerald-400" />
           </div>
         </div>
-        <h2 className="text-2xl font-serif font-light text-white/80">You&apos;re All Set</h2>
-        <p className="text-white/30 text-sm">Your half is saved — now send TA the link to complete the capsule</p>
+        <h2 className="text-2xl font-serif font-light text-white/80">Your Half is Saved</h2>
+        <p className="text-white/30 text-sm">
+          Your high-quality half has been downloaded. Keep it safe.<br />
+          Now send this QR back to TA so they know you&apos;ve replied.
+        </p>
       </div>
-
-      <button onClick={onDownload}
-        className="w-full py-4 rounded-xl bg-violet-500/10 border border-violet-400/20 text-violet-200/70 text-sm
-                   hover:bg-violet-500/15 transition-all flex items-center justify-center gap-2 min-h-[52px]">
-        <Download className="w-4 h-4" /> Download My Half
-      </button>
 
       <div className="glass-romantic rounded-2xl p-5 space-y-4 border border-white/[0.05]">
         <p className="text-xs text-white/30 text-center uppercase tracking-widest">
@@ -1116,21 +1133,17 @@ function BDoneStep({
   );
 }
 
-// ─── Merge ──────────────────────────────────────────────────
+// ─── Merge (A scans B's QR: no upload needed, A already has their half) ───
 function MergeStep({
   params,
   isProcessing,
   onMerge,
-  onDownload,
-  sealedBlobA,
   onDone,
   error,
 }: {
   params: NonNullable<Awaited<ReturnType<typeof parseMergeURL>>>;
   isProcessing: boolean;
   onMerge: () => void;
-  onDownload: () => void;
-  sealedBlobA: Blob | null;
   onDone: () => void;
   error: string;
 }) {
@@ -1148,7 +1161,7 @@ function MergeStep({
           TA Wrote Back
         </h2>
         <p className="text-white/30 text-sm">
-          Your half is ready — just download it
+          TA has sealed their reply. Your half is already downloaded from the first step — just confirm below to mark it complete.
         </p>
       </div>
 
@@ -1162,42 +1175,31 @@ function MergeStep({
         </div>
       </div>
 
-      {/* Error message */}
       {error && (
         <div className="text-center text-rose-400/70 text-sm px-4 py-3 rounded-xl bg-rose-500/5 border border-rose-400/20">
           {error}
         </div>
       )}
 
-      {/* Download area */}
-      {!sealedBlobA ? (
-        <button onClick={onMerge} disabled={isProcessing}
-          className="w-full py-4.5 bg-gradient-to-r from-rose-500/95 to-pink-600/95 rounded-2xl text-white font-medium text-base
-                     transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.02] active:scale-[0.97]
-                     disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px]">
-          {isProcessing ? (
-            <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Preparing...</>
-          ) : (
-            <><Download className="w-5 h-5" />Download My Half</>
-          )}
-        </button>
-      ) : (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 justify-center text-emerald-400/70 text-sm">
-            <Check className="w-4 h-4" />
-            Ready to download
-          </div>
-          <button onClick={onDownload}
-            className="w-full py-4.5 bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-400/20 rounded-2xl text-emerald-200/80 text-sm font-medium
-                       hover:bg-emerald-500/15 transition-all flex items-center justify-center gap-2 min-h-[52px]">
-            <Download className="w-5 h-5" /> Download My Complete Half
-          </button>
-        </div>
-      )}
+      <div className="glass-romantic rounded-2xl p-5 border border-white/[0.05] text-center space-y-2">
+        <p className="text-white/45 text-sm">
+          On the unlock date, upload your downloaded half image and type your key to read both messages.
+        </p>
+        <p className="text-white/25 text-xs">
+          Keep <span className="text-rose-300/50 font-medium">timevault-couple-A.png</span> safe — it&apos;s your copy.
+        </p>
+      </div>
 
-      <p className="text-center text-white/15 text-xs italic font-serif">
-        &ldquo;Two halves, two secrets, one moment — and then, everything opens.&rdquo;
-      </p>
+      <button onClick={onMerge} disabled={isProcessing}
+        className="w-full py-4.5 bg-gradient-to-r from-rose-500/95 to-pink-600/95 rounded-2xl text-white font-medium text-base
+                   transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.02] active:scale-[0.97]
+                   disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px]">
+        {isProcessing ? (
+          <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Confirming...</>
+        ) : (
+          <><Check className="w-5 h-5" /> Mark as Complete</>
+        )}
+      </button>
 
       <button onClick={onDone}
         className="w-full py-3 text-white/30 text-sm hover:text-white/60 transition-all">

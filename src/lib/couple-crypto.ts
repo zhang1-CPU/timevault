@@ -45,7 +45,6 @@ export interface InviteParams {
   msga_cipher: string; // A's message encrypted with PIN-A
   split_x: string; // split ratio 0-1, e.g. "0.5"
   a_side: 'left' | 'right'; // which half A keeps
-  a_half: string; // A's half photo (compressed data URL) for B to see & include in merge
 }
 
 export interface MergeParams {
@@ -56,7 +55,6 @@ export interface MergeParams {
   sealedat: string;
   split_x: string; // split ratio so A can re-split same photo
   a_side: 'left' | 'right'; // which half A keeps
-  a_half: string; // A's half photo (with B's encrypted message embedded) — A downloads this directly
 }
 
 // ─── Local Storage ───────────────────────────────────────────
@@ -148,10 +146,6 @@ export function generateInviteURL(params: InviteParams): string {
   p.set('msga_cipher', params.msga_cipher);
   p.set('split_x', params.split_x);
   p.set('a_side', params.a_side);
-  // a_half is large — only add if short enough (QR capacity limit ~2000 chars for full URL)
-  if (params.a_half.length < 1800) {
-    p.set('a_half', params.a_half);
-  }
   return `${buildBase()}#couple-b?${p.toString()}`;
 }
 
@@ -164,10 +158,6 @@ export function generateMergeURL(params: MergeParams): string {
   p.set('sealedat', params.sealedat);
   p.set('split_x', params.split_x);
   p.set('a_side', params.a_side);
-  // a_half (A's sealed half) — put last so it's truncated first if URL too long
-  if (params.a_half.length < 1800) {
-    p.set('a_half', params.a_half);
-  }
   return `${buildBase()}#couple-a?${p.toString()}`;
 }
 
@@ -184,9 +174,8 @@ export function parseInviteURL(hash: string): InviteParams | null {
     const msga_cipher = params.get('msga_cipher') || '';
     const split_x = params.get('split_x') || '';
     const a_side = params.get('a_side') as 'left' | 'right' | null;
-    const a_half = params.get('a_half') || '';
     if (!sid || !u || !pina || !split_x || !a_side) return null;
-    return { sid, u, pina, msga_cipher, split_x, a_side, a_half };
+    return { sid, u, pina, msga_cipher, split_x, a_side };
   } catch {
     return null;
   }
@@ -204,9 +193,8 @@ export function parseMergeURL(hash: string): MergeParams | null {
     const sealedat = params.get('sealedat');
     const split_x = params.get('split_x') || '';
     const a_side = params.get('a_side') as 'left' | 'right' | null;
-    const a_half = params.get('a_half') || '';
     if (!sid || !u || !pinb || !msgb_cipher || !sealedat || !split_x || !a_side) return null;
-    return { sid, u, pinb, msgb_cipher, sealedat, split_x, a_side, a_half };
+    return { sid, u, pinb, msgb_cipher, sealedat, split_x, a_side };
   } catch {
     return null;
   }
