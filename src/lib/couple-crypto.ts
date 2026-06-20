@@ -44,7 +44,7 @@ export interface InviteParams {
   pina: string;
   msga: string;
   half: 'left' | 'right';
-  preview: string;
+  preview?: string; // not used anymore — images are too large for QR
 }
 
 export interface MergeParams {
@@ -146,13 +146,6 @@ export function generateInviteURL(params: InviteParams): string {
   p.set('pina', params.pina);
   p.set('msga', params.msga);
   p.set('half', params.half);
-  // Limit preview to keep URL scannable by phones (~500-1000 chars for dense QR)
-  const previewLen = params.preview.length;
-  if (previewLen > 800) {
-    p.set('preview', params.preview.substring(0, 700));
-  } else {
-    p.set('preview', params.preview);
-  }
   return `${buildBase()}#couple-b?${p.toString()}`;
 }
 
