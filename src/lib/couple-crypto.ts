@@ -45,7 +45,6 @@ export interface InviteParams {
   msg_a: string;        // A's message
   split_x: string;      // split ratio 0-1
   a_side: 'left' | 'right'; // which half A keeps
-  a_half?: string;      // tiny compressed JPEG of A's half (base64 data URL)
 }
 
 export interface MergeParams {
@@ -150,7 +149,6 @@ export function generateInviteURL(params: InviteParams): string {
   p.set('m', params.msg_a);
   p.set('x', params.split_x);
   p.set('d', params.a_side);
-  if (params.a_half) p.set('h', params.a_half);
   return `${buildBase()}#couple-b?${p.toString()}`;
 }
 
@@ -178,9 +176,8 @@ export function parseInviteURL(hash: string): InviteParams | null {
     const msg_a = params.get('m') || '';
     const split_x = params.get('x') || '';
     const a_side = params.get('d') as 'left' | 'right' | null;
-    const a_half = params.get('h') || undefined;
     if (!sid || !u || !pin_a || !split_x || !a_side) return null;
-    return { sid, u, pin_a, msg_a, split_x, a_side, a_half };
+    return { sid, u, pin_a, msg_a, split_x, a_side };
   } catch {
     return null;
   }

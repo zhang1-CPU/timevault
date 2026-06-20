@@ -11,7 +11,6 @@ import {
   parseInviteURL,
   parseMergeURL,
   generateQRCodeImage,
-  compressForQR,
   type CoupleSession,
 } from '@/lib/couple-crypto';
 import {
@@ -242,7 +241,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
   const handleCutPointerUp = useCallback(() => setIsDragging(false), []);
 
-  // ─── Scene: Create — A uploads → cut → A half (compressed into QR) → invite QR ───
+  // ─── Scene: Create — A uploads → cut → split params into invite QR (no image data) ───
   const handleCreate = useCallback(async () => {
     if (!originalImage || !sideChoice || !msgA.trim() || pinA.length !== PIN_LENGTH || !unlockDate) {
       setError('Please upload a photo, pick a side, write your message, and enter your PIN.');
@@ -255,17 +254,15 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     }
     clearError();
     setIsProcessing(true);
+    await new Promise(r => setTimeout(r, 30)); // yield so React renders the spinner
 
     try {
-      // 1) Split the original photo → get A's half
-      const { leftBlob, rightBlob } = await splitPhotoByRatio(originalImage, splitX);
+      // 1) Validate — split photo to confirm it works (no A half in QR)
+      const { leftBlob: _left, rightBlob: _right } = await splitPhotoByRatio(originalImage, splitX);
+      void _left; void _right;
       const mySide: 'left' | 'right' = sideChoice;
-      const aHalfBlob = mySide === 'left' ? leftBlob : rightBlob;
 
-      // 2) Compress A's half into a tiny data URL for the QR code
-      const aHalfDataURL = await compressForQR(aHalfBlob);
-
-      // 3) Save session (with split params — A will use them at merge time)
+      // 2) Save session
       const sessionId = generateSessionId();
       const sess: CoupleSession = {
         sessionId,
@@ -281,7 +278,8 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       saveActiveSessionId(sessionId);
       setSession(sess);
 
-      // 4) Invite QR: A's compressed half + PIN-A + A's message + split params
+      // 3) Invite QR: only text params — session id, unlock time, PIN-A, message,
+      //    split ratio, and which side A keeps. No image data in the QR.
       const url = generateInviteURL({
         sid: sessionId,
         u: unlock.toISOString(),
@@ -289,7 +287,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         msg_a: msgA.trim(),
         split_x: splitX.toFixed(4),
         a_side: mySide,
-        a_half: aHalfDataURL,
       });
       const qr = await generateQRCodeImage(url);
       setInviteURL(url);
@@ -323,6 +320,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     }
     clearError();
     setIsProcessing(true);
+    await new Promise(r => setTimeout(r, 30)); // yield so React renders the spinner
 
     try {
       const unlock = new Date(bParams.u);
@@ -351,8 +349,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       );
       await downloadBlob(sealedB, 'timevault-couple-B.png');
 
-      // 3) Merge QR: B sends text metadata back to A (only PIN-B and B's message).
-      // A will re-upload the original at merge time, cut with the same ratio, and seal.
+      // 3) Merge QR: B sends text metadata back to A (no image data in QR)
       const mergeUrl = generateMergeURL({
         sid: bParams.sid,
         u: bParams.u,
@@ -895,7 +892,7 @@ function CreateStep({
   );
 }
 
-// ─── B Welcome (shows A's half tiny preview from QR) ───────
+// ─── B Welcome (simple text-based intro — no image preview in QR) ───────
 function BWelcomeStep({
   params,
   onContinue,
@@ -920,15 +917,6 @@ function BWelcomeStep({
         </h2>
         <p className="text-white/25 text-sm">A time capsule — sealed until the appointed moment</p>
       </div>
-
-      {params.a_half && (
-        <div className="flex flex-col items-center space-y-2">
-          <div className="rounded-2xl overflow-hidden border border-white/10 shadow-lg bg-black/30">
-            <img src={params.a_half} alt="A's half preview" className="block max-w-[180px] max-h-[180px] w-auto h-auto" />
-          </div>
-          <p className="text-white/25 text-xs">A&apos;s half (low-res preview from QR)</p>
-        </div>
-      )}
 
       <div className="glass-romantic rounded-2xl p-6 border border-white/[0.05] space-y-3 text-center">
         <p className="text-white/50 text-sm leading-relaxed">
