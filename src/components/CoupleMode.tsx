@@ -379,7 +379,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         pinb: pinBInput,
         msgb_cipher: msgbCipher,
         sealedat: bParams.sid,
-        half: bSide,
       });
       const mergeQRImg = await generateQRCodeImage(mergeUrl);
       setMergeURL(mergeUrl);
@@ -403,19 +402,10 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     setIsProcessing(true);
 
     try {
-      // Get A's blob from session or reconstruct
+      // Get A's blob from session storage
       let aBlob = getBlobFromSession(mergeParams.sid);
-      if (!aBlob && mergeParams.preview) {
-        // Try from session data
-        const sess = loadSession(mergeParams.sid);
-        if (sess?._halfBlobA) {
-          aBlob = getBlobFromSession(mergeParams.sid);
-        }
-      }
-
       if (!aBlob) {
-        // No session found — reconstruct from merge params preview
-        setError('Could not find your saved data. The merge link may have expired or been opened on a different device.');
+        setError('Could not find your saved data. Please open the merge link on the same device you created the capsule.');
         setIsProcessing(false);
         return;
       }
@@ -474,16 +464,9 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   // ─── Download helper ────────────────────────────────────────
   const handleDownloadA = useCallback(() => {
     if (!sealedBlobA) return;
-    const sess = session || (mergeParams ? {
-      sessionId: mergeParams.sid,
-      mySide: mergeParams.half,
-      theirSide: mergeParams.half === 'left' ? 'right' : 'left',
-      unlockTime: mergeParams.u,
-      merged: false,
-    } : null);
-    const side = sess?.mySide || 'left';
-    downloadBlob(sealedBlobA, `timevault-half-${side}-${Date.now()}.png`);
-  }, [sealedBlobA, session, mergeParams]);
+    const side = session?.mySide || 'merged';
+    downloadBlob(sealedBlobA, `timevault-complete-${side}-${Date.now()}.png`);
+  }, [sealedBlobA, session]);
 
   const handleDownloadB = useCallback(() => {
     if (!bHalfBlob) return;
