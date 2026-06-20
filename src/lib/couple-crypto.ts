@@ -42,7 +42,7 @@ export interface InviteParams {
   sid: string;
   u: string;
   pina: string;
-  msga: string;
+  msga_cipher: string; // A's message encrypted with PIN-B
   half: 'left' | 'right';
   preview?: string; // optional — QR may fail to scan if too large
 }
@@ -51,8 +51,7 @@ export interface MergeParams {
   sid: string;
   u: string;
   pinb: string;
-  msgb: string;
-  msga: string;
+  msgb_cipher: string; // B's message encrypted with PIN-A
   sealedat: string;
   half: 'left' | 'right';
   preview?: string;
@@ -144,10 +143,9 @@ export function generateInviteURL(params: InviteParams): string {
   p.set('sid', params.sid);
   p.set('u', params.u);
   p.set('pina', params.pina);
-  p.set('msga', params.msga);
+  p.set('msga_cipher', params.msga_cipher);
   p.set('half', params.half);
   if (params.preview) {
-    // Tiny preview — 40px JPEG at 0.15 quality should fit in QR
     p.set('preview', params.preview);
   }
   return `${buildBase()}#couple-b?${p.toString()}`;
@@ -158,8 +156,7 @@ export function generateMergeURL(params: MergeParams): string {
   p.set('sid', params.sid);
   p.set('u', params.u);
   p.set('pinb', params.pinb);
-  p.set('msgb', params.msgb);
-  p.set('msga', params.msga);
+  p.set('msgb_cipher', params.msgb_cipher);
   p.set('sealedat', params.sealedat);
   p.set('half', params.half);
   if (params.preview) {
@@ -178,11 +175,11 @@ export function parseInviteURL(hash: string): InviteParams | null {
     const sid = params.get('sid');
     const u = params.get('u');
     const pina = params.get('pina');
-    const msga = params.get('msga');
+    const msga_cipher = params.get('msga_cipher') || '';
     const half = params.get('half') as 'left' | 'right' | null;
     const preview = params.get('preview') || '';
-    if (!sid || !u || !pina || !msga || !half) return null;
-    return { sid, u, pina, msga, half, preview };
+    if (!sid || !u || !pina || !half) return null;
+    return { sid, u, pina, msga_cipher, half, preview };
   } catch {
     return null;
   }
@@ -196,13 +193,12 @@ export function parseMergeURL(hash: string): MergeParams | null {
     const sid = params.get('sid');
     const u = params.get('u');
     const pinb = params.get('pinb');
-    const msgb = params.get('msgb');
-    const msga = params.get('msga');
+    const msgb_cipher = params.get('msgb_cipher');
     const sealedat = params.get('sealedat');
     const half = params.get('half') as 'left' | 'right' | null;
     const preview = params.get('preview') || '';
-    if (!sid || !u || !pinb || !msgb || !msga || !sealedat || !half) return null;
-    return { sid, u, pinb, msgb, msga, sealedat, half, preview: preview || undefined };
+    if (!sid || !u || !pinb || !msgb_cipher || !sealedat || !half) return null;
+    return { sid, u, pinb, msgb_cipher, sealedat, half, preview: preview || undefined };
   } catch {
     return null;
   }

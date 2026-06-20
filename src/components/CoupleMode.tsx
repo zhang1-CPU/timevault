@@ -19,6 +19,8 @@ import {
   sealCoupleHalf,
   mergeCoupleHalfA,
   revealCoupleMessage,
+  encryptWithPin,
+  decryptWithPin,
 } from '@/lib/crypto';
 import { CoupleHeader } from './CoupleHeader';
 import { CoupleCeremony } from './CoupleCeremony';
@@ -289,12 +291,15 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       // Store A's half for later merge
       storeBlobForSession(sessionId, myHalfBlob);
 
+      // Encrypt A's message with PIN-A for secure transmission
+      const msgaCipher = await encryptWithPin(msgA.trim(), pinA);
+      
       // Generate invite URL + QR — short URL so phone can scan reliably
       const url = generateInviteURL({
         sid: sessionId,
         u: unlock.toISOString(),
         pina: pinA,
-        msga: msgA.trim(),
+        msga_cipher: msgaCipher,
         half: theirSide,
         preview: theirPreview,
       });
@@ -345,10 +350,13 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       const res = await fetch(bParams.preview);
       const theirHalfBlob = await res.blob();
 
+      // Decrypt A's message from URL (encrypted with PIN-A)
+      const msgA = bParams.msga_cipher ? await decryptWithPin(bParams.msga_cipher, bParams.pina) : '';
+
       // Seal B's half with both messages
       const sealedB = await sealCoupleHalf(
         new File([theirHalfBlob], 'b-half.png', { type: 'image/png' }),
-        bParams.msga,   // A's message
+        msgA,           // A's decrypted message
         msgB.trim(),    // B's message
         bParams.pina,   // PIN-A
         pinBInput,      // PIN-B (B's own PIN)
@@ -358,13 +366,15 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
       setBHalfBlob(sealedB);
 
+      // Encrypt B's message with PIN-A for secure transmission to A
+      const msgbCipher = await encryptWithPin(msgB.trim(), bParams.pina);
+
       // Generate merge URL
       const mergeUrl = generateMergeURL({
         sid: bParams.sid,
         u: bParams.u,
         pinb: pinBInput,
-        msgb: msgB.trim(),
-        msga: bParams.msga,
+        msgb_cipher: msgbCipher,
         sealedat: bParams.sid,
         half: bParams.half,
       });
@@ -412,11 +422,14 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
       const unlock = new Date(mergeParams.u);
 
+      // Decrypt B's message from URL (encrypted with PIN-A)
+      const msgB = mergeParams.msgb_cipher && sess.pinA ? await decryptWithPin(mergeParams.msgb_cipher, sess.pinA) : '';
+
       // Merge B's message into A's half
       const finalBlob = await mergeCoupleHalfA(
         new File([aBlob], 'a-half.png', { type: 'image/png' }),
-        sess.msgA || mergeParams.msga,
-        mergeParams.msgb,
+        sess.msgA || '',
+        msgB,
         sess.pinA || '',
         mergeParams.pinb,
         unlock,
@@ -1102,14 +1115,6 @@ function MergeStep({
         </h2>
         <p className="text-white/30 text-sm">
           TA&apos;s reply is ready — download your complete capsule now
-        </p>
-      </div>
-
-      {/* TA's message */}
-      <div className="glass-romantic rounded-2xl p-5 space-y-3 border border-white/[0.05]">
-        <p className="text-xs text-white/20 uppercase tracking-widest text-center">TA Wrote</p>
-        <p className="text-white/70 text-sm leading-relaxed font-serif italic text-center">
-          &ldquo;{params.msgb}&rdquo;
         </p>
       </div>
 
