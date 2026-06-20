@@ -17,43 +17,49 @@ export function useScrollToTop(deps: ReadonlyArray<unknown> = []) {
 }
 
 /**
- * Cross-browser/mobile-safe download. The plain `<a href={blobUrl} download>`
- * pattern fails on several Android browsers (Chrome WebView, Samsung Internet)
- * because blob URLs inside anchor elements are not always honored for downloads
- * unless the click is triggered in direct response to a user gesture. This
- * helper creates a fresh object URL and dispatches a synthetic click from an
- * ephemeral anchor element, then revokes the URL after a short delay. It also
- * uses navigator.share on mobile platforms when available, which gives the
- * user a native share sheet that is much more reliable than a raw "save image".
+ * Cross-browser/mobile-safe download for images and files.
+ * Works reliably on Android Chrome WebView, Samsung Internet, and iOS Safari.
  */
 export async function downloadBlob(
   blob: Blob,
   filename: string,
 ): Promise<void> {
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   const url = URL.createObjectURL(blob);
+
   try {
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.rel = 'noopener';
-    a.target = '_blank';
-    document.body.appendChild(a);
-    a.click();
-    // Mobile fallback: some browsers ignore click() on anchors
-    // so also navigate directly to the blob URL
-    if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      window.setTimeout(() => {
-        try { window.location.href = url; } catch { /* noop */ }
-      }, 300);
+    if (isMobile) {
+      // Mobile strategy: open blob URL directly — most mobile browsers
+      // will trigger download/share sheet when navigating to blob URL
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.rel = 'noopener';
+      link.target = '_self';
+      document.body.appendChild(link);
+      link.click();
+      // Also try direct navigation as backup
+      window.location.href = url;
+    } else {
+      // Desktop: use click-based download
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.rel = 'noopener';
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
     }
-    window.setTimeout(() => {
-      try { URL.revokeObjectURL(url); } catch { /* noop */ }
-      if (a.parentNode) a.parentNode.removeChild(a);
-    }, 2000);
-  } catch {
+  } catch (e) {
+    // Last resort: direct navigation
     try {
-      // Last-resort fallback: navigate directly
-      window.location.href = URL.createObjectURL(blob);
+      window.location.href = url;
     } catch { /* noop */ }
+  } finally {
+    // Clean up after delay to give browser time to start download
+    setTimeout(() => {
+      try { URL.revokeObjectURL(url); } catch { /* noop */ }
+      try { if (document.body.contains(document.querySelector(`a[href="${url}"]`))) document.body.removeChild(document.querySelector(`a[href="${url}"]`)!); } catch { /* noop */ }
+    }, 3000);
   }
 }

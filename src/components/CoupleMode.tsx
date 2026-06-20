@@ -27,6 +27,7 @@ import { CoupleCeremony } from './CoupleCeremony';
 import {
   Upload, QrCode, Check, Timer, FileKey,
   AlertCircle, Download, Copy, Heart, Sparkles, Lock,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { downloadBlob } from '@/lib/download-utils';
 
@@ -111,6 +112,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   const [msgB, setMsgB] = useState('');
   const [pinBInput, setPinBInput] = useState('');
   const [bHalfBlob, setBHalfBlob] = useState<Blob | null>(null);
+  const [bOriginalImage, setBOriginalImage] = useState<File | null>(null); // B's original half photo for high quality
 
   // ─── QR & merge ────────────────────────────────────────────
   const [inviteQR, setInviteQR] = useState('');
@@ -329,8 +331,8 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       setError('Please write a message and enter your 4-digit key');
       return;
     }
-    if (!bParams.preview || !bParams.preview.startsWith('data:')) {
-      setError('Image preview not available in this QR. Please ask TA to resend.');
+    if (!bOriginalImage) {
+      setError('Please upload your half photo first');
       return;
     }
     clearError();
@@ -346,16 +348,12 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         merged: false,
       } as CoupleSession;
 
-      // Convert preview data URL to blob for sealing
-      const res = await fetch(bParams.preview);
-      const theirHalfBlob = await res.blob();
-
       // Decrypt A's message from URL (encrypted with PIN-A)
       const msgA = bParams.msga_cipher ? await decryptWithPin(bParams.msga_cipher, bParams.pina) : '';
 
-      // Seal B's half with both messages
+      // Seal messages into B's ORIGINAL uploaded photo (high quality)
       const sealedB = await sealCoupleHalf(
-        new File([theirHalfBlob], 'b-half.png', { type: 'image/png' }),
+        bOriginalImage,
         msgA,           // A's decrypted message
         msgB.trim(),    // B's message
         bParams.pina,   // PIN-A
@@ -391,7 +389,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     } catch (err) {
       withError(err instanceof Error ? err.message : 'Failed to seal your half');
     }
-  }, [bParams, msgB, pinBInput, clearError, withError]);
+  }, [bParams, msgB, pinBInput, bOriginalImage, clearError, withError]);
 
   // ─── Scene: Merge ────────────────────────────────────────────
   const handleMerge = useCallback(async () => {
@@ -571,6 +569,8 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
               onSeal={handleBWrite}
               isProcessing={isProcessing}
               error={error}
+              bOriginalImage={bOriginalImage}
+              onImageUpload={setBOriginalImage}
             />
           )}
 
@@ -970,13 +970,19 @@ function BWriteStep({
   onSeal,
   isProcessing,
   error,
+  bOriginalImage,
+  onImageUpload,
 }: {
   msgB: string; setMsgB: (v: string) => void;
   pinB: string; setPinB: (v: string) => void;
   onSeal: () => void;
   isProcessing: boolean;
   error: string;
+  bOriginalImage: File | null;
+  onImageUpload: (file: File) => void;
 }) {
+  const imageUrl = bOriginalImage ? URL.createObjectURL(bOriginalImage) : null;
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="text-center space-y-2">
@@ -992,6 +998,35 @@ function BWriteStep({
       )}
 
       <div className="space-y-4">
+        {/* Upload photo */}
+        <div className="space-y-1.5">
+          <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
+            <ImageIcon className="w-3 h-3" /> Your Half Photo
+          </label>
+          {!bOriginalImage ? (
+            <label className="flex flex-col items-center justify-center w-full h-40 rounded-xl border-2 border-dashed border-violet-400/20 
+                             bg-white/[0.02] cursor-pointer hover:border-violet-400/40 hover:bg-white/[0.04] transition-all">
+              <Upload className="w-8 h-8 text-violet-300/30 mb-2" />
+              <span className="text-white/30 text-sm">Tap to upload your half photo</span>
+              <input type="file" accept="image/*" className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) onImageUpload(file);
+                }} />
+            </label>
+          ) : (
+            <div className="relative rounded-xl overflow-hidden border border-violet-400/20">
+              <img src={imageUrl!} alt="Your half" className="w-full max-h-48 object-contain bg-black/30" />
+              <button onClick={() => onImageUpload(null as any)}
+                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 flex items-center justify-center
+                           hover:bg-black/70 transition-all text-white/60 hover:text-white text-xs">
+                ✕
+              </button>
+            </div>
+          )}
+          <p className="text-white/15 text-[10px] text-center">Upload your half of the original photo for best quality</p>
+        </div>
+
         <div className="space-y-1.5">
           <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
             <FileKey className="w-3 h-3" /> Your Key
