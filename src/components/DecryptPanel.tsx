@@ -244,6 +244,7 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
                 <p className="text-white/50 text-lg mb-1">Drop your sealed photo here</p>
                 <p className="text-white/20 text-sm">or click to browse</p>
                 <p className="text-white/10 text-xs mt-3">PNG format only</p>
+                <p className="text-white/10 text-[10px] mt-2">🔒 Your photo never leaves your device. We do not store any images.</p>
               </div>
 
               <input
