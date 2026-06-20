@@ -225,7 +225,7 @@ export function EncryptPanel({ onBack }: EncryptPanelProps) {
                 <p className="text-white/50 text-lg mb-1">Drop a photo here</p>
                 <p className="text-white/20 text-sm">or click to browse</p>
                 <p className="text-white/10 text-xs mt-3">PNG, JPG up to 20MB</p>
-                <p className="text-white/10 text-[10px] mt-2">🔒 Your photo never leaves your device. We do not store any images.</p>
+                <p className="text-rose-300/40 text-[10px] mt-2">💖 For your privacy, we never save your photos — please upload again when needed</p>
               </div>
 
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />

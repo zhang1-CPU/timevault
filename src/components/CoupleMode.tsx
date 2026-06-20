@@ -805,7 +805,7 @@ function CreateStep({
             <p className="text-white/50 text-lg mb-1 font-light">Drop a photo here</p>
             <p className="text-white/20 text-sm">or click to browse</p>
             <p className="text-white/10 text-xs mt-4">PNG, JPG, WebP — up to 20MB</p>
-            <p className="text-white/10 text-[10px] mt-2">🔒 Your photo never leaves your device. We do not store any images.</p>
+            <p className="text-rose-300/40 text-[10px] mt-2">💖 For your privacy, we never save your photos — please upload again when needed</p>
           </div>
 
           {/* Romantic quote */}
@@ -1045,7 +1045,7 @@ function BWriteStep({
                          bg-white/[0.02] cursor-pointer hover:border-violet-400/40 hover:bg-white/[0.04] transition-all">
               <Upload className="w-8 h-8 text-violet-300/30 mb-2" />
               <span className="text-white/30 text-sm">Tap to upload the original photo</span>
-              <span className="text-white/15 text-[10px] mt-1">🔒 We never store your photo — please upload again</span>
+              <span className="text-rose-300/40 text-[10px] mt-1">💖 For your privacy, we never save your photos — please upload again when needed</span>
               <input ref={fileRef} type="file" accept="image/*" className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
