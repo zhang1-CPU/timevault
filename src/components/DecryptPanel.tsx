@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { revealMessage, checkImageStatus, type LockStatus } from '@/lib/crypto';
-import { ArrowLeft, Upload, Unlock, Clock, AlertCircle, Image, FileKey } from 'lucide-react';
+import { revealMessage, checkImageStatus, revealCoupleMessage, type LockStatus } from '@/lib/crypto';
+import { ArrowLeft, Upload, Unlock, Clock, AlertCircle, Image, FileKey, Heart } from 'lucide-react';
 import { RevealCeremony } from './RevealCeremony';
 import { useScrollToTop } from '@/lib/download-utils';
 
@@ -9,7 +9,7 @@ interface DecryptPanelProps {
 }
 
 export function DecryptPanel({ onBack }: DecryptPanelProps) {
-  const [step, setStep] = useState<'upload' | 'checking' | 'locked' | 'pin' | 'revealed'>('upload');
+  const [step, setStep] = useState<'upload' | 'checking' | 'locked' | 'pin' | 'couple-pin' | 'revealed'>('upload');
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState('');
   const [pin, setPin] = useState('');
@@ -18,6 +18,7 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
+  const [coupleRole, setCoupleRole] = useState<'A' | 'B'>('A');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Cleanup preview URL on unmount
@@ -87,15 +88,15 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
         return;
       }
 
-      // This image was created as a two-person (couple) letter — route the
-      // user to the couple unlock flow instead of asking for a PIN.
+      // This image was created as a two-person (couple) letter
       if (lockStatus.isCoupleMode) {
         if (lockStatus.isCoupleModeReady === false) {
           setError('This couple letter is incomplete — the second person hasn\'t written yet.');
-        } else {
-          setError('This is a two-person message — please use the Couple mode unlock page instead.');
+          setStep('upload');
+          return;
         }
-        setStep('upload');
+        // Go to couple pin entry instead of regular pin entry
+        setStep('couple-pin');
         return;
       }
 
@@ -132,13 +133,39 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
         setError('This message is still time-locked');
       } else if (msg.includes('PIN') || msg.includes('password') || msg.includes('key')) {
         setError('Wrong PIN. Please try again.');
-      } else if (msg.includes('two-person')) {
-        setError(msg);
       } else if (msg.includes('atob') || msg.includes('base64') || msg.includes('correctly encoded')) {
-        // Fallback: the image may be corrupted or was not a valid TimeVault image
         setError('The message inside this image could not be read. Try with your original PNG download.');
       } else {
         setError(msg);
+      }
+    }
+  };
+
+  const handleCoupleUnlock = async () => {
+    if (!image || pin.length !== 4) {
+      setError('Please enter your 4-digit PIN');
+      return;
+    }
+
+    setError('');
+
+    try {
+      const result = await revealCoupleMessage(image, pin, coupleRole);
+      if (!result) {
+        setError('No message found from your partner');
+        return;
+      }
+      setMessage(result.theirMessage);
+      setSealedAt(result.sealedAt);
+      setStep('revealed');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Decryption failed';
+      if (msg.includes('LOCKED') || msg.includes('time')) {
+        setError('This message is still time-locked');
+      } else if (msg.includes('PIN') || msg.includes('password') || msg.includes('key')) {
+        setError('Wrong PIN. Please try again.');
+      } else {
+        setError('Decryption failed — ' + msg);
       }
     }
   };
@@ -323,6 +350,88 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
               >
                 <Unlock className="w-5 h-5 sm:w-6 sm:h-6" />
                 Reveal
+              </button>
+            </div>
+          )}
+
+          {/* Couple Mode PIN Entry */}
+          {step === 'couple-pin' && (
+            <div className="space-y-6 text-center">
+              <div>
+                <div className="flex justify-center mb-3">
+                  <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-400/20 flex items-center justify-center">
+                    <Heart className="w-6 h-6 text-rose-400" fill="rgba(244,63,94,0.2)" />
+                  </div>
+                </div>
+                <h2 className="text-3xl font-display font-light mb-2">
+                  <span className="bg-gradient-to-r from-rose-400 to-pink-400 gradient-text">
+                    A Letter for Two
+                  </span>
+                </h2>
+                <p className="text-white/30 text-sm">Enter your PIN to read your partner&apos;s message</p>
+              </div>
+
+              {preview && (
+                <div className="max-w-xs mx-auto rounded-xl overflow-hidden border border-white/10">
+                  <img src={preview} alt="Sealed" className="w-full" />
+                </div>
+              )}
+
+              <div className="max-w-[240px] mx-auto space-y-4">
+                <div className="flex items-center justify-center gap-3">
+                  <button
+                    onClick={() => setCoupleRole('A')}
+                    className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${
+                      coupleRole === 'A'
+                        ? 'bg-rose-500/20 border border-rose-400/40 text-rose-300'
+                        : 'bg-white/[0.03] border border-white/10 text-white/40 hover:text-white/60'
+                    }`}
+                  >
+                    Person A
+                  </button>
+                  <button
+                    onClick={() => setCoupleRole('B')}
+                    className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${
+                      coupleRole === 'B'
+                        ? 'bg-violet-500/20 border border-violet-400/40 text-violet-300'
+                        : 'bg-white/[0.03] border border-white/10 text-white/40 hover:text-white/60'
+                    }`}
+                  >
+                    Person B
+                  </button>
+                </div>
+
+                <label className="text-white/30 text-xs uppercase tracking-wider flex items-center justify-center gap-1">
+                  <FileKey className="w-3 h-3" />
+                  Your 4-Digit PIN
+                </label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={4}
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  placeholder="****"
+                  onKeyDown={(e) => e.key === 'Enter' && handleCoupleUnlock()}
+                  className="w-full px-4 py-4 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
+                             tracking-[1em] text-2xl font-mono placeholder:tracking-normal placeholder:text-white/15
+                             focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 
+                             transition-all"
+                />
+              </div>
+
+              <button
+                onClick={handleCoupleUnlock}
+                disabled={pin.length !== 4}
+                className="px-10 sm:px-12 py-4 sm:py-5 bg-gradient-to-r from-rose-500 to-pink-600 rounded-2xl text-white
+                           font-medium text-sm sm:text-lg transition-all duration-300
+                           hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.02] active:scale-[0.97]
+                           disabled:opacity-30 disabled:cursor-not-allowed
+                           flex items-center justify-center gap-2 mx-auto min-h-[56px] sm:min-h-[60px]"
+              >
+                <Heart className="w-5 h-5 sm:w-6 sm:h-6" />
+                Reveal Message
               </button>
             </div>
           )}
