@@ -4,9 +4,10 @@ interface HeroSectionProps {
   onEncrypt: () => void;
   onDecrypt: () => void;
   onCouple: () => void;
+  onCoupleUnlock?: () => void;
 }
 
-export function HeroSection({ onEncrypt, onDecrypt, onCouple }: HeroSectionProps) {
+export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: HeroSectionProps) {
   return (
     <section className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 relative overflow-hidden pb-20">
       {/* Layout 的 main 已提供 pt，这里不再重复加 padding-top */}
@@ -254,7 +255,7 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple }: HeroSectionProps
           </div>
 
           {/* Couple Mode — highlighted */}
-          <div className="flex justify-center pt-3">
+          <div className="flex flex-col items-center gap-3 pt-3">
             <button
               onClick={onCouple}
               className="group relative flex items-center gap-4 px-8 sm:px-10 py-4.5 sm:py-5 rounded-full border-2 text-white font-medium text-base sm:text-lg transition-all duration-500 min-h-[56px] sm:min-h-[60px] active:scale-[0.97]"
@@ -281,6 +282,14 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple }: HeroSectionProps
               <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
                    style={{ background: 'linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%)' }} />
             </button>
+            {onCoupleUnlock && (
+              <button
+                onClick={onCoupleUnlock}
+                className="text-white/25 text-xs hover:text-white/50 transition-all duration-300 font-light underline underline-offset-4"
+              >
+                Already have a capsule? Unlock it →
+              </button>
+            )}
           </div>
         </div>
 

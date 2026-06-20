@@ -53,7 +53,7 @@ async function deriveKey(pin: string, salt: Uint8Array): Promise<CryptoKey> {
  * Encrypt plaintext with PIN.
  * Returns: base64(salt || iv || ciphertext)
  */
-async function encryptWithPin(plaintext: string, pin: string): Promise<string> {
+export async function encryptWithPin(plaintext: string, pin: string): Promise<string> {
   const salt = crypto.getRandomValues(new Uint8Array(SALT_SIZE));
   const key = await deriveKey(pin, salt);
   const iv = crypto.getRandomValues(new Uint8Array(IV_SIZE));
@@ -74,7 +74,7 @@ async function encryptWithPin(plaintext: string, pin: string): Promise<string> {
  * Decrypt with PIN.
  * Input: base64(salt || iv || ciphertext)
  */
-async function decryptWithPin(b64: string, pin: string): Promise<string> {
+export async function decryptWithPin(b64: string, pin: string): Promise<string> {
   const data = base64ToUint8(b64);
   const salt = data.slice(0, SALT_SIZE);
   const iv = data.slice(SALT_SIZE, SALT_SIZE + IV_SIZE);
@@ -683,4 +683,211 @@ function formatDuration(seconds: number): string {
   if (hours > 0) parts.push(`${hours}h`);
   if (mins > 0) parts.push(`${mins}m`);
   return parts.join(' ') || '< 1m';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  Couple Mode — Two-person time-locked sealed messages
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface CouplePayload {
+  version: 2;
+  role: 'couple';
+  unlock: string;         // ISO unlock time
+  sealedAt: string;       // ISO time when first sealed
+  side: 'left' | 'right'; // which half this image represents
+  a_msg: { cipher: string; }; // A's message, encrypted with PIN-B
+  b_msg: { cipher: string; }; // B's message, encrypted with PIN-A
+}
+
+/**
+ * Build the couple payload JSON string (not yet encrypted).
+ */
+function buildCouplePayload(
+  msgA: string,
+  msgB: string,
+  pinA: string,
+  pinB: string,
+  unlockDate: Date,
+  side: 'left' | 'right',
+  sealedAt: Date
+): Promise<string> {
+  return encryptWithPin(msgB, pinA).then(cipherB =>
+    encryptWithPin(msgA, pinB).then(cipherA => {
+      const payload: CouplePayload = {
+        version: 2,
+        role: 'couple',
+        unlock: unlockDate.toISOString(),
+        sealedAt: sealedAt.toISOString(),
+        side,
+        a_msg: { cipher: cipherA },
+        b_msg: { cipher: cipherB },
+      };
+      return JSON.stringify(payload);
+    })
+  );
+}
+
+/**
+ * Seal both messages into a single half image (used by both A and B).
+ * This is the final sealing step — both messages are embedded,
+ * then the whole payload is tlock-encrypted so the image is unreadable until unlockDate.
+ */
+export async function sealCoupleHalf(
+  halfFile: File,
+  msgA: string,
+  msgB: string,
+  pinA: string,
+  pinB: string,
+  unlockDate: Date,
+  side: 'left' | 'right'
+): Promise<Blob> {
+  const sealedAt = new Date();
+  const payload = await buildCouplePayload(msgA, msgB, pinA, pinB, unlockDate, side, sealedAt);
+  // Wrap in tlock so the image is cryptographically time-locked
+  const tlockString = await tlockEncryptText(payload, unlockDate);
+  return embedInImage(halfFile, new TextEncoder().encode(tlockString), unlockDate);
+}
+
+/**
+ * Seal only A's message into A's half — used during initial creation.
+ * B's cipher is left empty; it will be merged later.
+ * tlock-wrapped so the image is unreadable until unlockDate.
+ */
+export async function sealCoupleHalfAOnly(
+  halfFile: File,
+  msgA: string,
+  _pinA: string,
+  pinB: string,
+  unlockDate: Date,
+  side: 'left' | 'right'
+): Promise<Blob> {
+  const sealedAt = new Date();
+  const payload: CouplePayload = {
+    version: 2,
+    role: 'couple',
+    unlock: unlockDate.toISOString(),
+    sealedAt: sealedAt.toISOString(),
+    side,
+    a_msg: { cipher: '' },
+    b_msg: { cipher: '' },
+  };
+  const cipherA = await encryptWithPin(msgA, pinB);
+  payload.a_msg = { cipher: cipherA };
+  // tlock wrap so A can't read it back before unlock date
+  const tlockString = await tlockEncryptText(JSON.stringify(payload), unlockDate);
+  return embedInImage(halfFile, new TextEncoder().encode(tlockString), unlockDate);
+}
+
+/**
+ * Merge B's message into A's half image, producing the final complete PNG.
+ * tlock-wrapped so the image is unreadable until unlockDate.
+ */
+export async function mergeCoupleHalfA(
+  halfFileA: File,
+  msgA: string,
+  msgB: string,
+  pinA: string,
+  pinB: string,
+  unlockDate: Date,
+  side: 'left' | 'right',
+  sealedAt: Date
+): Promise<Blob> {
+  const payload = await buildCouplePayload(msgA, msgB, pinA, pinB, unlockDate, side, sealedAt);
+  const tlockString = await tlockEncryptText(payload, unlockDate);
+  return embedInImage(halfFileA, new TextEncoder().encode(tlockString), unlockDate);
+}
+
+/**
+ * Reveal the other person's message using your PIN.
+ * - PIN-A → decrypts B's message (b_msg, encrypted with PIN-A)
+ * - PIN-B → decrypts A's message (a_msg, encrypted with PIN-B)
+ *
+ * Returns null if the other person hasn't written yet (their cipher is empty).
+ */
+export async function revealCoupleMessage(
+  imageFile: File,
+  myPin: string,
+  myPinType: 'A' | 'B'
+): Promise<{ theirMessage: string; unlockTime: Date; sealedAt: Date } | null> {
+  const binaryData = await extractFromImage(imageFile);
+  const tlockString = new TextDecoder().decode(binaryData);
+
+  // Step 1: time-lock decrypt
+  const tlockDecrypted = await tlockDecryptText(tlockString);
+
+  // Step 2: parse payload
+  let payload: CouplePayload;
+  try {
+    payload = JSON.parse(tlockDecrypted);
+  } catch {
+    throw new Error('Failed to parse sealed data — this image may not be a valid TimeVault couple capsule');
+  }
+
+  if (payload.role !== 'couple') {
+    throw new Error('Not a couple-mode image');
+  }
+
+  const status = checkStatus(tlockString);
+  if (!status.canUnlock || !status.unlockTime) {
+    const remaining = formatDuration(status.remainingSeconds);
+    throw new Error(`Time lock not yet released — ${remaining} remaining`);
+  }
+
+  const target = myPinType === 'A' ? payload.b_msg : payload.a_msg;
+  if (!target || !target.cipher) return null;
+
+  const theirMessage = await decryptWithPin(target.cipher, myPin);
+  return {
+    theirMessage,
+    unlockTime: status.unlockTime,
+    sealedAt: new Date(payload.sealedAt),
+  };
+}
+
+/**
+ * Check if a couple image is ready to decrypt (time lock released).
+ * Also returns which side this is and whether both messages are present.
+ */
+export async function checkCoupleStatus(
+  imageFile: File
+): Promise<{
+  canUnlock: boolean;
+  unlockTime: Date | null;
+  side: 'left' | 'right' | null;
+  bothMessagesPresent: boolean;
+  formattedRemaining: string;
+}> {
+  try {
+    const binaryData = await extractFromImage(imageFile);
+    const tlockString = new TextDecoder().decode(binaryData);
+    const status = checkStatus(tlockString);
+
+    let side: 'left' | 'right' | null = null;
+    let bothMessagesPresent = false;
+
+    try {
+      const tlockDecrypted = await tlockDecryptText(tlockString);
+      const payload: CouplePayload = JSON.parse(tlockDecrypted);
+      side = payload.side || null;
+      bothMessagesPresent = !!(payload.a_msg?.cipher && payload.b_msg?.cipher);
+    } catch {
+      // payload not yet complete — ignore
+    }
+
+    return {
+      canUnlock: status.canUnlock,
+      unlockTime: status.unlockTime,
+      side,
+      bothMessagesPresent,
+      formattedRemaining: status.formattedRemaining,
+    };
+  } catch {
+    return {
+      canUnlock: false,
+      unlockTime: null,
+      side: null,
+      bothMessagesPresent: false,
+      formattedRemaining: 'No hidden data found',
+    };
+  }
 }

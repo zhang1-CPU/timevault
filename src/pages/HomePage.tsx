@@ -10,6 +10,7 @@ export function HomePage({ navigate }: { navigate: (to: Page) => void }) {
         onEncrypt={() => navigate('seal')}
         onDecrypt={() => navigate('unlock')}
         onCouple={() => navigate('couple')}
+        onCoupleUnlock={() => { window.location.hash = '#couple-unlock'; window.location.reload(); }}
       />
       <QuoteSection />
       <HowItWorks

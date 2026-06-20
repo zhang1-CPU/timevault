@@ -7,29 +7,10 @@ interface CoupleCeremonyProps {
   sealedAt?: Date | null;
   unlockedAt?: Date | null;
   onDismiss?: () => void;
+  pinType?: 'A' | 'B'; // which PIN was used — determines which message to show
 }
 
 type Phase = 'drifting' | 'meeting' | 'opening' | 'revealed';
-
-function buildPreamble(sealedAt?: Date | null, unlockedAt?: Date | null): string[] {
-  const lines: string[] = [];
-  if (sealedAt && unlockedAt) {
-    const sealStr = sealedAt.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
-    lines.push(`On ${sealStr}, two hearts wrote two letters to one another.`);
-    const diffMs = Math.max(0, unlockedAt.getTime() - sealedAt.getTime());
-    const days = Math.round(diffMs / 86_400_000);
-    if (days > 0) {
-      lines.push(`Time held them close for ${days} ${days === 1 ? 'day' : 'days'} — now, at last, they open together.`);
-    } else {
-      lines.push(`Time held them close — now, at last, they open together.`);
-    }
-  } else {
-    lines.push('Two hearts wrote two letters to one another.');
-    lines.push('Time held them close — now, at last, they open together.');
-  }
-  lines.push(`\u201cOpen what the wait has kept.\u201d  — TimeVault`);
-  return lines;
-}
 
 function makeParticles(n: number, palette: string[], base = 160) {
   return Array.from({ length: n }, (_, i) => {
@@ -42,17 +23,20 @@ function makeParticles(n: number, palette: string[], base = 160) {
 }
 
 export function CoupleCeremony({
-  messageA, messageB, sealedAt, unlockedAt, onDismiss,
-}: CoupleCeremonyProps) {
+  messageA, messageB, onDismiss, pinType,
+}: Omit<CoupleCeremonyProps, 'sealedAt' | 'unlockedAt'>) {
   const [phase, setPhase] = useState<Phase>('drifting');
   const [letterReady, setLetterReady] = useState(false);
-  const [visibleA, setVisibleA] = useState(0);
-  const [visibleB, setVisibleB] = useState(0);
+  const [visibleChars, setVisibleChars] = useState(0);
   const [typingDone, setTypingDone] = useState(false);
-  const preambleRef = useRef<string[]>(buildPreamble(sealedAt, unlockedAt));
   const timeoutsRef = useRef<number[]>([]);
-  const intervalRef = useRef<[number | null, number | null]>([null, null]);
+  const intervalRef = useRef<number | null>(null);
   const mountedOnceRef = useRef(false);
+
+  // The message shown is whoever's message the viewer is reading (based on their PIN)
+  const theirMessage = (pinType === 'B' ? messageA : messageB) || '';
+  const accentColor = pinType === 'B' ? '#f472b6' : '#c084fc';
+  const myLabel = pinType === 'B' ? 'A' : 'B';
 
   const addTimeout = (fn: () => void, ms: number) => {
     const id = window.setTimeout(fn, ms);
@@ -63,47 +47,35 @@ export function CoupleCeremony({
     if (mountedOnceRef.current) return;
     mountedOnceRef.current = true;
 
-    const startRevealAt = 1200 + 1400 + 1400;
-    const maxLen = Math.max(messageA.length, messageB.length);
-    const typingMs = Math.max(1400, Math.min(6500, Math.ceil(maxLen / 30) * 1000));
+    const startRevealAt = 1200 + 1400;
 
     addTimeout(() => setPhase('meeting'), 1200);
     addTimeout(() => setPhase('opening'), 1200 + 1400);
     addTimeout(() => { setPhase('revealed'); setLetterReady(true); }, startRevealAt);
 
-    const perCharA = Math.max(20, Math.round(typingMs / Math.max(messageA.length, 1)));
-    const perCharB = Math.max(20, Math.round(typingMs / Math.max(messageB.length, 1)));
+    const msgLen = theirMessage.length;
+    const typingMs = Math.max(1400, Math.min(6500, Math.ceil(msgLen / 30) * 1000));
+    const perChar = Math.max(20, Math.round(typingMs / Math.max(msgLen, 1)));
 
-    const startInterval = (
-      idx: 0 | 1,
-      msgLen: number,
-      perChar: number,
-      setter: (n: number) => void,
-    ) => {
+    addTimeout(() => {
       let chars = 0;
-      intervalRef.current[idx] = window.setInterval(() => {
+      intervalRef.current = window.setInterval(() => {
         chars += Math.max(1, Math.ceil(msgLen / 120));
         if (chars >= msgLen) {
           chars = msgLen;
-          const id = intervalRef.current[idx];
-          if (id !== null) { clearInterval(id); intervalRef.current[idx] = null; }
-          if (idx === 1) setTypingDone(true);
+          if (intervalRef.current !== null) { clearInterval(intervalRef.current); intervalRef.current = null; }
+          setTypingDone(true);
         }
-        setter(chars);
+        setVisibleChars(chars);
       }, perChar);
-    };
-
-    addTimeout(() => {
-      startInterval(0, messageA.length, perCharA, setVisibleA);
-      startInterval(1, messageB.length, perCharB, setVisibleB);
     }, startRevealAt);
 
     return () => {
-      intervalRef.current.forEach((id) => { if (id !== null) clearInterval(id); });
+      if (intervalRef.current !== null) clearInterval(intervalRef.current);
       timeoutsRef.current.forEach((id) => clearTimeout(id));
       timeoutsRef.current = [];
     };
-  }, [messageA.length, messageB.length]);
+  }, [theirMessage.length]);
 
   const palette = ['#f472b6', '#c084fc', '#fbbf24', '#60a5fa', '#fca5a5', '#a78bfa', '#fcd34d'];
 
@@ -159,65 +131,77 @@ export function CoupleCeremony({
 
         {phase === 'revealed' && (
           <div
-            className={`ceremony-letter w-full parchment rounded-2xl border border-amber-900/10 px-6 sm:px-10 py-8 sm:py-12 transition-all duration-[1200ms] ${letterReady ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+            className={`ceremony-letter w-full rounded-2xl border px-6 sm:px-10 py-8 sm:py-12 transition-all duration-[1200ms] ${letterReady ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
             style={{
-              maxWidth: 1100,
+              maxWidth: 700,
               maxHeight: '86vh',
               overflowY: 'auto',
+              background: 'linear-gradient(145deg, #1a0f2e 0%, #0f0a1e 100%)',
+              borderColor: accentColor + '30',
               boxShadow:
-                '0 0 80px 10px rgba(244,114,182,0.18), 0 0 160px 30px rgba(139,92,246,0.12), 0 25px 60px rgba(0,0,0,0.45)',
+                `0 0 80px 10px ${accentColor}18, 0 0 160px 30px ${accentColor}0c, 0 25px 60px rgba(0,0,0,0.45)`,
               animation: 'letter-bloom 1.6s ease-out forwards',
             }}
           >
-            <div className="flex items-center justify-center gap-3 mb-8 opacity-60">
-              <span className="h-px bg-rose-400/40 w-10 sm:w-20" />
-              <Heart className="w-5 h-5 text-rose-400/80" strokeWidth={1.8} fill="rgba(244,63,94,0.28)" />
-              <span className="text-stone-500 text-[10px] sm:text-xs uppercase tracking-[0.4em] font-display">two letters</span>
-              <Heart className="w-5 h-5 text-violet-400/80" strokeWidth={1.8} fill="rgba(139,92,246,0.28)" />
-              <span className="h-px bg-violet-400/40 w-10 sm:w-20" />
+            {/* Decorative top hearts */}
+            <div className="flex items-center justify-center gap-3 mb-8 opacity-40">
+              <span className="h-px bg-stone-500/40 w-16" />
+              <Heart className="w-5 h-5" style={{ color: accentColor, filter: `drop-shadow(0 0 8px ${accentColor}80)` }} fill={accentColor + '40'} />
+              <span className="h-px bg-stone-500/40 w-16" />
             </div>
 
-            <div className="text-center mb-10 space-y-4">
-              {preambleRef.current.map((line, idx) => (
-                <p
-                  key={idx}
-                  className="preamble-line text-stone-700 font-display text-sm sm:text-base italic leading-relaxed"
-                  style={{ animationDelay: `${0.2 + idx * 0.6}s` }}
-                >
-                  {line}
-                </p>
-              ))}
+            {/* Header */}
+            <div className="text-center mb-8 space-y-2">
+              <p className="text-xs uppercase tracking-[0.4em]" style={{ color: accentColor + '90' }}>
+                {myLabel} wrote to you
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-serif font-light text-white/80 leading-snug">
+                The words<br />
+                <span style={{ color: accentColor }}>kept by time</span>
+              </h2>
             </div>
 
-            <div className="flex items-center justify-center gap-3 mb-10 opacity-50">
-              <span className="h-px bg-stone-500/40 w-20 sm:w-32" />
-              <span className="text-stone-500 text-[10px] sm:text-xs uppercase tracking-[0.4em] font-display">your words</span>
-              <span className="h-px bg-stone-500/40 w-20 sm:w-32" />
+            {/* Divider */}
+            <div className="flex items-center justify-center gap-3 mb-8">
+              <span className="h-px flex-1 opacity-20" style={{ background: accentColor }} />
+              <Heart className="w-3 h-3 flex-shrink-0 opacity-50" style={{ color: accentColor }} fill={accentColor + '60'} />
+              <span className="h-px flex-1 opacity-20" style={{ background: accentColor }} />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-10 relative">
-              <div className="relative px-2 sm:pr-8 sm:border-r sm:border-stone-400/20">
-                <div className="text-center mb-5">
-                  <span className="inline-block text-rose-500/80 text-[11px] sm:text-xs uppercase tracking-[0.4em] font-display">♥ A</span>
-                </div>
-                <div className="text-stone-800 font-display text-sm sm:text-[15px] leading-[1.95] whitespace-pre-wrap text-center min-h-[160px]">
-                  {messageA.slice(0, visibleA)}
-                </div>
-              </div>
-              <div className="relative px-2 sm:pl-8">
-                <div className="text-center mb-5">
-                  <span className="inline-block text-violet-500/80 text-[11px] sm:text-xs uppercase tracking-[0.4em] font-display">♥ B</span>
-                </div>
-                <div className="text-stone-800 font-display text-sm sm:text-[15px] leading-[1.95] whitespace-pre-wrap text-center min-h-[160px]">
-                  {messageB.slice(0, visibleB)}
-                </div>
+            {/* The message */}
+            <div className="text-center mb-10">
+              <div
+                className="text-white/75 font-serif text-base sm:text-lg leading-[1.9] italic whitespace-pre-wrap"
+              >
+                &ldquo;{theirMessage.slice(0, visibleChars)}<span className="opacity-30">|</span>&rdquo;
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-3 mt-12 opacity-60">
-              <span className="h-px bg-amber-900/30 w-16 sm:w-24" />
-              <Heart className="w-5 h-5 text-rose-500/80" strokeWidth={1.8} fill="rgba(244,63,94,0.28)" />
-              <span className="h-px bg-amber-900/30 w-16 sm:w-24" />
+            {/* Divider */}
+            <div className="flex items-center justify-center gap-3 mb-8">
+              <span className="h-px flex-1 opacity-10" style={{ background: accentColor }} />
+              <span className="h-1 w-1 rounded-full opacity-30" style={{ background: accentColor }} />
+              <span className="h-px flex-1 opacity-10" style={{ background: accentColor }} />
+            </div>
+
+            {/* Romantic footer — the key phrase */}
+            <div className="text-center mb-10 space-y-1">
+              <p className="text-white/15 text-xs font-serif italic leading-relaxed">
+                The words you wrote to TA
+              </p>
+              <p className="text-white/15 text-xs font-serif italic leading-relaxed">
+                are kept safe by time,
+              </p>
+              <p className="text-white/15 text-xs font-serif italic leading-relaxed">
+                waiting for TA&apos;s key to open them.
+              </p>
+            </div>
+
+            {/* Decorative bottom */}
+            <div className="flex items-center justify-center gap-3 opacity-30">
+              <span className="h-px w-12" style={{ background: accentColor }} />
+              <Heart className="w-4 h-4" style={{ color: accentColor }} fill={accentColor + '40'} />
+              <span className="h-px w-12" style={{ background: accentColor }} />
             </div>
 
             {onDismiss && (
@@ -225,9 +209,9 @@ export function CoupleCeremony({
                 <button
                   onClick={onDismiss}
                   disabled={!typingDone}
-                  className="text-stone-600 text-sm font-display hover:text-stone-900 px-8 py-3 rounded-xl hover:bg-stone-900/[0.05] transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="text-white/30 text-sm px-8 py-3 rounded-xl hover:bg-white/[0.05] hover:text-white/60 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  {typingDone ? 'Close these letters' : 'Still reading…'}
+                  {typingDone ? 'Close' : 'Still reading…'}
                 </button>
               </div>
             )}

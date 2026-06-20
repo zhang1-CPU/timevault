@@ -1,37 +1,46 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { CoupleCeremony } from './CoupleCeremony';
 import {
-  createSession,
-  splitPhotoSimple,
-  generateCoupleURL,
-  generateQRCode,
-  sealHalf,
-  loadSession,
+  generateSessionId,
+  splitPhotoByRatio,
+  compressForQR,
   saveSession,
-  markQRUsed,
+  loadSession,
+  storeBlobForSession,
+  getActiveSessionId,
+  getBlobFromSession,
+  generateInviteURL,
+  generateMergeURL,
+  parseInviteURL,
+  parseMergeURL,
+  generateQRCodeImage,
   type CoupleSession,
 } from '@/lib/couple-crypto';
-import { CoupleHeader, MobilePromptBanner } from './CoupleHeader';
 import {
-  Upload, Lock, Scissors, QrCode, Check, Timer, FileKey,
-  AlertCircle, Download, Copy, Heart,
+  sealCoupleHalf,
+  sealCoupleHalfAOnly,
+  mergeCoupleHalfA,
+  revealCoupleMessage,
+} from '@/lib/crypto';
+import { CoupleHeader } from './CoupleHeader';
+import { CoupleCeremony } from './CoupleCeremony';
+import {
+  Upload, QrCode, Check, Timer, FileKey,
+  AlertCircle, Download, Copy, Heart, Sparkles, Lock,
 } from 'lucide-react';
-import { useScrollToTop, downloadBlob } from '@/lib/download-utils';
+import { downloadBlob } from '@/lib/download-utils';
 
 // ═══════════════════════════════════════════════════════════════
 //  Types
 // ═══════════════════════════════════════════════════════════════
 
-type Step =
+type Scene =
   | 'landing'
-  | 'upload'
-  | 'cut'
-  | 'cut-fade'      // Fade transition after cut confirm
-  | 'a-write'
-  | 'a-qr'
-  | 'b-welcome'     // B scans QR → sees preview + unlock time
-  | 'b-write'       // B writes message + PIN
-  | 'b-done';       // B downloads sealed half
+  | 'create'
+  | 'b-welcome'
+  | 'b-write'
+  | 'b-done'
+  | 'merge'
+  | 'unlock';
 
 // ═══════════════════════════════════════════════════════════════
 //  Constants
@@ -50,52 +59,76 @@ interface CoupleModeProps {
 }
 
 export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
-  // ─── Core state ────────────────────────────────────────────
-  const [step, setStep] = useState<Step>('landing');
-  const [error, setError] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
+  // ─── Hash routing ──────────────────────────────────────────
+  const [scene, setScene] = useState<Scene>('landing');
 
-  // ─── Mount-time values (keep render pure, no Date.now calls) ───
-  const mountTime = useMemo(() => Date.now(), []);
-  const minUnlockDate = useMemo(
-    () => new Date(mountTime + 60000).toISOString().slice(0, 16),
-    [mountTime]
-  );
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.startsWith('#couple-b')) {
+      const params = parseInviteURL(hash);
+      if (params) { setBParams(params); setScene('b-welcome'); return; }
+    }
+    if (hash.startsWith('#couple-a')) {
+      const params = parseMergeURL(hash);
+      if (params) { setMergeParams(params); setScene('merge'); return; }
+    }
+    if (hash.startsWith('#couple-unlock')) {
+      setScene('unlock'); return;
+    }
+    // Check if there's an active session
+    const activeId = getActiveSessionId();
+    if (activeId) {
+      const sess = loadSession(activeId);
+      if (sess) {
+        setSession(sess);
+        setScene('create');
+        return;
+      }
+    }
+    setScene('landing');
+  }, []);
 
-  // ─── Photo data ────────────────────────────────────────────
+  // ─── Session & A's data ────────────────────────────────────
+  const [session, setSession] = useState<CoupleSession | null>(null);
+  const [bParams, setBParams] = useState<Awaited<ReturnType<typeof parseInviteURL>>>(null);
+  const [mergeParams, setMergeParams] = useState<Awaited<ReturnType<typeof parseMergeURL>>>(null);
+
+  // ─── A's creation data ─────────────────────────────────────
   const [originalImage, setOriginalImage] = useState<File | null>(null);
   const originalPreviewRef = useRef<string>('');
-  const [leftHalfBlob, setLeftHalfBlob] = useState<Blob | null>(null);
-  const [rightHalfBlob, setRightHalfBlob] = useState<Blob | null>(null);
-  const [leftPreview, setLeftPreview] = useState('');
-  const [rightPreview, setRightPreview] = useState('');
-
-  // ─── Cut editor ────────────────────────────────────────────
-  const [splitX, setSplitX] = useState(0.5);  // 0-1 normalized
+  const [splitX, setSplitX] = useState(0.5);
   const [isDragging, setIsDragging] = useState(false);
   const cutCanvasRef = useRef<HTMLCanvasElement>(null);
-  const imageSizeRef = useRef<{ w: number; h: number }>({ w: 0, h: 0 });
-
-  // ─── A's data ──────────────────────────────────────────────
-  const [messageA, setMessageA] = useState('');
+  const [sideChoice, setSideChoice] = useState<'left' | 'right' | null>(null);
+  const [msgA, setMsgA] = useState('');
   const [pinA, setPinA] = useState('');
-  const [unlockDate, setUnlockDate] = useState('');
-
-  // ─── Session & QR ──────────────────────────────────────────
-  const [session, setSession] = useState<CoupleSession | null>(null);
-  const [qrCode, setQrCode] = useState('');
-  const [copied, setCopied] = useState(false);
-
-  // ─── B's data ──────────────────────────────────────────────
-  const [bPreviewFromQR, setBPreviewFromQR] = useState('');
-  const [bUnlockTime, setBUnlockTime] = useState('');
-  const bUnlockTimeRef = useRef('');
-  const [bSessionId, setBSessionId] = useState('');
-  const [messageB, setMessageB] = useState('');
   const [pinB, setPinB] = useState('');
-  const [, setSealedBlobB] = useState<Blob | null>(null);
+  const [unlockDate, setUnlockDate] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState('');
 
-  // ─── Object URL cleanup tracking ───────────────────────────
+  // ─── B's data ─────────────────────────────────────────────
+  const [msgB, setMsgB] = useState('');
+  const [pinBInput, setPinBInput] = useState('');
+  const [bHalfBlob, setBHalfBlob] = useState<Blob | null>(null);
+
+  // ─── QR & merge ────────────────────────────────────────────
+  const [inviteQR, setInviteQR] = useState('');
+  const [inviteURL, setInviteURL] = useState('');
+  const [mergeQR, setMergeQR] = useState('');
+  const [mergeURL, setMergeURL] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [sealedBlobA, setSealedBlobA] = useState<Blob | null>(null);
+
+  // ─── Unlock ────────────────────────────────────────────────
+  const [unlockImage, setUnlockImage] = useState<File | null>(null);
+  const [unlockPin, setUnlockPin] = useState('');
+  const [unlockRole, setUnlockRole] = useState<'A' | 'B'>('A');
+  const [revealedMsg, setRevealedMsg] = useState('');
+  const [unlockError, setUnlockError] = useState('');
+  const [showCeremony, setShowCeremony] = useState(false);
+
+  // ─── URL cleanup ───────────────────────────────────────────
   const objectUrlsRef = useRef<string[]>([]);
   const trackUrl = useCallback((url: string) => {
     objectUrlsRef.current.push(url);
@@ -106,62 +139,53 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     objectUrlsRef.current = [];
   }, []);
 
-  // ─── Timer cleanup (prevent React state updates after unmount) ───────
+  // ─── Timer cleanup ─────────────────────────────────────────
   const timersRef = useRef<Set<number>>(new Set());
   const safeSetTimeout = useCallback((fn: () => void, ms: number): number => {
-    const id = window.setTimeout(() => {
-      timersRef.current.delete(id);
-      fn();
-    }, ms);
+    const id = window.setTimeout(() => { timersRef.current.delete(id); fn(); }, ms);
     timersRef.current.add(id);
     return id;
   }, []);
   const clearAllTimers = useCallback(() => {
-    timersRef.current.forEach((id) => window.clearTimeout(id));
+    timersRef.current.forEach(id => window.clearTimeout(id));
     timersRef.current.clear();
   }, []);
 
-  // ─── Error helpers ─────────────────────────────────────────
+  useEffect(() => {
+    return () => { clearAllTimers(); revokeAllUrls(); };
+  }, [clearAllTimers, revokeAllUrls]);
+
+  // ─── Shared helpers ─────────────────────────────────────────
+  const mountTime = useMemo(() => Date.now(), []);
+  const minUnlockDate = useMemo(
+    () => new Date(mountTime + 60000).toISOString().slice(0, 16),
+    [mountTime]
+  );
+
   const clearError = useCallback(() => setError(''), []);
   const withError = useCallback((msg: string) => {
     setError(msg);
     setIsProcessing(false);
   }, []);
 
-  // ─── Unmount cleanup: cancel timers + revoke object URLs ───
-  useEffect(() => {
-    return () => {
-      clearAllTimers();
-      revokeAllUrls();
-    };
-  }, [clearAllTimers, revokeAllUrls]);
-
-  // ─── Step: Upload ──────────────────────────────────────────
+  // ─── Scene: Upload ─────────────────────────────────────────
   const handleImageUpload = useCallback((file: File) => {
     clearError();
-    if (!file.type.startsWith('image/')) {
-      setError('Please upload an image file (PNG, JPG, or WebP)');
-      return;
-    }
-    if (file.size > MAX_FILE_SIZE) {
-      setError(`Image too large. Maximum ${MAX_FILE_SIZE / 1024 / 1024}MB.`);
-      return;
-    }
+    if (!file.type.startsWith('image/')) { setError('Please upload an image file'); return; }
+    if (file.size > MAX_FILE_SIZE) { setError(`Max file size is ${MAX_FILE_SIZE / 1024 / 1024}MB`); return; }
     setOriginalImage(file);
     const url = URL.createObjectURL(file);
     originalPreviewRef.current = url;
     trackUrl(url);
-    setStep('cut');
+    setScene('create');
   }, [clearError, trackUrl]);
 
-  // ─── Step: Cut — Canvas rendering ──────────────────────────
-  // Render the cut preview line on the image
+  // ─── Scene: Cut — Canvas rendering ─────────────────────────
   useEffect(() => {
-    if (step !== 'cut' && step !== 'cut-fade') return;
+    if (scene !== 'create') return;
     const canvas = cutCanvasRef.current;
     const previewUrl = originalPreviewRef.current;
     if (!canvas || !previewUrl) return;
-
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -171,54 +195,39 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       const scale = containerW / img.width;
       const w = Math.round(containerW);
       const h = Math.round(img.height * scale);
-
-      imageSizeRef.current = { w: img.width, h: img.height };
       canvas.width = w;
       canvas.height = h;
-
-      // Draw image
       ctx.drawImage(img, 0, 0, w, h);
-
-      // Draw split line (only in cut step, not in fade)
-      if (step === 'cut') {
-        const splitPos = splitX * w;
-        ctx.save();
-        ctx.strokeStyle = 'rgba(232, 160, 170, 0.85)';
-        ctx.lineWidth = 2.5;
-        ctx.setLineDash([10, 7]);
-        ctx.beginPath();
-        ctx.moveTo(splitPos, 0);
-        ctx.lineTo(splitPos, h);
-        ctx.stroke();
-
-        // Labels
-        ctx.setLineDash([]);
-        ctx.font = 'bold 13px Inter, sans-serif';
-        ctx.fillStyle = 'rgba(232, 180, 180, 0.9)';
-        ctx.fillText('A', splitPos - 24, 28);
-        ctx.fillStyle = 'rgba(200, 180, 230, 0.9)';
-        ctx.fillText('B', splitPos + 12, 28);
-
-        // Split percentage indicator
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-        ctx.font = '11px Inter, sans-serif';
-        const pct = Math.round(splitX * 100);
-        ctx.fillText(`${pct}% / ${100 - pct}%`, splitPos + 15, h - 12);
-        ctx.restore();
-      }
+      const splitPos = splitX * w;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(232, 160, 170, 0.85)';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([10, 7]);
+      ctx.beginPath();
+      ctx.moveTo(splitPos, 0);
+      ctx.lineTo(splitPos, h);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = 'bold 13px Inter, sans-serif';
+      ctx.fillStyle = 'rgba(232, 180, 180, 0.9)';
+      ctx.fillText('A', splitPos - 24, 28);
+      ctx.fillStyle = 'rgba(200, 180, 230, 0.9)';
+      ctx.fillText('B', splitPos + 12, 28);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.font = '11px Inter, sans-serif';
+      ctx.fillText(`${Math.round(splitX * 100)}% / ${100 - Math.round(splitX * 100)}%`, splitPos + 15, h - 12);
+      ctx.restore();
     };
     img.src = previewUrl;
-  }, [step, splitX]);
+  }, [scene, splitX]);
 
-  // ─── Cut pointer handlers ──────────────────────────────────
   const handleCutPointerDown = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = cutCanvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const x = (e.clientX - rect.left) * scaleX;
-    const normX = Math.max(0.05, Math.min(0.95, x / canvas.width));
-    setSplitX(normX);
+    setSplitX(Math.max(0.05, Math.min(0.95, x / canvas.width)));
     setIsDragging(true);
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   }, []);
@@ -230,319 +239,393 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const x = (e.clientX - rect.left) * scaleX;
-    const normX = Math.max(0.05, Math.min(0.95, x / canvas.width));
-    setSplitX(normX);
+    setSplitX(Math.max(0.05, Math.min(0.95, x / canvas.width)));
   }, [isDragging]);
 
-  const handleCutPointerUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
+  const handleCutPointerUp = useCallback(() => setIsDragging(false), []);
 
-  // ─── BUG FIX #1: splitX is normalized (0-1), splitPhotoSimple needs pixel coords
-  const applyCut = useCallback(async () => {
-    if (!originalImage) return;
-    clearError();
-    setIsProcessing(true);
-    try {
-      const imgSize = imageSizeRef.current;
-      // Convert normalized splitX to absolute pixel coordinate
-      const pixelSplitX = Math.round(splitX * imgSize.w);
-      const { leftBlob, rightBlob } = await splitPhotoSimple(originalImage, pixelSplitX);
-      setLeftHalfBlob(leftBlob);
-      setRightHalfBlob(rightBlob);
-      setLeftPreview(trackUrl(URL.createObjectURL(leftBlob)));
-      setRightPreview(trackUrl(URL.createObjectURL(rightBlob)));
-      setStep('cut-fade');
-      safeSetTimeout(() => setStep('a-write'), 1800);
-    } catch (err) {
-      withError(err instanceof Error ? err.message : 'Failed to split photo');
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [originalImage, splitX, clearError, withError, trackUrl, safeSetTimeout]);
-
-  // ─── Step: A Write → Generate QR ──────────────────────────
-  const handleAGenerateQR = useCallback(async () => {
-    if (!originalImage || !rightHalfBlob || !messageA.trim() || pinA.length !== PIN_LENGTH || !unlockDate) {
+  // ─── Scene: Create — A fills form + generates invite ─────────
+  const handleCreate = useCallback(async () => {
+    if (!originalImage || !sideChoice || !msgA.trim() || pinA.length !== PIN_LENGTH || pinB.length !== PIN_LENGTH || !unlockDate) {
       setError('Please fill in all fields');
       return;
     }
     const unlock = new Date(unlockDate);
-    if (isNaN(unlock.getTime())) {
-      setError('Invalid unlock date');
-      return;
-    }
-    if (unlock.getTime() <= Date.now() + 60000) {
-      setError('Unlock time must be at least 1 minute in the future');
-      return;
-    }
-    const maxUnlock = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000);
-    if (unlock > maxUnlock) {
-      setError('Unlock time cannot exceed 10 years from now');
+    if (isNaN(unlock.getTime()) || unlock.getTime() <= Date.now() + 60000) {
+      setError('Unlock date must be at least 1 minute in the future');
       return;
     }
     clearError();
     setIsProcessing(true);
 
     try {
-      // Create session with B's preview
-      const sess = await createSession(originalImage, rightHalfBlob, unlock);
-      sess.aData = { message: messageA.trim(), pin: pinA };
-      sess.aCompleted = true;
+      // Split photo
+      const { leftBlob, rightBlob } = await splitPhotoByRatio(originalImage, splitX);
+
+      // Determine sides
+      const mySide: 'left' | 'right' = sideChoice;
+      const theirSide: 'left' | 'right' = sideChoice === 'left' ? 'right' : 'left';
+
+      // Generate session
+      const sessionId = generateSessionId();
+      const sess: CoupleSession = {
+        sessionId,
+        mySide,
+        theirSide,
+        unlockTime: unlock.toISOString(),
+        msgA: msgA.trim(),
+        pinA,
+        pinB,
+        sealedAtA: new Date().toISOString(),
+        merged: false,
+      };
+
+      // Compress previews
+      const myHalfBlob = mySide === 'left' ? leftBlob : rightBlob;
+      const theirHalfBlob = mySide === 'left' ? rightBlob : leftBlob;
+      const theirPreview = await compressForQR(
+        new File([theirHalfBlob], 'their.png', { type: 'image/png' }), 180, 0.5
+      );
+
+      // Store blob in session for later merge
+      storeBlobForSession(sessionId, myHalfBlob);
+
+      // Seal A's half (A-only, B's cipher empty)
+      const sealedA = await sealCoupleHalfAOnly(
+        new File([myHalfBlob], 'my-half.png', { type: 'image/png' }),
+        msgA.trim(), pinA, pinB, unlock, mySide
+      );
+      setSealedBlobA(sealedA);
+
+      // Generate invite URL + QR
+      const url = generateInviteURL({
+        sid: sessionId,
+        u: unlock.toISOString(),
+        pina: pinA,
+        msga: msgA.trim(),
+        half: theirSide,
+        preview: theirPreview,
+      });
+      const qr = await generateQRCodeImage(url);
+      setInviteURL(url);
+      setInviteQR(qr);
+
+      // Save session
       saveSession(sess);
       setSession(sess);
+      saveSession(sess);
 
-      // Seal A's half (replace blob with sealed version)
-      const sealedLeft = await sealHalf(leftHalfBlob!, messageA.trim(), pinA, unlock);
-      // Revoke previous left preview before replacing
-      if (leftPreview) URL.revokeObjectURL(leftPreview);
-      setLeftHalfBlob(sealedLeft);
-      setLeftPreview(trackUrl(URL.createObjectURL(sealedLeft)));
-
-      const url = generateCoupleURL(sess);
-      const qr = await generateQRCode(url);
-      setQrCode(qr);
-
-      setStep('a-qr');
-    } catch (err) {
-      withError(err instanceof Error ? err.message : 'Failed to generate QR code');
-    } finally {
       setIsProcessing(false);
+    } catch (err) {
+      withError(err instanceof Error ? err.message : 'Something went wrong');
     }
-  }, [originalImage, rightHalfBlob, messageA, pinA, unlockDate, leftHalfBlob, leftPreview, clearError, withError, trackUrl]);
+  }, [originalImage, sideChoice, msgA, pinA, pinB, unlockDate, splitX, clearError, withError]);
 
-  // ─── B Path: Parse QR URL ──────────────────────────────────
-  // B scans QR → directly enters b-welcome with preview + unlock time
-  // No verification needed — QR itself is the one-time key
-  useEffect(() => {
-    const hash = window.location.hash;
-    if (!hash.includes('couple')) return;
-
-    const searchParams = hash.includes('?') ? hash.split('?')[1] : '';
-    if (!searchParams) return;
-
-    const params = new URLSearchParams(searchParams);
-    const sid = params.get('s');
-    const role = params.get('r');
-
-    if (role === 'b' && sid) {
-      setBSessionId(sid);
-
-      // Load session data
-      const sess = loadSession(sid);
-      if (sess) {
-        // Check if already used
-        if (sess.qrUsed || sess.bCompleted) {
-          setBPreviewFromQR(sess.bHalfPreview || '');
-          setBUnlockTime(sess.unlockTime || '');
-          bUnlockTimeRef.current = sess.unlockTime || '';
-          setStep('b-done');
-          setError('This link has already been used.');
-          return;
-        }
-        setBPreviewFromQR(sess.bHalfPreview || '');
-        setBUnlockTime(sess.unlockTime || '');
-        bUnlockTimeRef.current = sess.unlockTime || '';
-      }
-
-      // Cross-device fallback: preview embedded in URL
-      const urlPreview = params.get('p');
-      if (urlPreview && !sess) {
-        setBPreviewFromQR(urlPreview);
-      }
-
-      // Decode unlock time from URL if available
-      const urlUnlock = params.get('u');
-      if (urlUnlock && !bUnlockTimeRef.current) {
-        setBUnlockTime(urlUnlock);
-        bUnlockTimeRef.current = urlUnlock;
-      }
-
-      // Direct to welcome page
-      setStep('b-welcome');
-    }
+  // ─── Scene: B Welcome ───────────────────────────────────────
+  const handleBContinue = useCallback(() => {
+    setScene('b-write');
   }, []);
 
-  // ─── Step: B Write → Seal ──────────────────────────────────
-  const handleBSeal = useCallback(async () => {
-    if (!messageB.trim() || pinB.length !== PIN_LENGTH) {
-      setError('Please write a message and set a 4-digit PIN');
-      return;
-    }
-    if (!bUnlockTime) {
-      setError('Missing unlock time data');
-      return;
-    }
-    const unlock = new Date(bUnlockTime);
-    if (isNaN(unlock.getTime())) {
-      setError('Invalid unlock time');
+  // ─── Scene: B Write ─────────────────────────────────────────
+  const handleBWrite = useCallback(async () => {
+    if (!bParams || !msgB.trim() || pinBInput.length !== PIN_LENGTH) {
+      setError('Please write a message and enter your 4-digit key');
       return;
     }
     clearError();
     setIsProcessing(true);
 
     try {
-      const sess = loadSession(bSessionId);
-      // For B's half, we need to re-split the original photo
-      // In practice, B uploads the original and we extract their half
-      // For now, use a simplified approach
-      // Use the preview as the half image (compressed but functional)
-      const resp = await fetch(bPreviewFromQR);
-      if (!resp.ok) throw new Error('Failed to load preview image');
-      const previewBlob = await resp.blob();
+      const unlock = new Date(bParams.u);
+      const sess = loadSession(bParams.sid) || {
+        sessionId: bParams.sid,
+        mySide: bParams.half,
+        theirSide: bParams.half === 'left' ? 'right' : 'left',
+        unlockTime: bParams.u,
+        merged: false,
+      } as CoupleSession;
 
-      const sealed = await sealHalf(previewBlob, messageB.trim(), pinB, unlock);
-      setSealedBlobB(sealed);
-
-      // Update session
-      if (sess) {
-        sess.bData = { message: messageB.trim(), pin: pinB };
-        sess.bCompleted = true;
-        saveSession(sess);
+      // Get B's half preview from params
+      // B's half image is the "their half" that A sent — it's embedded as preview in the URL
+      // We need to reconstruct it from the preview data URL
+      let theirHalfBlob: Blob;
+      if (bParams.preview && bParams.preview.startsWith('data:')) {
+        const res = await fetch(bParams.preview);
+        theirHalfBlob = await res.blob();
+      } else {
+        // Create a placeholder canvas from preview
+        throw new Error('Image preview not available in this QR. Please ask TA to resend.');
       }
 
-      setStep('b-done');
-    } catch (err) {
-      withError(err instanceof Error ? err.message : 'Failed to seal message');
-    } finally {
+      // Seal B's half with both messages
+      const sealedB = await sealCoupleHalf(
+        new File([theirHalfBlob], 'b-half.png', { type: 'image/png' }),
+        bParams.msga,   // A's message
+        msgB.trim(),    // B's message
+        bParams.pina,   // PIN-A
+        pinBInput,      // PIN-B (B's own PIN)
+        unlock,
+        bParams.half    // B's side
+      );
+
+      setBHalfBlob(sealedB);
+
+      // Generate merge URL
+      const mergeUrl = generateMergeURL({
+        sid: bParams.sid,
+        u: bParams.u,
+        pinb: pinBInput,
+        msgb: msgB.trim(),
+        msga: bParams.msga,
+        sealedat: bParams.sid, // placeholder; actual sealedAt from session
+        half: bParams.half,
+      });
+      const mergeQRImg = await generateQRCodeImage(mergeUrl);
+      setMergeURL(mergeUrl);
+      setMergeQR(mergeQRImg);
+
+      // Save B's data to session
+      sess.msgB = msgB.trim();
+      saveSession(sess);
+
       setIsProcessing(false);
+      setScene('b-done');
+    } catch (err) {
+      withError(err instanceof Error ? err.message : 'Failed to seal your half');
     }
-  }, [messageB, pinB, bUnlockTime, bPreviewFromQR, bSessionId, clearError, withError]);
+  }, [bParams, msgB, pinBInput, clearError, withError]);
 
-  // ─── Navigation ────────────────────────────────────────────
-  const goBack = useCallback(() => {
-    if (step === 'landing') { onBack(); return; }
-    if (step === 'upload') setStep('landing');
-    else if (step === 'cut') setStep('upload');
-    else if (step === 'cut-fade') setStep('cut');
-    else if (step === 'a-write') setStep('cut');
-    else if (step === 'a-qr') setStep('a-write');
-    else if (step === 'b-welcome') onHome();
-    else if (step === 'b-write') setStep('b-welcome');
-    else if (step === 'b-done') onHome();
-  }, [step, onBack, onHome]);
+  // ─── Scene: Merge ────────────────────────────────────────────
+  const handleMerge = useCallback(async () => {
+    if (!mergeParams) { setError('Missing merge data'); return; }
+    clearError();
+    setIsProcessing(true);
 
-  // ─── Header title ──────────────────────────────────────────
-  const headerTitle = useMemo(() => {
-    switch (step) {
-      case 'upload': return 'A — Upload';
-      case 'cut': return 'A — Draw the Line';
-      case 'cut-fade': return 'A — Splitting...';
-      case 'a-write': return 'A — Your Message';
-      case 'a-qr': return 'A — Share';
-      case 'b-welcome': return 'B — Welcome';
-      case 'b-write': return 'B — Your Message';
-      case 'b-done': return 'B — Complete';
-      default: return undefined;
+    try {
+      // Get A's blob from session or reconstruct
+      let aBlob = getBlobFromSession(mergeParams.sid);
+      if (!aBlob && mergeParams.preview) {
+        // Try from session data
+        const sess = loadSession(mergeParams.sid);
+        if (sess?._halfBlobA) {
+          aBlob = getBlobFromSession(mergeParams.sid);
+        }
+      }
+
+      if (!aBlob) {
+        // No session found — reconstruct from merge params preview
+        setError('Could not find your saved data. The merge link may have expired or been opened on a different device.');
+        setIsProcessing(false);
+        return;
+      }
+
+      const sess = loadSession(mergeParams.sid);
+      if (!sess) { setError('Session not found'); setIsProcessing(false); return; }
+
+      const unlock = new Date(mergeParams.u);
+
+      // Merge B's message into A's half
+      const finalBlob = await mergeCoupleHalfA(
+        new File([aBlob], 'a-half.png', { type: 'image/png' }),
+        sess.msgA || mergeParams.msga,
+        mergeParams.msgb,
+        sess.pinA || '',
+        mergeParams.pinb,
+        unlock,
+        sess.mySide,
+        new Date(sess.sealedAtA || mergeParams.sealedat)
+      );
+
+      setSealedBlobA(finalBlob);
+      sess.merged = true;
+      sess.mergedAt = new Date().toISOString();
+      saveSession(sess);
+
+      setIsProcessing(false);
+    } catch (err) {
+      withError(err instanceof Error ? err.message : 'Failed to merge messages');
     }
-  }, [step]);
+  }, [mergeParams, clearError, withError]);
 
-  // ─── Cleanup on unmount ────────────────────────────────────
-  useEffect(() => () => revokeAllUrls(), [revokeAllUrls]);
+  // ─── Scene: Unlock ───────────────────────────────────────────
+  const handleUnlock = useCallback(async () => {
+    if (!unlockImage || unlockPin.length !== PIN_LENGTH) {
+      setUnlockError('Please upload your photo and enter your 4-digit key');
+      return;
+    }
+    setUnlockError('');
+    try {
+      const result = await revealCoupleMessage(unlockImage, unlockPin, unlockRole);
+      if (!result) {
+        setUnlockError("The other person's message isn't here yet — TA may not have written back yet.");
+        return;
+      }
+      setRevealedMsg(result.theirMessage);
+      setShowCeremony(true);
+    } catch (err) {
+      setUnlockError(err instanceof Error ? err.message : 'Failed to unlock');
+    }
+  }, [unlockImage, unlockPin, unlockRole]);
 
-  // Scroll to top every time the user moves to a new step.
-  useScrollToTop([step]);
+  // ─── Download helper ────────────────────────────────────────
+  const handleDownloadA = useCallback(() => {
+    if (!sealedBlobA) return;
+    const sess = session || (mergeParams ? {
+      sessionId: mergeParams.sid,
+      mySide: mergeParams.half,
+      theirSide: mergeParams.half === 'left' ? 'right' : 'left',
+      unlockTime: mergeParams.u,
+      merged: false,
+    } : null);
+    const side = sess?.mySide || 'left';
+    downloadBlob(sealedBlobA, `timevault-half-${side}-${Date.now()}.png`);
+  }, [sealedBlobA, session, mergeParams]);
 
-  // ════════════════════════════════════════════════════════════
-  //  RENDER
-  // ════════════════════════════════════════════════════════════
+  const handleDownloadB = useCallback(() => {
+    if (!bHalfBlob) return;
+    const side = bParams?.half || 'right';
+    downloadBlob(bHalfBlob, `timevault-half-${side}-${Date.now()}.png`);
+  }, [bHalfBlob, bParams]);
+
+  // ─── Render ────────────────────────────────────────────────
   return (
     <div className="min-h-screen flex flex-col">
-      {/* CoupleHeader now provides the offset below the fixed NavBar itself. */}
-      <CoupleHeader onBack={goBack} title={headerTitle} />
-      <MobilePromptBanner />
+      <CoupleHeader
+        onBack={() => {
+          if (scene === 'landing') onBack();
+          else if (scene === 'b-welcome') { window.location.hash = ''; setScene('landing'); }
+          else if (scene === 'b-done') setScene('b-write');
+          else if (scene === 'merge') setScene('landing');
+          else if (scene === 'unlock') setScene('landing');
+          else setScene('landing');
+        }}
+        title={
+          scene === 'create' ? 'Create Your Capsule' :
+          scene === 'b-welcome' ? 'A Message for You' :
+          scene === 'b-write' ? 'Your Reply' :
+          scene === 'b-done' ? 'You\'re All Set' :
+          scene === 'merge' ? 'Almost There' :
+          scene === 'unlock' ? 'Unlock' :
+          undefined
+        }
+      />
 
       <main className="flex-1 flex items-start justify-center px-4 sm:px-6 py-6 sm:py-8">
         <div className="w-full max-w-lg mx-auto">
-          {/* Error */}
+
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm text-center flex items-start justify-center gap-2">
+            <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm flex items-start gap-2 animate-fade-in">
               <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
               {error}
             </div>
           )}
 
-          {step === 'landing' && (
-            <LandingStep
-              onStartSeal={() => setStep('upload')}
-              onStartUnlock={() => {
-                // B clicks "I Received a QR Code" — show a helpful message
-                // In real usage, B scans the QR code directly
-                setError('Please scan the QR code sent by your partner, or paste the link with #couple in your browser.');
-              }}
-            />
+          {/* ── LANDING ────────────────────────────────────── */}
+          {scene === 'landing' && (
+            <LandingStep onStart={() => setScene('create')} />
           )}
-          {step === 'upload' && <UploadStep onUpload={handleImageUpload} />}
-          {step === 'cut' && (
-            <CutStep
-              canvasRef={cutCanvasRef}
+
+          {/* ── CREATE: A uploads + cuts + writes ─────────── */}
+          {scene === 'create' && (
+            <CreateStep
+              originalImage={originalImage}
+              onUpload={handleImageUpload}
+              cutCanvasRef={cutCanvasRef}
+              splitX={splitX}
               onPointerDown={handleCutPointerDown}
               onPointerMove={handleCutPointerMove}
               onPointerUp={handleCutPointerUp}
-              onConfirm={applyCut}
-              splitX={splitX}
-              isProcessing={isProcessing}
-            />
-          )}
-          {/* BUG FIX #2: Fade transition step */}
-          {step === 'cut-fade' && <CutFadeStep leftPreview={leftPreview} rightPreview={rightPreview} />}
-          {step === 'a-write' && (
-            <AWriteStep
-              leftPreview={leftPreview}
-              rightPreview={rightPreview}
-              messageA={messageA} setMessageA={setMessageA}
+              sideChoice={sideChoice}
+              onSideChoice={setSideChoice}
+              msgA={msgA} setMsgA={setMsgA}
               pinA={pinA} setPinA={setPinA}
-              unlockDate={unlockDate} setUnlockDate={setUnlockDate}
-              onGenerateQR={handleAGenerateQR}
-              isProcessing={isProcessing}
-              minUnlockDate={minUnlockDate}
-            />
-          )}
-          {step === 'a-qr' && (
-            <AQRStep
-              qrCode={qrCode}
-              leftPreview={leftPreview}
-              leftHalfBlob={leftHalfBlob}
-              unlockDate={unlockDate}
-              onCopyLink={() => {
-                if (session) {
-                  navigator.clipboard.writeText(generateCoupleURL(session)).catch(() => {});
-                  setCopied(true);
-                  safeSetTimeout(() => setCopied(false), 2000);
-                }
-              }}
-              copied={copied}
-              mountTime={mountTime}
-            />
-          )}
-          {step === 'b-welcome' && (
-            <BWelcomeStep
-              preview={bPreviewFromQR}
-              unlockTime={bUnlockTime}
-              onContinue={() => {
-                markQRUsed(bSessionId);
-                setStep('b-write');
-              }}
-            />
-          )}
-          {step === 'b-write' && (
-            <BWriteStep
-              preview={bPreviewFromQR}
-              messageB={messageB} setMessageB={setMessageB}
               pinB={pinB} setPinB={setPinB}
-              onSeal={handleBSeal}
+              unlockDate={unlockDate} setUnlockDate={setUnlockDate}
+              minUnlockDate={minUnlockDate}
+              onCreate={handleCreate}
               isProcessing={isProcessing}
+              inviteQR={inviteQR}
+              copied={copied}
+              onCopy={() => {
+                navigator.clipboard.writeText(inviteURL).catch(() => {});
+                setCopied(true);
+                safeSetTimeout(() => setCopied(false), 2000);
+              }}
+              onDone={onHome}
+              sealedBlobA={sealedBlobA}
+              onDownload={handleDownloadA}
             />
           )}
-          {step === 'b-done' && (
+
+          {/* ── B WELCOME ─────────────────────────────────── */}
+          {scene === 'b-welcome' && bParams && (
+            <BWelcomeStep
+              params={bParams}
+              onContinue={handleBContinue}
+            />
+          )}
+
+          {/* ── B WRITE ────────────────────────────────────── */}
+          {scene === 'b-write' && bParams && (
+            <BWriteStep
+              msgB={msgB} setMsgB={setMsgB}
+              pinB={pinBInput} setPinB={setPinBInput}
+              onSeal={handleBWrite}
+              isProcessing={isProcessing}
+              error={error}
+            />
+          )}
+
+          {/* ── B DONE ─────────────────────────────────────── */}
+          {scene === 'b-done' && (
+            <BDoneStep
+              mergeQR={mergeQR}
+              copied={copied}
+              onCopy={() => {
+                navigator.clipboard.writeText(mergeURL).catch(() => {});
+                setCopied(true);
+                safeSetTimeout(() => setCopied(false), 2000);
+              }}
+              onDownload={handleDownloadB}
+              onDone={onHome}
+            />
+          )}
+
+          {/* ── MERGE ──────────────────────────────────────── */}
+          {scene === 'merge' && mergeParams && (
+            <MergeStep
+              params={mergeParams}
+              isProcessing={isProcessing}
+              onMerge={handleMerge}
+              onDownload={handleDownloadA}
+              sealedBlobA={sealedBlobA}
+              onDone={onHome}
+            />
+          )}
+
+          {/* ── UNLOCK ─────────────────────────────────────── */}
+          {scene === 'unlock' && !showCeremony && (
+            <UnlockStep
+              unlockImage={unlockImage}
+              onImageChange={setUnlockImage}
+              unlockPin={unlockPin}
+              setUnlockPin={setUnlockPin}
+              unlockRole={unlockRole}
+              setUnlockRole={setUnlockRole}
+              onUnlock={handleUnlock}
+              error={unlockError}
+            />
+          )}
+
+          {scene === 'unlock' && showCeremony && (
             <CoupleCeremony
-              messageA={messageA}
-              messageB={messageB}
-              sealedAt={session?.unlockTime ? new Date(session.unlockTime) : undefined}
-              unlockedAt={session?.unlockTime ? new Date(session.unlockTime) : undefined}
+              messageA={unlockRole === 'A' ? revealedMsg : ''}
+              messageB={unlockRole === 'B' ? revealedMsg : ''}
               onDismiss={onHome}
+              pinType={unlockRole}
             />
           )}
+
         </div>
       </main>
     </div>
@@ -554,490 +637,680 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 // ═══════════════════════════════════════════════════════════════
 
 // ─── Landing ─────────────────────────────────────────────────
-function LandingStep({ onStartSeal, onStartUnlock }: { onStartSeal: () => void; onStartUnlock: () => void }) {
+function LandingStep({ onStart }: { onStart: () => void }) {
   return (
-    <div className="space-y-10 pt-4">
-      {/* Page header — clear and instructional */}
-      <div className="text-center space-y-4">
-        <img src="/logo.png" alt="TimeVault" className="w-14 h-14 mx-auto opacity-55 animate-breathe" />
+    <div className="space-y-10 pt-4 animate-fade-in">
+      {/* Hero */}
+      <div className="text-center space-y-5">
+        <div className="flex justify-center">
+          <div className="relative">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-rose-500/20 to-violet-500/20 border border-rose-400/20 flex items-center justify-center">
+              <Heart className="w-10 h-10 text-rose-300/70 animate-pulse" strokeWidth={1.5} fill="rgba(244,114,182,0.2)" />
+            </div>
+            <div className="absolute -inset-2 rounded-full bg-rose-500/10 animate-ping" style={{ animationDuration: '3s' }} />
+          </div>
+        </div>
         <h1 className="text-4xl sm:text-5xl font-serif font-light">
-          <span className="gradient-text">For Two</span>
+          <span className="bg-gradient-to-r from-rose-300/80 via-pink-300/70 to-violet-300/70 bg-clip-text text-transparent">
+            For Two
+          </span>
         </h1>
         <p className="text-white/30 text-sm leading-relaxed max-w-sm mx-auto font-light">
-          One photo. Two halves. Two secrets. Only when reunited can the full message be revealed.
+          One photo, cut in two. Each of you writes a secret.<br />
+          Only at the appointed hour, with your key, can the other read it.
         </p>
       </div>
 
-      {/* How it works — role A vs role B */}
-      <div className="glass-romantic rounded-2xl p-5 sm:p-6 border border-white/[0.04] space-y-4">
-        <h3 className="font-serif text-white/50 text-base text-center">How It Works</h3>
-
-        {/* Person A */}
-        <div className="flex gap-3">
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-rose-500/[0.1] flex items-center justify-center border border-rose-400/20">
-            <span className="text-rose-300/70 text-xs font-serif font-medium">A</span>
-          </div>
-          <div className="space-y-1">
-            <p className="text-white/55 text-sm font-serif">You (Person A)</p>
-            <p className="text-white/25 text-xs leading-relaxed font-light">
-              Upload a photo, split it in two, write your secret, and send a QR code to your partner.
-            </p>
-          </div>
-        </div>
-
-        {/* Person B */}
-        <div className="flex gap-3">
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-violet-500/[0.1] flex items-center justify-center border border-violet-400/20">
-            <span className="text-violet-300/70 text-xs font-serif font-medium">B</span>
-          </div>
-          <div className="space-y-1">
-            <p className="text-white/55 text-sm font-serif">Your Partner (Person B)</p>
-            <p className="text-white/25 text-xs leading-relaxed font-light">
-              Scans the QR code, writes their reply, downloads their sealed half of the photo.
-            </p>
-          </div>
-        </div>
-
-        {/* Unlock */}
-        <div className="flex gap-3">
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-500/[0.1] flex items-center justify-center border border-emerald-400/20">
-            <span className="text-emerald-300/70 text-xs font-serif font-medium">🔓</span>
-          </div>
-          <div className="space-y-1">
-            <p className="text-white/55 text-sm font-serif">Together</p>
-            <p className="text-white/25 text-xs leading-relaxed font-light">
-              When the moment arrives, both halves meet. Enter your PINs. The full message is revealed.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Step guide */}
-      <div className="space-y-2.5">
+      {/* How it works */}
+      <div className="glass-romantic rounded-2xl p-5 sm:p-6 border border-white/[0.05] space-y-4">
+        <h3 className="font-serif text-white/40 text-sm text-center">How it works</h3>
         {[
-          { num: '1', color: 'rose', text: 'Person A uploads a photo together' },
-          { num: '2', color: 'rose', text: 'Person A draws a line to split it in two' },
-          { num: '3', color: 'rose', text: 'Person A writes their message + sets PIN' },
-          { num: '4', color: 'violet', text: 'Person A sends the QR code to Person B' },
-          { num: '5', color: 'violet', text: 'Person B scans it, writes their reply + PIN' },
-          { num: '6', color: 'emerald', text: 'When the time comes — reunite & unlock together' },
-        ].map((s) => (
-          <div key={s.num} className="flex items-center gap-3.5 glass rounded-xl px-4 py-3.5 transition-all duration-200">
-            <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-serif
-              ${s.color === 'rose' ? 'bg-rose-500/[0.08] border border-rose-400/15 text-rose-300/50' : ''}
-              ${s.color === 'violet' ? 'bg-violet-500/[0.08] border border-violet-400/15 text-violet-300/50' : ''}
-              ${s.color === 'emerald' ? 'bg-emerald-500/[0.08] border border-emerald-400/15 text-emerald-300/50' : ''}`}>
-              {s.num}
+          { icon: '✂️', label: 'You', desc: 'Upload a photo, split it, write your secret, share a QR code' },
+          { icon: '📱', label: 'TA', desc: 'Scans the QR, writes their reply, downloads their half' },
+          { icon: '🔓', label: 'Together', desc: 'On the chosen day, each of you uploads your half and types your key' },
+        ].map((item, i) => (
+          <div key={i} className="flex gap-3.5 items-start">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-sm">
+              {item.icon}
             </div>
-            <span className="text-white/45 text-sm font-light">{s.text}</span>
+            <div>
+              <p className="text-white/55 text-sm font-serif">{item.label}</p>
+              <p className="text-white/25 text-xs leading-relaxed font-light">{item.desc}</p>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Mobile tip */}
-      <div className="flex items-start gap-2.5 p-4 rounded-xl bg-amber-500/[0.05] border border-amber-500/10">
-        <div className="text-amber-300/40 flex-shrink-0 mt-0.5 text-sm">📱</div>
-        <p className="text-white/25 text-xs leading-relaxed font-light">
-          <strong className="text-white/35">Best on mobile:</strong> Person B should open the QR code link on their phone camera or browser. Works best on Safari or Chrome for mobile.
+      {/* Quote */}
+      <blockquote className="text-center space-y-2">
+        <p className="text-white/20 text-sm italic font-serif">
+          "I fell in love with the sense of waiting — the idea that some words are worth saving for the right moment."
         </p>
-      </div>
+      </blockquote>
 
-      {/* CTA buttons */}
-      <div className="space-y-3">
-        <button onClick={onStartSeal}
-          className="w-full py-4.5 sm:py-5 bg-gradient-to-r from-rose-500 to-pink-600 rounded-2xl text-white font-medium text-base
-                     transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.02] active:scale-[0.97]
-                     flex items-center justify-center gap-2.5 min-h-[58px]">
-          <Scissors className="w-5 h-5 sm:w-6 sm:h-6" />
-          I am Person A — Start Now
-        </button>
-        <button onClick={onStartUnlock}
-          className="w-full py-4.5 sm:py-5 border border-white/[0.1] rounded-2xl text-white/45 text-sm sm:text-base
-                     hover:bg-white/[0.03] hover:border-white/15 hover:text-white/70 transition-all
-                     flex items-center justify-center gap-2.5 min-h-[58px]">
-          <QrCode className="w-5 h-5 sm:w-6 sm:h-6" />
-          I Received a QR Code (Person B)
-        </button>
-      </div>
+      {/* CTA */}
+      <button
+        onClick={onStart}
+        className="w-full py-5 bg-gradient-to-r from-rose-500 to-pink-600 rounded-2xl text-white font-medium text-base
+                   transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.35)] hover:scale-[1.02] active:scale-[0.97]
+                   flex items-center justify-center gap-3 min-h-[60px]"
+      >
+        <Sparkles className="w-5 h-5" />
+        Begin a Time Capsule for Two
+      </button>
     </div>
   );
 }
 
-// ─── Upload ──────────────────────────────────────────────────
-function UploadStep({ onUpload }: { onUpload: (f: File) => void }) {
-  const ref = useRef<HTMLInputElement>(null);
-  return (
-    <div className="space-y-8 pt-8">
-      <div className="text-center space-y-3">
-        <p className="text-rose-300/30 text-xs tracking-[0.3em] uppercase">A — Step 1 of 4</p>
-        <h2 className="text-3xl font-display font-light">
-          <span className="gradient-text bg-gradient-to-r from-rose-300/80 to-pink-300/70">Choose Your Photo</span>
-        </h2>
-        <p className="text-white/25 text-sm">A picture that holds meaning for both of you</p>
-      </div>
-
-      <div onClick={() => ref.current?.click()}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) onUpload(f); }}
-        className="border-2 border-dashed border-white/[0.08] rounded-2xl p-16 text-center cursor-pointer
-                   hover:border-rose-400/30 hover:bg-white/[0.01] transition-all duration-300 group">
-        <div className="w-16 h-16 rounded-full bg-rose-500/[0.06] flex items-center justify-center mx-auto mb-4
-                        group-hover:bg-rose-500/[0.12] group-hover:scale-110 transition-all">
-          <Upload className="w-7 h-7 text-rose-400/50" />
-        </div>
-        <p className="text-white/40 text-lg mb-1 font-light">Drop a photo here</p>
-        <p className="text-white/15 text-sm">or click to browse</p>
-        <p className="text-white/10 text-xs mt-3">PNG, JPG, WebP — up to 20MB</p>
-      </div>
-      <input ref={ref} type="file" accept="image/png,image/jpeg,image/jpg,image/webp" className="hidden"
-        onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0])} />
-    </div>
-  );
-}
-
-// ─── Cut ─────────────────────────────────────────────────────
-function CutStep({
-  canvasRef, onPointerDown, onPointerMove, onPointerUp, onConfirm, splitX, isProcessing,
+// ─── Create ─────────────────────────────────────────────────
+function CreateStep({
+  originalImage, onUpload, cutCanvasRef, splitX,
+  onPointerDown, onPointerMove, onPointerUp,
+  sideChoice, onSideChoice,
+  msgA, setMsgA, pinA, setPinA, pinB, setPinB,
+  unlockDate, setUnlockDate, minUnlockDate,
+  onCreate, isProcessing,
+  inviteQR, copied, onCopy,
+  onDone, sealedBlobA, onDownload,
 }: {
-  canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  originalImage: File | null;
+  onUpload: (f: File) => void;
+  cutCanvasRef: React.RefObject<HTMLCanvasElement | null>;
+  splitX: number;
   onPointerDown: (e: React.PointerEvent<HTMLCanvasElement>) => void;
   onPointerMove: (e: React.PointerEvent<HTMLCanvasElement>) => void;
   onPointerUp: () => void;
-  onConfirm: () => void;
-  splitX: number;
+  sideChoice: 'left' | 'right' | null;
+  onSideChoice: (s: 'left' | 'right') => void;
+  msgA: string; setMsgA: (v: string) => void;
+  pinA: string; setPinA: (v: string) => void;
+  pinB: string; setPinB: (v: string) => void;
+  unlockDate: string; setUnlockDate: (v: string) => void;
+  minUnlockDate: string;
+  onCreate: () => void;
   isProcessing: boolean;
+  inviteQR: string; copied: boolean; onCopy: () => void;
+  onDone: () => void;
+  sealedBlobA: Blob | null;
+  onDownload: () => void;
 }) {
-  return (
-    <div className="space-y-6 pt-4">
-      <div className="text-center space-y-2">
-        <p className="text-rose-300/30 text-xs tracking-[0.3em] uppercase">A — Step 2 of 4</p>
-        <h2 className="text-2xl font-display font-light text-white/70">Draw the Line</h2>
-        <p className="text-white/25 text-xs">Drag the line to set the boundary. Left is yours (A), right is your partner&apos;s (B).</p>
-      </div>
+  const fileRef = useRef<HTMLInputElement>(null);
 
-      <div className="relative rounded-xl overflow-hidden border border-white/[0.06] bg-black/20 select-none">
-        <canvas
-          ref={canvasRef}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerLeave={onPointerUp}
-          className="w-full cursor-col-resize touch-none"
-          style={{ maxHeight: '50vh', display: 'block' }}
-        />
-      </div>
-
-      <div className="flex gap-4">
-        <div className="flex-1 glass-romantic rounded-lg p-3 text-center">
-          <span className="text-rose-300/50 text-xs font-medium">Side A — Yours ({Math.round(splitX * 100)}%)</span>
-        </div>
-        <div className="flex-1 glass-romantic rounded-lg p-3 text-center">
-          <span className="text-violet-300/50 text-xs font-medium">Side B — Partner&apos;s ({Math.round((1 - splitX) * 100)}%)</span>
-        </div>
-      </div>
-
-      <button onClick={onConfirm} disabled={isProcessing}
-        className="w-full py-4.5 sm:py-5 bg-gradient-to-r from-rose-500/95 to-pink-600/95 rounded-2xl text-white font-medium text-sm sm:text-base
-                   transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.25)] hover:scale-[1.02] active:scale-[0.97]
-                   disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px] sm:min-h-[60px]">
-        {isProcessing ? (
-          <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Splitting...</>
-        ) : (
-          <><Scissors className="w-5 h-5" /> Confirm Split</>
-        )}
-      </button>
-    </div>
-  );
-}
-
-// ─── BUG FIX #2: Cut Fade Transition ─────────────────────────
-function CutFadeStep({ leftPreview, rightPreview }: { leftPreview: string; rightPreview: string }) {
-  return (
-    <div className="space-y-8 pt-8 text-center">
-      <div className="space-y-2">
-        <h2 className="text-2xl font-display font-light text-white/70">Separating...</h2>
-        <p className="text-white/25 text-sm">Two halves. Two secrets.</p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-6">
-        {/* Side A - Stays */}
-        <div className="space-y-2">
-          <div className="rounded-xl overflow-hidden border-2 border-rose-400/30 shadow-[0_0_30px_rgba(225,120,140,0.1)]
-                          animate-fade-in-up">
-            <img src={leftPreview} alt="Your half" className="w-full" />
-          </div>
-          <p className="text-rose-300/50 text-xs animate-fade-in-up-delay-1">
-            <Check className="w-3 h-3 inline mr-1" />Side A — Kept
-          </p>
-        </div>
-
-        {/* Side B - Fades out */}
-        <div className="space-y-2">
-          <div className="rounded-xl overflow-hidden border border-violet-400/10 relative
-                          animate-fade-out-slow">
-            <img src={rightPreview} alt="Partner's half" className="w-full opacity-30" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0612] via-[#0a0612]/60 to-transparent flex items-center justify-center">
-              <QrCode className="w-8 h-8 text-violet-300/30" />
+  // If we have invite QR, show the share screen
+  if (inviteQR) {
+    return (
+      <div className="space-y-8 animate-fade-in">
+        <div className="text-center space-y-3">
+          <div className="flex justify-center">
+            <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center">
+              <Check className="w-7 h-7 text-emerald-400" />
             </div>
           </div>
-          <p className="text-violet-300/30 text-xs animate-fade-in-up-delay-1">
-            Side B — Sent via QR
-          </p>
+          <h2 className="text-2xl font-serif font-light text-white/80">Your Capsule is Ready</h2>
+          <p className="text-white/30 text-sm">Send this QR to TA — TA will scan it and write back</p>
         </div>
-      </div>
-    </div>
-  );
-}
 
-// ─── A Write ─────────────────────────────────────────────────
-function AWriteStep({
-  leftPreview, rightPreview, messageA, setMessageA, pinA, setPinA, unlockDate, setUnlockDate,
-  onGenerateQR, isProcessing, minUnlockDate,
-}: {
-  leftPreview: string; rightPreview: string;
-  messageA: string; setMessageA: (v: string) => void;
-  pinA: string; setPinA: (v: string) => void;
-  unlockDate: string; setUnlockDate: (v: string) => void;
-  onGenerateQR: () => void;
-  isProcessing: boolean;
-  minUnlockDate: string;
-}) {
-  return (
-    <div className="space-y-6 pt-4">
-      <div className="text-center space-y-2">
-        <p className="text-rose-300/30 text-xs tracking-[0.3em] uppercase">A — Step 3 of 4</p>
-        <h2 className="text-2xl font-display font-light text-white/70">Write Your Secret</h2>
-      </div>
-
-      {/* Halves */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <div className="rounded-xl overflow-hidden border-2 border-rose-400/25 relative">
-            <img src={leftPreview} alt="Your half" className="w-full" />
-            <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/60 text-rose-300/80 text-[10px] font-medium">A — Yours</div>
+        {/* QR Code */}
+        <div className="flex flex-col items-center gap-4">
+          <div className="p-5 rounded-2xl border border-rose-400/15 bg-white/[0.02]">
+            <img src={inviteQR} alt="Invite QR Code" className="w-60 h-60 rounded-xl" />
           </div>
+          <button onClick={onCopy}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.08] text-white/30 text-sm
+                       hover:bg-white/[0.03] hover:border-white/15 hover:text-white/50 transition-all">
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? 'Copied!' : 'Copy Link'}
+          </button>
         </div>
-        <div className="space-y-1">
-          <div className="rounded-xl overflow-hidden border border-violet-400/10 relative opacity-40">
-            <img src={rightPreview} alt="Partner's half" className="w-full" />
-            <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/60 text-violet-300/60 text-[10px] font-medium">B — QR</div>
+
+        {/* Download final PNG when ready */}
+        {sealedBlobA && (
+          <div className="glass-romantic rounded-xl p-4 space-y-3 border border-white/[0.05]">
+            <p className="text-white/40 text-xs text-center">When TA sends back their QR, you&apos;ll download your final capsule here</p>
+            <button onClick={onDownload}
+              className="w-full py-3 rounded-xl bg-emerald-500/10 border border-emerald-400/20 text-emerald-300 text-sm
+                         hover:bg-emerald-500/15 transition-all flex items-center justify-center gap-2">
+              <Download className="w-4 h-4" />
+              Download My Half (Preview)
+            </button>
           </div>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <div className="space-y-1.5">
-          <label className="text-white/30 text-xs uppercase tracking-wider font-light">Your Message</label>
-          <textarea value={messageA} onChange={(e) => setMessageA(e.target.value)}
-            placeholder="Write from the heart..." rows={4} maxLength={2000}
-            className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white placeholder:text-white/10
-                       focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 resize-none transition-all text-sm leading-relaxed" />
-          <div className="text-right text-white/10 text-xs">{messageA.length}/2000</div>
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
-            <FileKey className="w-3 h-3" /> Your 4-Digit Key
-          </label>
-          <input type="password" inputMode="numeric" pattern="[0-9]*" maxLength={4}
-            value={pinA} onChange={(e) => setPinA(e.target.value.replace(/\D/g, '').slice(0, 4))}
-            placeholder="****"
-            className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
-                       tracking-[1em] text-lg font-mono placeholder:tracking-normal placeholder:text-white/10
-                       focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 transition-all" />
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
-            <Timer className="w-3 h-3" /> When to Unlock
-          </label>
-          <input type="datetime-local" value={unlockDate} onChange={(e) => setUnlockDate(e.target.value)}
-            min={minUnlockDate}
-            className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-sm
-                       focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 transition-all [color-scheme:dark]" />
-        </div>
-      </div>
-
-      <button onClick={onGenerateQR} disabled={isProcessing}
-        className="w-full py-4.5 sm:py-5 bg-gradient-to-r from-rose-500/95 to-pink-600/95 rounded-2xl text-white font-medium text-sm sm:text-base
-                   transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.25)] hover:scale-[1.02] active:scale-[0.97]
-                   disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px] sm:min-h-[60px]">
-        {isProcessing ? (
-          <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Sealing...</>
-        ) : (
-          <><QrCode className="w-5 h-5" /> Generate QR Code for B</>
         )}
-      </button>
-    </div>
-  );
-}
 
-// ─── A QR ────────────────────────────────────────────────────
-function AQRStep({ qrCode, leftPreview, leftHalfBlob, unlockDate, onCopyLink, copied, mountTime }: {
-  qrCode: string; leftPreview: string; leftHalfBlob: Blob | null;
-  unlockDate: string; onCopyLink: () => void; copied: boolean;
-  mountTime: number;
-}) {
-  const date = unlockDate ? new Date(unlockDate) : null;
-  return (
-    <div className="space-y-8 pt-4">
-      <div className="text-center space-y-2">
-        <p className="text-rose-300/30 text-xs tracking-[0.3em] uppercase">A — Step 4 of 4</p>
-        <h2 className="text-2xl font-display font-light text-white/70">Share with Your Love</h2>
-        <p className="text-white/25 text-xs">Send this QR code. They&apos;ll scan it to write their half.</p>
-      </div>
+        <p className="text-center text-white/15 text-xs italic font-serif">
+          "The right word at the right moment is like a seed that waits for its season."
+        </p>
 
-      <div className="flex flex-col items-center gap-4">
-        <div className="p-5 rounded-2xl border border-rose-400/15 bg-white/[0.02]">
-          <img src={qrCode} alt="QR Code" className="w-56 h-56" />
-        </div>
-        <button onClick={onCopyLink}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.08] text-white/30 text-sm
-                     hover:bg-white/[0.03] hover:border-white/15 hover:text-white/50 transition-all">
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-          {copied ? 'Copied!' : 'Copy Link'}
+        <button onClick={onDone}
+          className="w-full py-3 text-white/30 text-sm hover:text-white/60 transition-all">
+          ← Return home
         </button>
       </div>
+    );
+  }
 
-      <div className="glass-romantic rounded-xl p-5 space-y-4">
-        <div className="flex items-center gap-2">
-          <Check className="w-4 h-4 text-emerald-400/60" />
-          <span className="text-white/50 text-sm font-light">Your half is sealed</span>
+  return (
+    <div className="space-y-6 animate-fade-in">
+      {/* Step 1: Upload */}
+      {!originalImage && (
+        <div className="space-y-4">
+          <div className="text-center space-y-2">
+            <p className="text-rose-300/30 text-xs tracking-[0.3em] uppercase">Step 1 of 4</p>
+            <h2 className="text-2xl font-serif font-light text-white/70">Choose Your Photo</h2>
+          </div>
+          <div onClick={() => fileRef.current?.click()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) onUpload(f); }}
+            className="border-2 border-dashed border-white/[0.08] rounded-2xl p-14 text-center cursor-pointer
+                       hover:border-rose-400/30 hover:bg-white/[0.01] transition-all duration-300 group">
+            <div className="w-14 h-14 rounded-full bg-rose-500/[0.06] flex items-center justify-center mx-auto mb-4
+                            group-hover:bg-rose-500/[0.12] group-hover:scale-110 transition-all">
+              <Upload className="w-7 h-7 text-rose-400/50" />
+            </div>
+            <p className="text-white/40 text-lg mb-1 font-light">Drop a photo here</p>
+            <p className="text-white/15 text-sm">or click to browse</p>
+            <p className="text-white/10 text-xs mt-3">PNG, JPG, WebP — up to 20MB</p>
+          </div>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden"
+            onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0])} />
         </div>
-        <div className="rounded-lg overflow-hidden border border-rose-400/10 max-w-[180px] mx-auto">
-          <img src={leftPreview} alt="Your sealed half" className="w-full" />
-        </div>
-        {date && (
-          <p className="text-center text-white/20 text-xs">
-            Unlocks {date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-          </p>
-        )}
-        <button
-          onClick={() => leftHalfBlob && downloadBlob(leftHalfBlob, `timevault-half-a-${mountTime}.png`)}
-          className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-rose-500/[0.08] border border-rose-400/15
-                     text-rose-200/60 text-sm hover:bg-rose-500/[0.15] hover:text-rose-100 transition-all min-h-[52px] w-full">
-          <Download className="w-4 h-4" /> Download My Half
-        </button>
-      </div>
+      )}
 
-      <p className="text-center text-white/15 text-xs italic font-display">
-        &ldquo;Distance means so little when someone means so much.&rdquo;
-      </p>
+      {/* Step 2: Cut */}
+      {originalImage && !sideChoice && (
+        <div className="space-y-5">
+          <div className="text-center space-y-2">
+            <p className="text-rose-300/30 text-xs tracking-[0.3em] uppercase">Step 2 of 4</p>
+            <h2 className="text-2xl font-serif font-light text-white/70">Draw the Line</h2>
+            <p className="text-white/25 text-xs">Drag to split — left for you, right for TA</p>
+          </div>
+          <div className="relative rounded-xl overflow-hidden border border-white/[0.06] bg-black/20 select-none">
+            <canvas
+              ref={cutCanvasRef}
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+              onPointerLeave={onPointerUp}
+              className="w-full cursor-col-resize touch-none"
+              style={{ maxHeight: '50vh', display: 'block' }}
+            />
+          </div>
+          <div className="flex gap-4">
+            <button
+              onClick={() => onSideChoice('left')}
+              className="flex-1 py-4 rounded-xl border-2 border-rose-400/30 bg-rose-500/[0.05] text-rose-300/70 text-sm font-serif
+                         hover:bg-rose-500/[0.1] transition-all"
+            >
+              Keep Left ({Math.round(splitX * 100)}%)
+            </button>
+            <button
+              onClick={() => onSideChoice('right')}
+              className="flex-1 py-4 rounded-xl border-2 border-violet-400/30 bg-violet-500/[0.05] text-violet-300/70 text-sm font-serif
+                         hover:bg-violet-500/[0.1] transition-all"
+            >
+              Keep Right ({100 - Math.round(splitX * 100)}%)
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 3: Write */}
+      {originalImage && sideChoice && (
+        <div className="space-y-5 animate-fade-in">
+          <div className="text-center space-y-2">
+            <p className="text-rose-300/30 text-xs tracking-[0.3em] uppercase">Step 3 of 4</p>
+            <h2 className="text-2xl font-serif font-light text-white/70">Write Your Secret</h2>
+          </div>
+
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
+                <FileKey className="w-3 h-3" /> Your Key
+              </label>
+              <input type="password" inputMode="numeric" pattern="[0-9]*" maxLength={4}
+                value={pinA} onChange={(e) => setPinA(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                placeholder="****"
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
+                           tracking-[1em] text-xl font-mono placeholder:tracking-normal placeholder:text-white/10
+                           focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 transition-all" />
+              <p className="text-white/15 text-[10px] text-center">Remember this — TA will need it to read your message</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
+                <Heart className="w-3 h-3" /> TA&apos;s Key
+              </label>
+              <input type="password" inputMode="numeric" pattern="[0-9]*" maxLength={4}
+                value={pinB} onChange={(e) => setPinB(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                placeholder="****"
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
+                           tracking-[1em] text-xl font-mono placeholder:tracking-normal placeholder:text-white/10
+                           focus:border-violet-400/40 focus:outline-none focus:ring-1 focus:ring-violet-400/20 transition-all" />
+              <p className="text-white/15 text-[10px] text-center">Give this to TA — TA uses it to read your words</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-white/30 text-xs uppercase tracking-wider font-light">Your Message</label>
+              <textarea value={msgA} onChange={(e) => setMsgA(e.target.value)}
+                placeholder="Write what you want TA to read on the appointed day..."
+                rows={5} maxLength={2000}
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white placeholder:text-white/10
+                           focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 resize-none transition-all text-sm leading-relaxed" />
+              <div className="text-right text-white/10 text-xs">{msgA.length}/2000</div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
+                <Timer className="w-3 h-3" /> When It Unlocks
+              </label>
+              <input type="datetime-local" value={unlockDate} onChange={(e) => setUnlockDate(e.target.value)}
+                min={minUnlockDate}
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-sm
+                           focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 transition-all [color-scheme:dark]" />
+            </div>
+          </div>
+
+          <button onClick={onCreate} disabled={isProcessing}
+            className="w-full py-4.5 bg-gradient-to-r from-rose-500/95 to-pink-600/95 rounded-2xl text-white font-medium text-sm
+                       transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.01] active:scale-[0.98]
+                       disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px]">
+            {isProcessing ? (
+              <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Creating...</>
+            ) : (
+              <><QrCode className="w-5 h-5" />Generate QR for TA</>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 // ─── B Welcome ───────────────────────────────────────────────
-function BWelcomeStep({ preview, unlockTime, onContinue }: { preview: string; unlockTime: string; onContinue: () => void }) {
-  const date = unlockTime ? new Date(unlockTime) : null;
+function BWelcomeStep({
+  params,
+  onContinue,
+}: {
+  params: NonNullable<Awaited<ReturnType<typeof parseInviteURL>>>;
+  onContinue: () => void;
+}) {
+  const date = new Date(params.u);
+  const previewUrl = params.preview && params.preview.startsWith('data:') ? params.preview : null;
+
   return (
-    <div className="space-y-8 pt-8">
+    <div className="space-y-8 animate-fade-in">
       <div className="text-center space-y-4">
-        <img src="/logo.png" alt="TimeVault" className="w-12 h-12 mx-auto opacity-50 animate-breathe" />
-        <h2 className="text-3xl font-display font-light">
-          <span className="gradient-text bg-gradient-to-r from-violet-300/80 to-rose-300/70">A Message Awaits</span>
+        <div className="flex justify-center">
+          <div className="w-16 h-16 rounded-full bg-violet-500/10 border border-violet-400/20 flex items-center justify-center">
+            <Heart className="w-8 h-8 text-violet-300/70" strokeWidth={1.5} fill="rgba(139,92,246,0.2)" />
+          </div>
+        </div>
+        <h2 className="text-3xl font-serif font-light">
+          <span className="bg-gradient-to-r from-violet-300/80 to-rose-300/70 bg-clip-text text-transparent">
+            Someone Left You a Letter
+          </span>
         </h2>
-        <p className="text-white/25 text-sm">Someone has split a photo and saved half for you.</p>
+        <p className="text-white/25 text-sm">Scanned from a TimeVault capsule — sealed until today</p>
       </div>
 
-      {/* B's half preview */}
-      {preview && (
-        <div className="space-y-2">
-          <div className="rounded-xl overflow-hidden border border-violet-400/15 max-w-[240px] mx-auto relative">
-            <img src={preview} alt="Your half" className="w-full" />
-            <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/50 text-violet-300/70 text-[10px] font-medium">Your Half</div>
+      {/* Preview */}
+      {previewUrl ? (
+        <div className="rounded-2xl overflow-hidden border border-violet-400/15 max-w-[220px] mx-auto relative">
+          <img src={previewUrl} alt="Their half" className="w-full" />
+          <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/50 text-violet-300/70 text-[10px] font-medium">
+            TA&apos;s Half
           </div>
-          <p className="text-center text-violet-300/30 text-[10px]">This is your part of the photo</p>
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-violet-400/10 max-w-[220px] mx-auto h-40 bg-white/[0.03] flex items-center justify-center">
+          <QrCode className="w-10 h-10 text-violet-300/20" />
         </div>
       )}
 
-      {/* Unlock time */}
-      {date && (
-        <div className="text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-romantic">
-            <Timer className="w-3.5 h-3.5 text-amber-300/40" />
-            <span className="text-white/40 text-xs">
-              Unlocks {date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* Info note */}
-      <div className="glass rounded-xl p-4 border border-white/[0.04]">
-        <p className="text-white/20 text-xs text-center leading-relaxed">
-          Write your reply below. Your message will be sealed inside your half of the photo.
-          <br />Each half has its own secret key — only you can unlock yours.
+      {/* A's message */}
+      <div className="glass-romantic rounded-2xl p-5 space-y-3 border border-white/[0.05]">
+        <p className="text-xs text-white/20 uppercase tracking-widest text-center">TA Wrote</p>
+        <p className="text-white/70 text-sm leading-relaxed font-serif italic text-center">
+          &ldquo;{params.msga}&rdquo;
         </p>
       </div>
 
-      {/* Continue button */}
+      {/* Unlock date */}
+      <div className="text-center">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-romantic">
+          <Timer className="w-3.5 h-3.5 text-amber-300/40" />
+          <span className="text-white/40 text-xs">
+            Unlocks {date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+          </span>
+        </div>
+      </div>
+
+      {/* Info */}
+      <div className="glass rounded-xl p-4 border border-white/[0.04]">
+        <p className="text-white/20 text-xs text-center leading-relaxed">
+          Write your reply below. Your message will be hidden inside your half of the photo —
+          only TA, with your key, can read it.
+        </p>
+      </div>
+
       <button onClick={onContinue}
-        className="w-full py-4.5 sm:py-5 bg-gradient-to-r from-violet-500/95 to-rose-500/95 rounded-2xl text-white font-medium text-sm sm:text-lg
-                   transition-all duration-300 hover:shadow-[0_0_60px_rgba(139,92,246,0.25)] hover:scale-[1.02] active:scale-[0.97]
-                   flex items-center justify-center gap-2 min-h-[56px] sm:min-h-[60px]">
-        <Heart className="w-5 h-5 sm:w-6 sm:h-6" /> Write My Message
+        className="w-full py-4.5 bg-gradient-to-r from-violet-500/95 to-rose-500/95 rounded-2xl text-white font-medium text-base
+                   transition-all duration-300 hover:shadow-[0_0_60px_rgba(139,92,246,0.3)] hover:scale-[1.02] active:scale-[0.97]
+                   flex items-center justify-center gap-2 min-h-[56px]">
+        <Heart className="w-5 h-5" /> Write My Reply
       </button>
     </div>
   );
 }
 
-// ─── B Write ─────────────────────────────────────────────────
-function BWriteStep({ preview, messageB, setMessageB, pinB, setPinB, onSeal, isProcessing }: {
-  preview: string; messageB: string; setMessageB: (v: string) => void;
-  pinB: string; setPinB: (v: string) => void; onSeal: () => void; isProcessing: boolean;
+// ─── B Write ────────────────────────────────────────────────
+function BWriteStep({
+  msgB, setMsgB,
+  pinB, setPinB,
+  onSeal,
+  isProcessing,
+  error,
+}: {
+  msgB: string; setMsgB: (v: string) => void;
+  pinB: string; setPinB: (v: string) => void;
+  onSeal: () => void;
+  isProcessing: boolean;
+  error: string;
 }) {
   return (
-    <div className="space-y-6 pt-4">
+    <div className="space-y-6 animate-fade-in">
       <div className="text-center space-y-2">
-        <p className="text-violet-300/30 text-xs tracking-[0.3em] uppercase">B — Write</p>
-        <h2 className="text-2xl font-display font-light text-white/70">Write Your Reply</h2>
+        <p className="text-violet-300/30 text-xs tracking-[0.3em] uppercase">Your Reply</p>
+        <h2 className="text-2xl font-serif font-light text-white/70">Write to TA</h2>
       </div>
 
-      {preview && (
-        <div className="rounded-xl overflow-hidden border border-violet-400/15 max-w-[200px] mx-auto relative">
-          <img src={preview} alt="Your half" className="w-full" />
-          <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/50 text-violet-300/70 text-[10px]">Your Half</div>
+      {error && (
+        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          {error}
         </div>
       )}
 
       <div className="space-y-4">
         <div className="space-y-1.5">
-          <label className="text-white/30 text-xs uppercase tracking-wider font-light">Your Message</label>
-          <textarea value={messageB} onChange={(e) => setMessageB(e.target.value)}
-            placeholder="Write what you feel..." rows={4} maxLength={2000}
-            className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white placeholder:text-white/10
-                       focus:border-violet-400/40 focus:outline-none focus:ring-1 focus:ring-violet-400/20 resize-none transition-all text-sm leading-relaxed" />
-          <div className="text-right text-white/10 text-xs">{messageB.length}/2000</div>
-        </div>
-
-        <div className="space-y-1.5">
           <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
-            <FileKey className="w-3 h-3" /> Your 4-Digit Key
+            <FileKey className="w-3 h-3" /> Your Key
           </label>
           <input type="password" inputMode="numeric" pattern="[0-9]*" maxLength={4}
             value={pinB} onChange={(e) => setPinB(e.target.value.replace(/\D/g, '').slice(0, 4))}
             placeholder="****"
             className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
-                       tracking-[1em] text-lg font-mono placeholder:tracking-normal placeholder:text-white/10
+                       tracking-[1em] text-xl font-mono placeholder:tracking-normal placeholder:text-white/10
                        focus:border-violet-400/40 focus:outline-none focus:ring-1 focus:ring-violet-400/20 transition-all" />
+          <p className="text-white/15 text-[10px] text-center">Remember this — TA uses it to read your words</p>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-white/30 text-xs uppercase tracking-wider font-light">Your Message</label>
+          <textarea value={msgB} onChange={(e) => setMsgB(e.target.value)}
+            placeholder="What do you want to say to TA on that day..."
+            rows={6} maxLength={2000}
+            className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white placeholder:text-white/10
+                       focus:border-violet-400/40 focus:outline-none focus:ring-1 focus:ring-violet-400/20 resize-none transition-all text-sm leading-relaxed" />
+          <div className="text-right text-white/10 text-xs">{msgB.length}/2000</div>
         </div>
       </div>
 
       <button onClick={onSeal} disabled={isProcessing}
-        className="w-full py-4.5 sm:py-5 bg-gradient-to-r from-violet-500/95 to-rose-500/95 rounded-2xl text-white font-medium text-sm sm:text-base
-                   transition-all duration-300 hover:shadow-[0_0_60px_rgba(139,92,246,0.25)] hover:scale-[1.02] active:scale-[0.97]
-                   disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px] sm:min-h-[60px]">
+        className="w-full py-4.5 bg-gradient-to-r from-violet-500/95 to-rose-500/95 rounded-2xl text-white font-medium text-base
+                   transition-all duration-300 hover:shadow-[0_0_60px_rgba(139,92,246,0.3)] hover:scale-[1.02] active:scale-[0.97]
+                   disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px]">
         {isProcessing ? (
           <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Sealing...</>
         ) : (
-          <><Lock className="w-5 h-5" /> Seal &amp; Download My Half</>
+          <><Download className="w-5 h-5" />Seal My Half &amp; Download</>
         )}
       </button>
     </div>
   );
 }
 
-// ─── B Done ──────────────────────────────────────────────────
-// (Replaced by CoupleCeremony at b-done step)
+// ─── B Done ─────────────────────────────────────────────────
+function BDoneStep({
+  mergeQR, copied, onCopy, onDownload, onDone,
+}: {
+  mergeQR: string; copied: boolean; onCopy: () => void;
+  onDownload: () => void; onDone: () => void;
+}) {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div className="text-center space-y-4">
+        <div className="flex justify-center">
+          <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center">
+            <Check className="w-7 h-7 text-emerald-400" />
+          </div>
+        </div>
+        <h2 className="text-2xl font-serif font-light text-white/80">You&apos;re All Set</h2>
+        <p className="text-white/30 text-sm">Your half is saved — now send TA the link to complete the capsule</p>
+      </div>
 
+      <button onClick={onDownload}
+        className="w-full py-4 rounded-xl bg-violet-500/10 border border-violet-400/20 text-violet-200/70 text-sm
+                   hover:bg-violet-500/15 transition-all flex items-center justify-center gap-2 min-h-[52px]">
+        <Download className="w-4 h-4" /> Download My Half
+      </button>
+
+      <div className="glass-romantic rounded-2xl p-5 space-y-4 border border-white/[0.05]">
+        <p className="text-xs text-white/30 text-center uppercase tracking-widest">
+          Send This Back to TA
+        </p>
+        <div className="flex flex-col items-center gap-3">
+          <div className="p-4 rounded-xl border border-violet-400/15 bg-white/[0.02]">
+            <img src={mergeQR} alt="Merge QR" className="w-52 h-52 rounded-lg" />
+          </div>
+          <button onClick={onCopy}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.08] text-white/30 text-sm
+                       hover:bg-white/[0.03] hover:border-white/15 hover:text-white/50 transition-all">
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? 'Copied!' : 'Copy Link for TA'}
+          </button>
+        </div>
+      </div>
+
+      <p className="text-center text-white/15 text-xs italic font-serif">
+        &ldquo;Some words need time to become more than words.&rdquo;
+      </p>
+
+      <button onClick={onDone}
+        className="w-full py-3 text-white/30 text-sm hover:text-white/60 transition-all">
+        ← Return home
+      </button>
+    </div>
+  );
+}
+
+// ─── Merge ──────────────────────────────────────────────────
+function MergeStep({
+  params,
+  isProcessing,
+  onMerge,
+  onDownload,
+  sealedBlobA,
+  onDone,
+}: {
+  params: NonNullable<Awaited<ReturnType<typeof parseMergeURL>>>;
+  isProcessing: boolean;
+  onMerge: () => void;
+  onDownload: () => void;
+  sealedBlobA: Blob | null;
+  onDone: () => void;
+}) {
+  const date = new Date(params.u);
+
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div className="text-center space-y-4">
+        <div className="flex justify-center">
+          <div className="w-14 h-14 rounded-full bg-rose-500/10 border border-rose-400/20 flex items-center justify-center">
+            <Heart className="w-7 h-7 text-rose-300/70" strokeWidth={1.5} fill="rgba(244,114,182,0.2)" />
+          </div>
+        </div>
+        <h2 className="text-2xl font-serif font-light text-white/80">
+          TA Wrote Back
+        </h2>
+        <p className="text-white/30 text-sm">
+          TA&apos;s reply is ready — download your complete capsule now
+        </p>
+      </div>
+
+      {/* TA's message */}
+      <div className="glass-romantic rounded-2xl p-5 space-y-3 border border-white/[0.05]">
+        <p className="text-xs text-white/20 uppercase tracking-widest text-center">TA Wrote</p>
+        <p className="text-white/70 text-sm leading-relaxed font-serif italic text-center">
+          &ldquo;{params.msgb}&rdquo;
+        </p>
+      </div>
+
+      {/* Unlock date */}
+      <div className="text-center">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-romantic">
+          <Timer className="w-3.5 h-3.5 text-amber-300/40" />
+          <span className="text-white/40 text-xs">
+            Unlocks {date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+          </span>
+        </div>
+      </div>
+
+      {/* Merge / Download */}
+      {sealedBlobA ? (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 justify-center text-emerald-400/70 text-sm">
+            <Check className="w-4 h-4" />
+            Capsule ready
+          </div>
+          <button onClick={onDownload}
+            className="w-full py-4 rounded-xl bg-emerald-500/10 border border-emerald-400/20 text-emerald-200/80 text-sm
+                       hover:bg-emerald-500/15 transition-all flex items-center justify-center gap-2 min-h-[52px]">
+            <Download className="w-4 h-4" /> Download My Complete Half
+          </button>
+        </div>
+      ) : (
+        <button onClick={onMerge} disabled={isProcessing}
+          className="w-full py-4.5 bg-gradient-to-r from-rose-500/95 to-pink-600/95 rounded-2xl text-white font-medium text-base
+                     transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.02] active:scale-[0.97]
+                     disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px]">
+          {isProcessing ? (
+            <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Merging...</>
+          ) : (
+            <><Download className="w-5 h-5" />Download My Complete Half</>
+          )}
+        </button>
+      )}
+
+      <p className="text-center text-white/15 text-xs italic font-serif">
+        &ldquo;Two halves, two secrets, one moment — and then, everything opens.&rdquo;
+      </p>
+
+      <button onClick={onDone}
+        className="w-full py-3 text-white/30 text-sm hover:text-white/60 transition-all">
+        ← Return home
+      </button>
+    </div>
+  );
+}
+
+// ─── Unlock ─────────────────────────────────────────────────
+function UnlockStep({
+  unlockImage, onImageChange, unlockPin, setUnlockPin,
+  unlockRole, setUnlockRole, onUnlock, error,
+}: {
+  unlockImage: File | null; onImageChange: (f: File) => void;
+  unlockPin: string; setUnlockPin: (v: string) => void;
+  unlockRole: 'A' | 'B'; setUnlockRole: (r: 'A' | 'B') => void;
+  onUnlock: () => void; error: string;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div className="text-center space-y-3">
+        <h2 className="text-3xl font-serif font-light">
+          <span className="bg-gradient-to-r from-rose-300/80 to-violet-300/70 bg-clip-text text-transparent">
+            Unlock the Capsule
+          </span>
+        </h2>
+        <p className="text-white/25 text-sm">Upload your half and enter your key to read TA&apos;s words</p>
+      </div>
+
+      {/* Role selector */}
+      <div className="flex gap-3">
+        <button
+          onClick={() => setUnlockRole('A')}
+          className={`flex-1 py-3 rounded-xl text-sm font-serif transition-all ${
+            unlockRole === 'A'
+              ? 'bg-rose-500/15 border-2 border-rose-400/40 text-rose-300/80'
+              : 'bg-white/[0.03] border border-white/10 text-white/30 hover:bg-white/[0.05]'
+          }`}
+        >
+          I&apos;m Person A
+        </button>
+        <button
+          onClick={() => setUnlockRole('B')}
+          className={`flex-1 py-3 rounded-xl text-sm font-serif transition-all ${
+            unlockRole === 'B'
+              ? 'bg-violet-500/15 border-2 border-violet-400/40 text-violet-300/80'
+              : 'bg-white/[0.03] border border-white/10 text-white/30 hover:bg-white/[0.05]'
+          }`}
+        >
+          I&apos;m Person B
+        </button>
+      </div>
+
+      {/* Upload */}
+      <div onClick={() => fileRef.current?.click()}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) onImageChange(f); }}
+        className="border-2 border-dashed border-white/[0.08] rounded-2xl p-10 text-center cursor-pointer
+                   hover:border-rose-400/30 hover:bg-white/[0.01] transition-all duration-300 group">
+        {unlockImage ? (
+          <div className="space-y-2">
+            <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center mx-auto">
+              <Check className="w-6 h-6 text-emerald-400" />
+            </div>
+            <p className="text-white/50 text-sm">{unlockImage.name}</p>
+          </div>
+        ) : (
+          <>
+            <div className="w-12 h-12 rounded-full bg-rose-500/[0.06] flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-all">
+              <Upload className="w-6 h-6 text-rose-400/50" />
+            </div>
+            <p className="text-white/40 text-sm font-light">Drop your half here</p>
+          </>
+        )}
+      </div>
+      <input ref={fileRef} type="file" accept="image/*" className="hidden"
+        onChange={(e) => e.target.files?.[0] && onImageChange(e.target.files[0])} />
+
+      {/* PIN */}
+      <div className="space-y-1.5">
+        <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
+          <FileKey className="w-3 h-3" /> Your Key
+        </label>
+        <input type="password" inputMode="numeric" pattern="[0-9]*" maxLength={4}
+          value={unlockPin} onChange={(e) => setUnlockPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+          placeholder="****"
+          className="w-full px-4 py-4 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
+                     tracking-[1em] text-2xl font-mono placeholder:tracking-normal placeholder:text-white/10
+                     focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 transition-all" />
+      </div>
+
+      {error && (
+        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          {error}
+        </div>
+      )}
+
+      <button onClick={onUnlock}
+        className="w-full py-4.5 bg-gradient-to-r from-rose-500/95 to-pink-600/95 rounded-2xl text-white font-medium text-base
+                   transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.02] active:scale-[0.97]
+                   flex items-center justify-center gap-2 min-h-[56px]">
+        <Lock className="w-5 h-5" /> Unlock &amp; Read
+      </button>
+    </div>
+  );
+}
