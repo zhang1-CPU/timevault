@@ -1,4 +1,4 @@
-import { Lock, Unlock, Heart, Sparkles, ChevronDown, Camera, MessageSquare, Clock } from 'lucide-react';
+import { Lock, Unlock, Heart, Sparkles, ChevronDown, Camera, MessageSquare, Clock, Shield, Eye, Server } from 'lucide-react';
 
 interface HeroSectionProps {
   onEncrypt: () => void;
@@ -294,7 +294,7 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
         </div>
 
         {/* ─── Feature cards ─── */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-3xl mx-auto mb-10">
           <FeatureCard
             icon={<Clock className="w-4 h-4 sm:w-5 sm:h-5" />}
             title="Time-Locked"
@@ -306,10 +306,44 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
             desc="Your message dissolves silently into the pixels of a photo."
           />
           <FeatureCard
-            icon={<Heart className="w-4 h-4 sm:w-5 sm:h-5" />}
-            title="Yours Alone"
-            desc="Nothing uploaded, nothing tracked. Your photo holds the secret."
+            icon={<Shield className="w-4 h-4 sm:w-5 sm:h-5" />}
+            title="Zero Server Storage"
+            desc="We never see your data. Your photo IS the vault."
           />
+          <FeatureCard
+            icon={<Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
+            title="Invisible to All"
+            desc="Even if someone finds your GitHub repo, there's nothing to steal."
+          />
+        </div>
+
+        {/* ─── Privacy Promise Banner ─── */}
+        <div
+          className="relative rounded-2xl p-6 sm:p-8 mb-8 max-w-2xl mx-auto text-center"
+          style={{
+            background: 'linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(16,185,129,0.05) 100%)',
+            border: '1px solid rgba(34,197,94,0.2)',
+          }}
+        >
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest"
+               style={{
+                 background: 'linear-gradient(90deg, #10b981, #059669)',
+                 color: 'white',
+               }}>
+            Privacy Promise
+          </div>
+          <h3 className="text-white/80 font-serif text-lg sm:text-xl mb-3 mt-1">
+            Your secrets never touch our servers
+          </h3>
+          <p className="text-white/40 text-sm sm:text-base leading-relaxed max-w-lg mx-auto mb-4">
+            Every time capsule is sealed <strong className="text-white/60">inside your photo</strong> using military-grade encryption (AES-GCM).
+            The message lives only in the image file — <strong className="text-white/60">not in our database, not in our logs, not anywhere else.</strong>
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm">
+            <PrivacyBadge icon={<Server className="w-3.5 h-3.5" />} text="Zero server storage" />
+            <PrivacyBadge icon={<Shield className="w-3.5 h-3.5" />} text="AES-GCM encryption" />
+            <PrivacyBadge icon={<Lock className="w-3.5 h-3.5" />} text="Only you hold the key" />
+          </div>
         </div>
 
         <div className="hidden md:grid grid-cols-3 gap-6 max-w-xl mx-auto pt-2">
@@ -325,6 +359,16 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
         <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-white/15" style={{ animation: 'bounce-indicator 2s ease-in-out infinite' }} />
       </div>
     </section>
+  );
+}
+
+/* ─── Privacy Badge ─── */
+function PrivacyBadge({ icon, text }: { icon: React.ReactNode; text: string }) {
+  return (
+    <div className="flex items-center gap-2 text-emerald-400/70">
+      {icon}
+      <span>{text}</span>
+    </div>
   );
 }
 
