@@ -22,7 +22,7 @@ import { CoupleCeremony } from './CoupleCeremony';
 import {
   Upload, Check, Timer, FileKey,
   AlertCircle, Download, Copy, Heart, Sparkles, Lock,
-  Image as ImageIcon,
+  Image as ImageIcon, Scissors,
 } from 'lucide-react';
 import { downloadBlob } from '@/lib/download-utils';
 
@@ -93,7 +93,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
   // ─── A's creation data ─────────────────────────────────────
   const [originalImage, setOriginalImage] = useState<File | null>(null);
-  const originalPreviewRef = useRef<string>('');
+  const [originalPreviewUrl, setOriginalPreviewUrl] = useState<string>('');
   const [splitX, setSplitX] = useState(0.5);
   const [isDragging, setIsDragging] = useState(false);
   const cutCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -172,7 +172,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     if (file.size > MAX_FILE_SIZE) { setError(`Max file size is ${MAX_FILE_SIZE / 1024 / 1024}MB`); return; }
     setOriginalImage(file);
     const url = URL.createObjectURL(file);
-    originalPreviewRef.current = url;
+    setOriginalPreviewUrl(url);
     trackUrl(url);
     setScene('create');
   }, [clearError, trackUrl]);
@@ -181,8 +181,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   useEffect(() => {
     if (scene !== 'create') return;
     const canvas = cutCanvasRef.current;
-    const previewUrl = originalPreviewRef.current;
-    if (!canvas || !previewUrl) return;
+    if (!canvas || !originalPreviewUrl) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -215,8 +214,8 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       ctx.fillText(`${Math.round(splitX * 100)}% / ${100 - Math.round(splitX * 100)}%`, splitPos + 15, h - 12);
       ctx.restore();
     };
-    img.src = previewUrl;
-  }, [scene, splitX]);
+    img.src = originalPreviewUrl;
+  }, [scene, splitX, originalPreviewUrl]);
 
   const handleCutPointerDown = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = cutCanvasRef.current;
@@ -772,24 +771,49 @@ function CreateStep({
     <div className="space-y-6 animate-fade-in">
       {/* Step 1: Upload */}
       {!originalImage && (
-        <div className="space-y-4">
+        <div className="space-y-6">
+          {/* Romantic header */}
+          <div className="text-center space-y-4">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-rose-500/10 to-violet-500/10 border border-rose-400/20">
+              <Heart className="w-3.5 h-3.5 text-rose-400/60" fill="rgba(244,63,94,0.1)" />
+              <span className="text-rose-300/50 text-xs tracking-[0.2em] uppercase">A Letter for Two</span>
+            </div>
+            <h2 className="text-3xl font-serif font-light text-white/80">
+              <span className="bg-gradient-to-r from-rose-300/70 via-pink-300/70 to-violet-300/70 bg-clip-text text-transparent">
+                Begin Your Story
+              </span>
+            </h2>
+            <p className="text-white/25 text-sm max-w-xs mx-auto leading-relaxed">
+              "Every love story deserves a secret shared only by two hearts..."
+            </p>
+          </div>
+
           <div className="text-center space-y-2">
             <p className="text-rose-300/30 text-xs tracking-[0.3em] uppercase">Step 1 of 4</p>
-            <h2 className="text-2xl font-serif font-light text-white/70">Choose Your Photo</h2>
+            <h3 className="text-xl font-serif font-light text-white/60">Choose Your Photo</h3>
           </div>
+
           <div onClick={() => fileRef.current?.click()}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) onUpload(f); }}
             className="border-2 border-dashed border-white/[0.08] rounded-2xl p-14 text-center cursor-pointer
-                       hover:border-rose-400/30 hover:bg-white/[0.01] transition-all duration-300 group">
-            <div className="w-14 h-14 rounded-full bg-rose-500/[0.06] flex items-center justify-center mx-auto mb-4
-                            group-hover:bg-rose-500/[0.12] group-hover:scale-110 transition-all">
-              <Upload className="w-7 h-7 text-rose-400/50" />
+                       hover:border-rose-400/30 hover:bg-gradient-to-b hover:from-rose-500/[0.02] hover:to-violet-500/[0.02] transition-all duration-300 group">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-rose-500/10 to-violet-500/10 flex items-center justify-center mx-auto mb-5
+                            group-hover:from-rose-500/20 group-hover:to-violet-500/20 group-hover:scale-110 transition-all duration-300">
+              <Upload className="w-8 h-8 text-rose-400/60" />
             </div>
-            <p className="text-white/40 text-lg mb-1 font-light">Drop a photo here</p>
-            <p className="text-white/15 text-sm">or click to browse</p>
-            <p className="text-white/10 text-xs mt-3">PNG, JPG, WebP — up to 20MB</p>
+            <p className="text-white/50 text-lg mb-1 font-light">Drop a photo here</p>
+            <p className="text-white/20 text-sm">or click to browse</p>
+            <p className="text-white/10 text-xs mt-4">PNG, JPG, WebP — up to 20MB</p>
           </div>
+
+          {/* Romantic quote */}
+          <div className="text-center">
+            <p className="text-white/15 text-xs italic font-serif max-w-sm mx-auto">
+              "A picture is worth a thousand words — but the words you write together will be worth more than a lifetime."
+            </p>
+          </div>
+
           <input ref={fileRef} type="file" accept="image/*" className="hidden"
             onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0])} />
         </div>
@@ -797,13 +821,30 @@ function CreateStep({
 
       {/* Step 2: Cut */}
       {originalImage && !sideChoice && (
-        <div className="space-y-5">
-          <div className="text-center space-y-2">
-            <p className="text-rose-300/30 text-xs tracking-[0.3em] uppercase">Step 2 of 4</p>
-            <h2 className="text-2xl font-serif font-light text-white/70">Draw the Line</h2>
-            <p className="text-white/25 text-xs">Drag to split — left for you, right for TA. Pick which half you keep.</p>
+        <div className="space-y-6">
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/10">
+              <Scissors className="w-3 h-3 text-rose-400/50" />
+              <span className="text-rose-300/40 text-xs tracking-[0.2em] uppercase">Step 2 of 4</span>
+            </div>
+            <h2 className="text-3xl font-serif font-light text-white/80">
+              <span className="bg-gradient-to-r from-rose-300/70 to-violet-300/70 bg-clip-text text-transparent">
+                Draw the Line
+              </span>
+            </h2>
+            <p className="text-white/30 text-sm max-w-sm mx-auto">
+              Drag the line to split your story. What will you keep, and what will you share?
+            </p>
           </div>
-          <div className="relative rounded-xl overflow-hidden border border-white/[0.06] bg-black/20 select-none">
+
+          {/* Romantic hint */}
+          <div className="text-center">
+            <p className="text-white/15 text-xs italic font-serif">
+              "Every separation holds a promise of reunion..."
+            </p>
+          </div>
+
+          <div className="relative rounded-xl overflow-hidden border border-white/[0.06] bg-black/20 select-none shadow-xl shadow-black/20">
             <canvas
               ref={cutCanvasRef}
               onPointerDown={onPointerDown}
@@ -814,20 +855,29 @@ function CreateStep({
               style={{ maxHeight: '50vh', display: 'block' }}
             />
           </div>
+
           <div className="flex gap-4">
             <button
               onClick={() => onSideChoice('left')}
-              className="flex-1 py-4 rounded-xl border-2 border-rose-400/30 bg-rose-500/[0.05] text-rose-300/70 text-sm font-serif
-                         hover:bg-rose-500/[0.1] transition-all"
+              className="flex-1 py-4 rounded-xl border-2 border-rose-400/30 bg-gradient-to-br from-rose-500/[0.05] to-rose-500/[0.02] 
+                         text-rose-300/70 text-sm font-serif hover:border-rose-400/50 hover:from-rose-500/[0.1] hover:to-rose-500/[0.05] 
+                         transition-all duration-300"
             >
-              Keep Left ({Math.round(splitX * 100)}%)
+              <span className="flex items-center justify-center gap-2">
+                <Heart className="w-4 h-4" fill="rgba(244,63,94,0.3)" />
+                Keep Left ({Math.round(splitX * 100)}%)
+              </span>
             </button>
             <button
               onClick={() => onSideChoice('right')}
-              className="flex-1 py-4 rounded-xl border-2 border-violet-400/30 bg-violet-500/[0.05] text-violet-300/70 text-sm font-serif
-                         hover:bg-violet-500/[0.1] transition-all"
+              className="flex-1 py-4 rounded-xl border-2 border-violet-400/30 bg-gradient-to-br from-violet-500/[0.05] to-violet-500/[0.02] 
+                         text-violet-300/70 text-sm font-serif hover:border-violet-400/50 hover:from-violet-500/[0.1] hover:to-violet-500/[0.05] 
+                         transition-all duration-300"
             >
-              Keep Right ({100 - Math.round(splitX * 100)}%)
+              <span className="flex items-center justify-center gap-2">
+                <Heart className="w-4 h-4" fill="rgba(139,92,246,0.3)" />
+                Keep Right ({100 - Math.round(splitX * 100)}%)
+              </span>
             </button>
           </div>
         </div>
