@@ -42,9 +42,9 @@ export interface InviteParams {
   sid: string;
   u: string;
   pina: string;
-  msga_cipher: string; // A's message encrypted with PIN-B
-  half: 'left' | 'right';
-  preview?: string; // optional — QR may fail to scan if too large
+  msga_cipher: string; // A's message encrypted with PIN-A
+  split_x: string; // split ratio 0-1, e.g. "0.5"
+  a_side: 'left' | 'right'; // which half A keeps
 }
 
 export interface MergeParams {
@@ -144,10 +144,8 @@ export function generateInviteURL(params: InviteParams): string {
   p.set('u', params.u);
   p.set('pina', params.pina);
   p.set('msga_cipher', params.msga_cipher);
-  p.set('half', params.half);
-  if (params.preview) {
-    p.set('preview', params.preview);
-  }
+  p.set('split_x', params.split_x);
+  p.set('a_side', params.a_side);
   return `${buildBase()}#couple-b?${p.toString()}`;
 }
 
@@ -176,10 +174,10 @@ export function parseInviteURL(hash: string): InviteParams | null {
     const u = params.get('u');
     const pina = params.get('pina');
     const msga_cipher = params.get('msga_cipher') || '';
-    const half = params.get('half') as 'left' | 'right' | null;
-    const preview = params.get('preview') || '';
-    if (!sid || !u || !pina || !half) return null;
-    return { sid, u, pina, msga_cipher, half, preview };
+    const split_x = params.get('split_x') || '';
+    const a_side = params.get('a_side') as 'left' | 'right' | null;
+    if (!sid || !u || !pina || !split_x || !a_side) return null;
+    return { sid, u, pina, msga_cipher, split_x, a_side };
   } catch {
     return null;
   }
