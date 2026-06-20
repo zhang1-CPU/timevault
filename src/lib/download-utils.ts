@@ -29,37 +29,29 @@ export async function downloadBlob(
 
   try {
     if (isMobile) {
-      // Mobile strategy: open blob URL directly — most mobile browsers
-      // will trigger download/share sheet when navigating to blob URL
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      link.rel = 'noopener';
-      link.target = '_self';
-      document.body.appendChild(link);
-      link.click();
-      // Also try direct navigation as backup
-      window.location.href = url;
+      // Mobile: open blob in new tab so browser shows native
+      // download / save image / share sheet. This is more reliable
+      // than programmatic clicks on mobile browsers.
+      window.open(url, '_blank', 'noopener');
     } else {
-      // Desktop: use click-based download
+      // Desktop: use click-based download with "download" attribute
       const a = document.createElement('a');
       a.href = url;
       a.download = filename;
       a.rel = 'noopener';
-      a.target = '_blank';
       document.body.appendChild(a);
       a.click();
+      setTimeout(() => document.body.removeChild(a), 100);
     }
   } catch (e) {
-    // Last resort: direct navigation
+    // Last resort fallback
     try {
       window.location.href = url;
     } catch { /* noop */ }
   } finally {
-    // Clean up after delay to give browser time to start download
+    // Delay cleanup to allow browser to initiate download first
     setTimeout(() => {
       try { URL.revokeObjectURL(url); } catch { /* noop */ }
-      try { if (document.body.contains(document.querySelector(`a[href="${url}"]`))) document.body.removeChild(document.querySelector(`a[href="${url}"]`)!); } catch { /* noop */ }
-    }, 3000);
+    }, 5000);
   }
 }
