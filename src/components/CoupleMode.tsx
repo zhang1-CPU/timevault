@@ -17,7 +17,6 @@ import {
 } from '@/lib/couple-crypto';
 import {
   sealCoupleHalf,
-  sealCoupleHalfAOnly,
   mergeCoupleHalfA,
   revealCoupleMessage,
 } from '@/lib/crypto';
@@ -102,7 +101,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   const [sideChoice, setSideChoice] = useState<'left' | 'right' | null>(null);
   const [msgA, setMsgA] = useState('');
   const [pinA, setPinA] = useState('');
-  const [pinB, setPinB] = useState('');
   const [unlockDate, setUnlockDate] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
@@ -246,7 +244,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
   // ─── Scene: Create — A fills form + generates invite ─────────
   const handleCreate = useCallback(async () => {
-    if (!originalImage || !sideChoice || !msgA.trim() || pinA.length !== PIN_LENGTH || pinB.length !== PIN_LENGTH || !unlockDate) {
+    if (!originalImage || !sideChoice || !msgA.trim() || pinA.length !== PIN_LENGTH || !unlockDate) {
       setError('Please fill in all fields');
       return;
     }
@@ -275,7 +273,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         unlockTime: unlock.toISOString(),
         msgA: msgA.trim(),
         pinA,
-        pinB,
         sealedAtA: new Date().toISOString(),
         merged: false,
       };
@@ -289,13 +286,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
       // Store blob in session for later merge
       storeBlobForSession(sessionId, myHalfBlob);
-
-      // Seal A's half (A-only, B's cipher empty)
-      const sealedA = await sealCoupleHalfAOnly(
-        new File([myHalfBlob], 'my-half.png', { type: 'image/png' }),
-        msgA.trim(), pinA, pinB, unlock, mySide
-      );
-      setSealedBlobA(sealedA);
 
       // Generate invite URL + QR
       const url = generateInviteURL({
@@ -319,7 +309,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     } catch (err) {
       withError(err instanceof Error ? err.message : 'Something went wrong');
     }
-  }, [originalImage, sideChoice, msgA, pinA, pinB, unlockDate, splitX, clearError, withError]);
+  }, [originalImage, sideChoice, msgA, pinA, unlockDate, splitX, clearError, withError]);
 
   // ─── Scene: B Welcome ───────────────────────────────────────
   const handleBContinue = useCallback(() => {
@@ -539,7 +529,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
               onSideChoice={setSideChoice}
               msgA={msgA} setMsgA={setMsgA}
               pinA={pinA} setPinA={setPinA}
-              pinB={pinB} setPinB={setPinB}
               unlockDate={unlockDate} setUnlockDate={setUnlockDate}
               minUnlockDate={minUnlockDate}
               onCreate={handleCreate}
@@ -552,8 +541,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
                 safeSetTimeout(() => setCopied(false), 2000);
               }}
               onDone={onHome}
-              sealedBlobA={sealedBlobA}
-              onDownload={handleDownloadA}
             />
           )}
 
@@ -707,11 +694,11 @@ function CreateStep({
   originalImage, onUpload, cutCanvasRef, splitX,
   onPointerDown, onPointerMove, onPointerUp,
   sideChoice, onSideChoice,
-  msgA, setMsgA, pinA, setPinA, pinB, setPinB,
+  msgA, setMsgA, pinA, setPinA,
   unlockDate, setUnlockDate, minUnlockDate,
   onCreate, isProcessing,
   inviteQR, copied, onCopy,
-  onDone, sealedBlobA, onDownload,
+  onDone,
 }: {
   originalImage: File | null;
   onUpload: (f: File) => void;
@@ -724,15 +711,12 @@ function CreateStep({
   onSideChoice: (s: 'left' | 'right') => void;
   msgA: string; setMsgA: (v: string) => void;
   pinA: string; setPinA: (v: string) => void;
-  pinB: string; setPinB: (v: string) => void;
   unlockDate: string; setUnlockDate: (v: string) => void;
   minUnlockDate: string;
   onCreate: () => void;
   isProcessing: boolean;
   inviteQR: string; copied: boolean; onCopy: () => void;
   onDone: () => void;
-  sealedBlobA: Blob | null;
-  onDownload: () => void;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -762,19 +746,6 @@ function CreateStep({
             {copied ? 'Copied!' : 'Copy Link'}
           </button>
         </div>
-
-        {/* Download final PNG when ready */}
-        {sealedBlobA && (
-          <div className="glass-romantic rounded-xl p-4 space-y-3 border border-white/[0.05]">
-            <p className="text-white/40 text-xs text-center">When TA sends back their QR, you&apos;ll download your final capsule here</p>
-            <button onClick={onDownload}
-              className="w-full py-3 rounded-xl bg-emerald-500/10 border border-emerald-400/20 text-emerald-300 text-sm
-                         hover:bg-emerald-500/15 transition-all flex items-center justify-center gap-2">
-              <Download className="w-4 h-4" />
-              Download My Half (Preview)
-            </button>
-          </div>
-        )}
 
         <p className="text-center text-white/15 text-xs italic font-serif">
           "The right word at the right moment is like a seed that waits for its season."
@@ -872,20 +843,7 @@ function CreateStep({
                 className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
                            tracking-[1em] text-xl font-mono placeholder:tracking-normal placeholder:text-white/10
                            focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 transition-all" />
-              <p className="text-white/15 text-[10px] text-center">Remember this — TA will need it to read your message</p>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
-                <Heart className="w-3 h-3" /> TA&apos;s Key
-              </label>
-              <input type="password" inputMode="numeric" pattern="[0-9]*" maxLength={4}
-                value={pinB} onChange={(e) => setPinB(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                placeholder="****"
-                className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
-                           tracking-[1em] text-xl font-mono placeholder:tracking-normal placeholder:text-white/10
-                           focus:border-violet-400/40 focus:outline-none focus:ring-1 focus:ring-violet-400/20 transition-all" />
-              <p className="text-white/15 text-[10px] text-center">Give this to TA — TA uses it to read your words</p>
+              <p className="text-white/15 text-[10px] text-center">This unlocks TA&apos;s message when the time comes</p>
             </div>
 
             <div className="space-y-1.5">
@@ -1041,7 +999,7 @@ function BWriteStep({
             className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
                        tracking-[1em] text-xl font-mono placeholder:tracking-normal placeholder:text-white/10
                        focus:border-violet-400/40 focus:outline-none focus:ring-1 focus:ring-violet-400/20 transition-all" />
-          <p className="text-white/15 text-[10px] text-center">Remember this — TA uses it to read your words</p>
+          <p className="text-white/15 text-[10px] text-center">This unlocks TA&apos;s message when the time comes</p>
         </div>
 
         <div className="space-y-1.5">
