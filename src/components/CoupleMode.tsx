@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { CoupleCeremony } from './CoupleCeremony';
 import {
   createSession,
   splitPhotoSimple,
@@ -91,7 +92,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   const [bSessionId, setBSessionId] = useState('');
   const [messageB, setMessageB] = useState('');
   const [pinB, setPinB] = useState('');
-  const [sealedBlobB, setSealedBlobB] = useState<Blob | null>(null);
+  const [, setSealedBlobB] = useState<Blob | null>(null);
 
   // ─── Object URL cleanup tracking ───────────────────────────
   const objectUrlsRef = useRef<string[]>([]);
@@ -528,7 +529,15 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
               isProcessing={isProcessing}
             />
           )}
-          {step === 'b-done' && <BDoneStep sealedBlob={sealedBlobB} onHome={onHome} mountTime={mountTime} />}
+          {step === 'b-done' && (
+            <CoupleCeremony
+              messageA={messageA}
+              messageB={messageB}
+              sealedAt={session?.unlockTime ? new Date(session.unlockTime) : undefined}
+              unlockedAt={session?.unlockTime ? new Date(session.unlockTime) : undefined}
+              onDismiss={onHome}
+            />
+          )}
         </div>
       </main>
     </div>
@@ -1024,52 +1033,5 @@ function BWriteStep({ preview, messageB, setMessageB, pinB, setPinB, onSeal, isP
 }
 
 // ─── B Done ──────────────────────────────────────────────────
-function BDoneStep({ sealedBlob, onHome, mountTime }: { sealedBlob: Blob | null; onHome: () => void; mountTime: number }) {
-  const blobUrl = useMemo(() => {
-    return sealedBlob ? URL.createObjectURL(sealedBlob) : '';
-  }, [sealedBlob]);
+// (Replaced by CoupleCeremony at b-done step)
 
-  useEffect(() => {
-    return () => {
-      if (blobUrl) URL.revokeObjectURL(blobUrl);
-    };
-  }, [blobUrl]);
-
-  return (
-    <div className="space-y-8 pt-8">
-      <div className="text-center space-y-4">
-        <div className="relative w-20 h-20 mx-auto">
-          <div className="absolute inset-0 rounded-full bg-emerald-500/10 animate-pulse" />
-          <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400/20 to-teal-400/20 flex items-center justify-center">
-            <Check className="w-8 h-8 text-emerald-300/70" />
-          </div>
-        </div>
-        <h2 className="text-3xl font-display font-light">
-          <span className="gradient-text bg-gradient-to-r from-emerald-300/70 to-teal-300/60">Sealed</span>
-        </h2>
-        <p className="text-white/25 text-sm">Your half is ready. The link has been consumed.</p>
-      </div>
-
-      {sealedBlob && blobUrl && (
-        <div className="flex justify-center">
-          <a href={blobUrl} download={`timevault-half-b-${mountTime}.png`}
-            className="inline-flex items-center gap-2 px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-violet-500/95 to-rose-500/95 rounded-2xl
-                       text-white font-medium text-sm sm:text-lg transition-all duration-300
-                       hover:shadow-[0_0_60px_rgba(139,92,246,0.3)] hover:scale-[1.02] active:scale-[0.97] min-h-[56px] no-underline">
-            <Download className="w-5 h-5 sm:w-6 sm:h-6" /> Download My Sealed Half
-          </a>
-        </div>
-      )}
-
-      <div className="text-center space-y-2 pt-4">
-        <p className="text-white/25 text-xs italic font-display">
-          &ldquo;Distance means so little when someone means so much.&rdquo;
-        </p>
-      </div>
-
-      <button onClick={onHome} className="w-full py-4 text-white/40 hover:text-white/60 text-sm transition-colors border border-white/[0.05] rounded-2xl hover:bg-white/[0.02] min-h-[52px]">
-        Back to Home
-      </button>
-    </div>
-  );
-}

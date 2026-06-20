@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { revealMessage, checkImageStatus, type LockStatus } from '@/lib/crypto';
-import { ArrowLeft, Upload, Unlock, Clock, AlertCircle, Image, FileKey, Eye } from 'lucide-react';
+import { ArrowLeft, Upload, Unlock, Clock, AlertCircle, Image, FileKey } from 'lucide-react';
+import { RevealCeremony } from './RevealCeremony';
 
 interface DecryptPanelProps {
   onBack: () => void;
@@ -308,38 +309,14 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
             </div>
           )}
 
-          {/* Revealed */}
+          {/* Revealed — romantic envelope ceremony */}
           {step === 'revealed' && (
-            <div className="space-y-6 text-center">
-              <div>
-                <h2 className="text-3xl font-display font-light mb-2">
-                  <span className="bg-gradient-to-r from-rose-400 to-violet-400 gradient-text">
-                    Your Message
-                  </span>
-                </h2>
-                {status?.unlockTime && (
-                  <p className="text-white/20 text-xs">
-                    Sealed until {status.unlockTime.toLocaleDateString()}
-                  </p>
-                )}
-              </div>
-
-              <div className="glass rounded-xl p-8 text-left">
-                <p className="text-white/70 whitespace-pre-wrap leading-relaxed text-sm">{message}</p>
-              </div>
-
-              <div className="flex items-center justify-center gap-2 text-emerald-400/60 text-xs">
-                <Eye className="w-3 h-3" />
-                <span>This message was time-locked and has now been revealed</span>
-              </div>
-
-              <button
-                onClick={onBack}
-                className="text-white/20 hover:text-white/40 text-sm transition-colors"
-              >
-                Unlock Another Message
-              </button>
-            </div>
+            <RevealCeremony
+              message={message}
+              sealedAt={status?.unlockTime ? undefined : undefined}
+              unlockedAt={status?.unlockTime ?? undefined}
+              onDismiss={onBack}
+            />
           )}
         </div>
       </main>
