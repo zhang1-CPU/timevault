@@ -2,7 +2,7 @@
 
 declare module 'lucide-react' {
   // biome-ignore lint/suspicious/noExplicitAny: shim
-  type LucideComponent = React.ComponentType<any>;
+  type LucideComponent = React.ComponentType<React.SVGProps<SVGSVGElement>>;
 
   // Core icons used in application code
   export const Lock: LucideComponent;

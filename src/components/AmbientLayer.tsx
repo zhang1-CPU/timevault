@@ -3,62 +3,77 @@
    设计目标：神秘、安静、低调的浪漫
    ───────────────────────────────────────────── */
 
+// 在模块初始化时一次性生成真正随机的星星位置（不会每次 re-render 改变）
+const RAND_SEED = 12345;
+function mulberry32(seed: number) {
+  let t = seed >>> 0;
+  return () => {
+    t = (t + 0x6D2B79F5) >>> 0;
+    let x = t;
+    x = Math.imul(x ^ (x >>> 15), x | 1);
+    x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const rand = mulberry32(RAND_SEED);
+
+// 预生成 120 颗星星（散落 + 神秘感）
+const STARS = Array.from({ length: 120 }, (_, i) => {
+  const size = 0.8 + rand() * 2.2; // 0.8 ~ 3.0 px（大部分是细小的星点）
+  const left = rand() * 100; // 真正随机的水平位置
+  const top = rand() * 100; // 真正随机的垂直位置
+  const dur = 3 + rand() * 7; // 3 ~ 10s 的闪烁节奏（缓慢神秘）
+  const delay = rand() * 8;
+  const colorIdx = Math.floor(rand() * 5);
+  const colors = [
+    '#ffffff',   // 纯白（最暗）
+    '#d4b3ff',   // 淡紫
+    '#e6d0ff',   // 更淡紫
+    '#ffd4e0',   // 淡粉
+    '#fff2cc',   // 暖金
+  ];
+  const color = colors[colorIdx];
+  const patternIdx = Math.floor(rand() * 4);
+  // 降低基础发光（不要太亮）
+  const glowIntensity = 0.35 + rand() * 0.35;
+  return { size, left, top, dur, delay, color, patternIdx, glowIntensity, i };
+});
+
+// 6 个柔光块（原来 8 个，减少以避免过亮）
+const GLOWS = Array.from({ length: 6 }, (_, i) => {
+  const size = 90 + (i % 3) * 50;
+  const left = rand() * 100;
+  const top = rand() * 80 + 5;
+  const dur = 10 + rand() * 8; // 10 ~ 18s 更慢
+  const delay = i * 1.3;
+  const palette = [
+    'rgba(236, 72, 153, 0.18)',
+    'rgba(168, 85, 247, 0.14)',
+    'rgba(59, 130, 246, 0.12)',
+    'rgba(244, 114, 182, 0.15)',
+    'rgba(139, 92, 246, 0.13)',
+  ];
+  const color = palette[i % palette.length];
+  return { size, left, top, dur, delay, color, i };
+});
+
+// 爱心（5 颗，不太多）— 极缓慢上浮
+const HEARTS = Array.from({ length: 5 }, (_, i) => {
+  const size = 10 + (i % 3) * 4;
+  const left = rand() * 95 + 2;
+  const dur = 22 + rand() * 14; // 22 ~ 36s 超慢速
+  const delay = i * 3.5;
+  const palette = [
+    'rgba(255, 143, 171, 0.35)',
+    'rgba(216, 180, 254, 0.30)',
+    'rgba(251, 191, 236, 0.28)',
+  ];
+  const color = palette[i % palette.length];
+  return { size, left, dur, delay, color, i };
+});
+
 export function AmbientLayer() {
-  // ─── Stars (80 颗，随机位置 + 大小 + 颜色 + 闪烁速度) ───
-  const stars = Array.from({ length: 80 }, (_, i) => {
-    const size = 1 + (i % 4); // 1, 2, 3, 4 px
-    const left = ((i * 17 + 53) % 1000) / 10;
-    const top = ((i * 31 + 29) % 1000) / 10;
-    const dur = 1.2 + (i % 8) * 0.4; // 1.2 - 4.4s
-    const delay = ((i * 7) % 50) / 10;
-    const colorIdx = i % 5;
-    const colors = [
-      '#ffffff',   // 纯白
-      '#e0c3ff',   // 淡紫
-      '#c7e0ff',   // 淡蓝
-      '#ffd4e0',   // 淡粉
-      '#fff4cc',   // 暖金
-    ];
-    const color = colors[colorIdx];
-    // 部分星星有更长的"亮"时间，有的快速闪烁
-    const patternIdx = i % 4;
-    return { size, left, top, dur, delay, color, patternIdx, i };
-  });
-
-  // ─── Heavier glows (8 个大光点，柔和但可见的光晕) ───
-  const glows = Array.from({ length: 8 }, (_, i) => {
-    const size = 80 + (i % 3) * 60;
-    const left = 8 + i * 12;
-    const top = 10 + (i * 19) % 80;
-    const dur = 6 + i * 0.8;
-    const delay = i * 0.7;
-    const palette = [
-      'rgba(236, 72, 153, 0.25)',   // hot pink
-      'rgba(168, 85, 247, 0.22)',   // purple
-      'rgba(59, 130, 246, 0.18)',   // blue
-      'rgba(236, 72, 153, 0.20)',
-      'rgba(168, 85, 247, 0.20)',
-      'rgba(99, 102, 241, 0.15)',
-    ];
-    const color = palette[i % palette.length];
-    return { size, left, top, dur, delay, color, i };
-  });
-
-  // ─── Floating hearts (8 颗，从底部慢慢向上飘) ───
-  const hearts = Array.from({ length: 8 }, (_, i) => {
-    const size = 10 + (i % 3) * 4;
-    const left = 5 + i * 11;
-    const dur = 12 + i * 1.8; // 12 - 24s 慢速
-    const delay = i * 1.5;
-    const palette = [
-      'rgba(255, 143, 171, 0.55)',  // soft pink
-      'rgba(216, 180, 254, 0.50)',  // lavender
-      'rgba(251, 191, 236, 0.45)',  // pale pink
-    ];
-    const color = palette[i % palette.length];
-    return { size, left, dur, delay, color, i };
-  });
-
   return (
     <div
       className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
@@ -67,19 +82,19 @@ export function AmbientLayer() {
       }}
       aria-hidden="true"
     >
-      {/* 极弱的星云感大色团（几乎看不见，但打破纯黑） */}
+      {/* 极弱的星云感大色团 */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(circle 400px at 15% 20%, rgba(168, 85, 247, 0.06) 0%, transparent 60%),' +
-            'radial-gradient(circle 500px at 85% 70%, rgba(236, 72, 153, 0.05) 0%, transparent 55%),' +
-            'radial-gradient(circle 350px at 50% 110%, rgba(59, 130, 246, 0.06) 0%, transparent 60%)',
+            'radial-gradient(circle 400px at 15% 20%, rgba(168, 85, 247, 0.05) 0%, transparent 60%),' +
+            'radial-gradient(circle 500px at 85% 70%, rgba(236, 72, 153, 0.04) 0%, transparent 55%),' +
+            'radial-gradient(circle 350px at 50% 110%, rgba(59, 130, 246, 0.04) 0%, transparent 60%)',
         }}
       />
 
-      {/* 大光晕（柔色） */}
-      {glows.map(({ size, left, top, dur, delay, color, i }) => (
+      {/* 大光晕 — 柔和、缓慢呼吸 */}
+      {GLOWS.map(({ size, left, top, dur, delay, color, i }) => (
         <div
           key={`glow-${i}`}
           className="absolute rounded-full"
@@ -95,9 +110,8 @@ export function AmbientLayer() {
         />
       ))}
 
-      {/* 星星 */}
-      {stars.map(({ size, left, top, dur, delay, color, patternIdx, i }) => {
-        // 3 种闪烁模式 + 4 种运动
+      {/* 星星 — 真正散落，不刺眼 */}
+      {STARS.map(({ size, left, top, dur, delay, color, patternIdx, glowIntensity, i }) => {
         const animName = `star-pulse-${patternIdx}`;
         return (
           <div
@@ -109,15 +123,16 @@ export function AmbientLayer() {
               left: `${left}%`,
               top: `${top}%`,
               background: color,
-              boxShadow: `0 0 ${size * 4}px ${color}, 0 0 ${size * 8}px ${color}`,
+              opacity: 0.45 * glowIntensity,
+              boxShadow: `0 0 ${size * 3}px ${color}, 0 0 ${size * 5}px ${color}`,
               animation: `${animName} ${dur}s ease-in-out ${delay}s infinite`,
             }}
           />
         );
       })}
 
-      {/* 爱心漂浮 */}
-      {hearts.map(({ size, left, dur, delay, color, i }) => (
+      {/* 爱心漂浮 — 缓慢、稀疏、不喧宾夺主 */}
+      {HEARTS.map(({ size, left, dur, delay, color, i }) => (
         <div
           key={`heart-${i}`}
           className="absolute"
@@ -128,7 +143,8 @@ export function AmbientLayer() {
             bottom: `-${size + 10}px`,
             color,
             animation: `heart-float ${dur}s linear ${delay}s infinite`,
-            filter: `drop-shadow(0 0 ${size / 2}px ${color})`,
+            filter: `drop-shadow(0 0 ${size * 0.3}px ${color})`,
+            opacity: 0.55,
           }}
         >
           <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="100%" height="100%">

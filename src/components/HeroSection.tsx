@@ -86,6 +86,11 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple }: HeroSectionProps
                     <stop offset="0%" stopColor="#ec4899" stopOpacity="0.35" />
                     <stop offset="100%" stopColor="#ec4899" stopOpacity="0" />
                   </radialGradient>
+
+                  {/* clipPath: 严格裁剪在玻璃内部，沙子永远不会溢出 */}
+                  <clipPath id="glassClip">
+                    <path d="M 17 17 L 83 17 Q 80 28 68 45 Q 56 54 54 58 Q 52 60 54 62 Q 58 66 68 75 Q 82 92 83 103 L 17 103 Q 18 92 32 75 Q 44 66 46 62 Q 48 60 46 58 Q 42 54 32 45 Q 18 28 17 17 Z" />
+                  </clipPath>
                 </defs>
 
                 {/* Ambient glow circle */}
@@ -120,51 +125,54 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple }: HeroSectionProps
                   opacity="0.9"
                 />
 
-                {/* Top sand pile — CSS animation: shrinks over time */}
-                <path
-                  d="M 22 18 L 78 18 Q 64 38 54 55 Q 50 58 46 55 Q 36 38 22 18 Z"
-                  fill="url(#hSandGrad)"
-                  style={{
-                    transformOrigin: '50px 58px',
-                    animation: 'sand-top 5s ease-in-out infinite',
-                  }}
-                />
+                {/* 所有沙子被 clipPath 裁剪，永远不会溢出玻璃 */}
+                <g clipPath="url(#glassClip)">
+                  {/* Top sand pile — 缓慢缩小 */}
+                  <path
+                    d="M 22 18 L 78 18 Q 64 38 54 55 Q 50 58 46 55 Q 36 38 22 18 Z"
+                    fill="url(#hSandGrad)"
+                    style={{
+                      transformOrigin: '50px 58px',
+                      animation: 'sand-top 6s ease-in-out infinite',
+                    }}
+                  />
 
-                {/* Bottom sand pile — CSS animation: grows over time */}
-                <path
-                  d="M 30 88 Q 50 82 70 88 L 80 102 L 20 102 Z"
-                  fill="url(#hSandGrad)"
-                  opacity="0.85"
-                  style={{
-                    transformOrigin: '50px 90px',
-                    animation: 'sand-bottom 5s ease-in-out infinite',
-                  }}
-                />
+                  {/* Bottom sand pile — 缓慢堆积 */}
+                  <path
+                    d="M 30 90 Q 50 84 70 90 L 80 102 L 20 102 Z"
+                    fill="url(#hSandGrad)"
+                    opacity="0.9"
+                    style={{
+                      transformOrigin: '50px 90px',
+                      animation: 'sand-bottom 6s ease-in-out infinite',
+                    }}
+                  />
 
-                {/* Narrow neck sand stream */}
-                <rect x="49.2" y="58" width="1.6" height="28" fill="url(#hSandGrad)" opacity="0.85">
-                  <animate attributeName="opacity" values="0.7;1;0.7" dur="0.8s" repeatCount="indefinite" />
-                </rect>
+                  {/* Narrow neck sand stream — 细小的流沙柱 */}
+                  <rect x="49.4" y="58" width="1.2" height="28" fill="url(#hSandGrad)" opacity="0.85">
+                    <animate attributeName="opacity" values="0.6;1;0.6" dur="1s" repeatCount="indefinite" />
+                  </rect>
 
-                {/* Falling sand grains — individual animated circles */}
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <circle key={i} cx="50" cy={62 + i * 2} r="0.8" fill="#ffd700">
-                    <animate
-                      attributeName="cy"
-                      values={`${60};${82}`}
-                      dur={`${0.9 + i * 0.15}s`}
-                      begin={`${i * 0.18}s`}
-                      repeatCount="indefinite"
-                    />
-                    <animate
-                      attributeName="opacity"
-                      values="0;1;0"
-                      dur={`${0.9 + i * 0.15}s`}
-                      begin={`${i * 0.18}s`}
-                      repeatCount="indefinite"
-                    />
-                  </circle>
-                ))}
+                  {/* Falling sand grains — 5 粒金沙下坠，被 clip 后只会在玻璃内部可见 */}
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <circle key={i} cx="50" cy={62 + i * 2} r="0.8" fill="#ffd700">
+                      <animate
+                        attributeName="cy"
+                        values={`${60};${82}`}
+                        dur={`${1.0 + i * 0.18}s`}
+                        begin={`${i * 0.2}s`}
+                        repeatCount="indefinite"
+                      />
+                      <animate
+                        attributeName="opacity"
+                        values="0;0.95;0"
+                        dur={`${1.0 + i * 0.18}s`}
+                        begin={`${i * 0.2}s`}
+                        repeatCount="indefinite"
+                      />
+                    </circle>
+                  ))}
+                </g>
 
                 {/* Sparkle decorations at corners */}
                 <circle cx="20" cy="12.5" r="1.5" fill="#ffb3d0">
@@ -362,7 +370,7 @@ function FloatingDecor() {
     const size = 8 + (i * 3) % 18;
     const left = (i * 4.5) % 100;
     const top = 30 + ((i * 11) % 65);
-    const duration = 2 + (i % 5) * 0.6; // 2.0 - 4.4s（快速飘动！）
+    const duration = 9 + (i % 6) * 1.2; // 9 - 15s（原来 2-4.4s，慢了 3~4 倍）
     const delay = (i * 0.35) % 6;
     const isHeart = i % 3 === 0;
     const palette = ['#ff8fab', '#d8b4fe', '#c084fc', '#fbbf24', '#60a5fa', '#f472b6'];
@@ -387,8 +395,8 @@ function FloatingDecor() {
             animationName: 'float',
             animationTimingFunction: 'ease-in-out',
             animationIterationCount: 'infinite',
-            opacity: 0.85,
-            filter: `drop-shadow(0 0 ${size * 0.6}px ${color})`,
+            opacity: 0.35, // 原来 0.85 太亮
+            filter: `drop-shadow(0 0 ${size * 0.4}px ${color})`,
           }}
         >
           {isHeart ? (

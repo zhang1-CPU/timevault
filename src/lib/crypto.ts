@@ -403,7 +403,7 @@ async function loadImageToCanvas(imageFile: File): Promise<{ canvas: HTMLCanvasE
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
       if (!ctx) throw new Error('Canvas 2D context not available');
       ctx.drawImage(bitmap, 0, 0);
-      (bitmap as any).close?.();
+      (bitmap as ImageBitmap).close?.();
       return { canvas, ctx };
     } catch {
       // fall through to <img> fallback
@@ -486,9 +486,9 @@ async function embedInImage(imageFile: File, data: Uint8Array, unlockDate: Date)
       if (blob) resolve(blob);
       else reject(new Error('Failed to create PNG blob'));
     };
-    if (typeof (canvas as any).mozGetAsFile !== 'undefined') {
+    if (typeof (canvas as HTMLCanvasElement & { mozGetAsFile?: (name: string, type: string) => Blob }).mozGetAsFile !== 'undefined') {
       // Firefox legacy path
-      done((canvas as any).mozGetAsFile('timevault.png', 'image/png'));
+      done((canvas as HTMLCanvasElement & { mozGetAsFile: (name: string, type: string) => Blob }).mozGetAsFile('timevault.png', 'image/png'));
     } else if (typeof canvas.toBlob !== 'undefined') {
       // Standard path — toBlob is asynchronous on every modern browser.
       canvas.toBlob(done, 'image/png');
@@ -588,7 +588,7 @@ function extractLsb(imageData: ImageData): Uint8Array {
   }
 
   // Step 2: read 4-byte magic and validate ("TVLT")
-  let magicBytes = new Uint8Array(MAGIC_LENGTH);
+  const magicBytes = new Uint8Array(MAGIC_LENGTH);
   for (let byteIdx = 0; byteIdx < MAGIC_LENGTH; byteIdx++) {
     let byte = 0;
     for (let bitOffset = 7; bitOffset >= 0; bitOffset--) {

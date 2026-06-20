@@ -490,6 +490,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
               unlockDate={unlockDate} setUnlockDate={setUnlockDate}
               onGenerateQR={handleAGenerateQR}
               isProcessing={isProcessing}
+              minUnlockDate={minUnlockDate}
             />
           )}
           {step === 'a-qr' && (
@@ -505,6 +506,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
                 }
               }}
               copied={copied}
+              mountTime={mountTime}
             />
           )}
           {step === 'b-welcome' && (
@@ -526,7 +528,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
               isProcessing={isProcessing}
             />
           )}
-          {step === 'b-done' && <BDoneStep sealedBlob={sealedBlobB} onHome={onHome} />}
+          {step === 'b-done' && <BDoneStep sealedBlob={sealedBlobB} onHome={onHome} mountTime={mountTime} />}
         </div>
       </main>
     </div>
@@ -776,7 +778,7 @@ function CutFadeStep({ leftPreview, rightPreview }: { leftPreview: string; right
 // ─── A Write ─────────────────────────────────────────────────
 function AWriteStep({
   leftPreview, rightPreview, messageA, setMessageA, pinA, setPinA, unlockDate, setUnlockDate,
-  onGenerateQR, isProcessing,
+  onGenerateQR, isProcessing, minUnlockDate,
 }: {
   leftPreview: string; rightPreview: string;
   messageA: string; setMessageA: (v: string) => void;
@@ -784,6 +786,7 @@ function AWriteStep({
   unlockDate: string; setUnlockDate: (v: string) => void;
   onGenerateQR: () => void;
   isProcessing: boolean;
+  minUnlockDate: string;
 }) {
   return (
     <div className="space-y-6 pt-4">
@@ -856,9 +859,10 @@ function AWriteStep({
 }
 
 // ─── A QR ────────────────────────────────────────────────────
-function AQRStep({ qrCode, leftPreview, unlockDate, onCopyLink, copied }: {
+function AQRStep({ qrCode, leftPreview, unlockDate, onCopyLink, copied, mountTime }: {
   qrCode: string; leftPreview: string; unlockDate: string;
   onCopyLink: () => void; copied: boolean;
+  mountTime: number;
 }) {
   const date = unlockDate ? new Date(unlockDate) : null;
   return (
@@ -1020,19 +1024,16 @@ function BWriteStep({ preview, messageB, setMessageB, pinB, setPinB, onSeal, isP
 }
 
 // ─── B Done ──────────────────────────────────────────────────
-function BDoneStep({ sealedBlob, onHome }: { sealedBlob: Blob | null; onHome: () => void }) {
-  const [blobUrl, setBlobUrl] = useState('');
+function BDoneStep({ sealedBlob, onHome, mountTime }: { sealedBlob: Blob | null; onHome: () => void; mountTime: number }) {
+  const blobUrl = useMemo(() => {
+    return sealedBlob ? URL.createObjectURL(sealedBlob) : '';
+  }, [sealedBlob]);
 
   useEffect(() => {
-    let createdUrl = '';
-    if (sealedBlob) {
-      createdUrl = URL.createObjectURL(sealedBlob);
-      setBlobUrl(createdUrl);
-    }
     return () => {
-      if (createdUrl) URL.revokeObjectURL(createdUrl);
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
     };
-  }, [sealedBlob]);
+  }, [blobUrl]);
 
   return (
     <div className="space-y-8 pt-8">
