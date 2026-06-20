@@ -6,7 +6,6 @@ import {
   loadSession,
   storeBlobForSession,
   getActiveSessionId,
-  getBlobFromSession,
   generateInviteURL,
   generateMergeURL,
   parseInviteURL,
@@ -112,6 +111,9 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   const [pinBInput, setPinBInput] = useState('');
   const [bHalfBlob, setBHalfBlob] = useState<Blob | null>(null);
   const [bOriginalImage, setBOriginalImage] = useState<File | null>(null); // B's original half photo for high quality
+
+  // ─── Merge (A) data ───────────────────────────────────────
+  const [aMergeImage, setAMergeImage] = useState<File | null>(null);
 
   // ─── QR & merge ────────────────────────────────────────────
   const [inviteQR, setInviteQR] = useState('');
@@ -372,13 +374,15 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       // Encrypt B's message with PIN-A for secure transmission to A
       const msgbCipher = await encryptWithPin(msgB.trim(), bParams.pina);
 
-      // Generate merge URL
+      // Generate merge URL — carry split data so A can re-split
       const mergeUrl = generateMergeURL({
         sid: bParams.sid,
         u: bParams.u,
         pinb: pinBInput,
         msgb_cipher: msgbCipher,
         sealedat: bParams.sid,
+        split_x: bParams.split_x,
+        a_side: bParams.a_side,
       });
       const mergeQRImg = await generateQRCodeImage(mergeUrl);
       setMergeURL(mergeUrl);
@@ -398,48 +402,57 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   // ─── Scene: Merge ────────────────────────────────────────────
   const handleMerge = useCallback(async () => {
     if (!mergeParams) { setError('Missing merge data'); return; }
+    if (!aMergeImage) { setError('Please upload the original photo first'); return; }
     clearError();
     setIsProcessing(true);
 
     try {
-      // Get A's blob from session storage
-      let aBlob = getBlobFromSession(mergeParams.sid);
-      if (!aBlob) {
-        setError('Could not find your saved data. Please open the merge link on the same device you created the capsule.');
+      // Split photo using the same split ratio from the QR
+      const splitRatio = parseFloat(mergeParams.split_x);
+      const { leftBlob, rightBlob } = await splitPhotoByRatio(aMergeImage, splitRatio);
+      const aHalfBlob = mergeParams.a_side === 'left' ? leftBlob : rightBlob;
+
+      // Try to get session data (for PIN-A and msgA)
+      let sess = loadSession(mergeParams.sid);
+
+      const unlock = new Date(mergeParams.u);
+
+      // Decrypt B's message — need PIN-A
+      // If session lost PIN-A, fall back to asking for it later
+      let pinAForMerge = sess?.pinA || '';
+      if (!pinAForMerge) {
+        // Fallback: need A to re-enter PIN
+        setError('Please re-enter your 4-digit PIN to unlock the merge');
         setIsProcessing(false);
         return;
       }
 
-      const sess = loadSession(mergeParams.sid);
-      if (!sess) { setError('Session not found'); setIsProcessing(false); return; }
-
-      const unlock = new Date(mergeParams.u);
-
-      // Decrypt B's message from URL (encrypted with PIN-A)
-      const msgB = mergeParams.msgb_cipher && sess.pinA ? await decryptWithPin(mergeParams.msgb_cipher, sess.pinA) : '';
+      const msgB = mergeParams.msgb_cipher ? await decryptWithPin(mergeParams.msgb_cipher, pinAForMerge) : '';
 
       // Merge B's message into A's half
       const finalBlob = await mergeCoupleHalfA(
-        new File([aBlob], 'a-half.png', { type: 'image/png' }),
-        sess.msgA || '',
+        new File([aHalfBlob], 'a-half.png', { type: 'image/png' }),
+        sess?.msgA || '',
         msgB,
-        sess.pinA || '',
+        pinAForMerge,
         mergeParams.pinb,
         unlock,
-        sess.mySide,
-        new Date(sess.sealedAtA || mergeParams.sealedat)
+        mergeParams.a_side,
+        new Date(mergeParams.sealedat)
       );
 
       setSealedBlobA(finalBlob);
-      sess.merged = true;
-      sess.mergedAt = new Date().toISOString();
-      saveSession(sess);
+      if (sess) {
+        sess.merged = true;
+        sess.mergedAt = new Date().toISOString();
+        saveSession(sess);
+      }
 
       setIsProcessing(false);
     } catch (err) {
       withError(err instanceof Error ? err.message : 'Failed to merge messages');
     }
-  }, [mergeParams, clearError, withError]);
+  }, [mergeParams, aMergeImage, clearError, withError]);
 
   // ─── Scene: Unlock ───────────────────────────────────────────
   const handleUnlock = useCallback(async () => {
@@ -586,6 +599,9 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
               onDownload={handleDownloadA}
               sealedBlobA={sealedBlobA}
               onDone={onHome}
+              aMergeImage={aMergeImage}
+              onImageChange={setAMergeImage}
+              error={error}
             />
           )}
 
@@ -1100,6 +1116,9 @@ function MergeStep({
   onDownload,
   sealedBlobA,
   onDone,
+  aMergeImage,
+  onImageChange,
+  error,
 }: {
   params: NonNullable<Awaited<ReturnType<typeof parseMergeURL>>>;
   isProcessing: boolean;
@@ -1107,8 +1126,21 @@ function MergeStep({
   onDownload: () => void;
   sealedBlobA: Blob | null;
   onDone: () => void;
+  aMergeImage: File | null;
+  onImageChange: (f: File) => void;
+  error: string;
 }) {
   const date = new Date(params.u);
+  const [previewUrl, setPreviewUrl] = useState('');
+
+  useEffect(() => {
+    if (aMergeImage) {
+      const url = URL.createObjectURL(aMergeImage);
+      setPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    }
+    setPreviewUrl('');
+  }, [aMergeImage]);
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -1122,7 +1154,7 @@ function MergeStep({
           TA Wrote Back
         </h2>
         <p className="text-white/30 text-sm">
-          TA&apos;s reply is ready — download your complete capsule now
+          Upload the same photo — it will be auto-cut and merged.
         </p>
       </div>
 
@@ -1136,30 +1168,67 @@ function MergeStep({
         </div>
       </div>
 
-      {/* Merge / Download */}
-      {sealedBlobA ? (
+      {/* Error message */}
+      {error && (
+        <div className="text-center text-rose-400/70 text-sm px-4 py-3 rounded-xl bg-rose-500/5 border border-rose-400/20">
+          {error}
+        </div>
+      )}
+
+      {/* Photo upload or ready state */}
+      {!sealedBlobA ? (
+        <div className="space-y-4">
+          {!aMergeImage ? (
+            <label className="flex flex-col items-center justify-center w-full h-40 rounded-xl border-2 border-dashed border-rose-400/20
+                             bg-white/[0.02] cursor-pointer hover:border-rose-400/40 hover:bg-white/[0.04] transition-all">
+              <Upload className="w-8 h-8 text-rose-300/30 mb-2" />
+              <span className="text-white/30 text-sm">Tap to upload the original photo</span>
+              <span className="text-white/15 text-[10px] mt-1">Must be the same photo you shared</span>
+              <input type="file" accept="image/*" className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) onImageChange(file);
+                }} />
+            </label>
+          ) : (
+            <div className="space-y-4">
+              <div className="relative rounded-xl overflow-hidden border border-rose-400/20">
+                <img src={previewUrl} alt="Original photo" className="w-full max-h-48 object-contain bg-black/30" />
+                <label className="absolute top-2 right-2 px-3 py-1.5 rounded-full bg-black/50 text-white/60 text-xs cursor-pointer hover:bg-black/70">
+                  Change
+                  <input type="file" accept="image/*" className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) onImageChange(file);
+                    }} />
+                </label>
+              </div>
+
+              <button onClick={onMerge} disabled={isProcessing}
+                className="w-full py-4.5 bg-gradient-to-r from-rose-500/95 to-pink-600/95 rounded-2xl text-white font-medium text-base
+                           transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.02] active:scale-[0.97]
+                           disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px]">
+                {isProcessing ? (
+                  <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Merging...</>
+                ) : (
+                  <><Download className="w-5 h-5" />Merge &amp; Download My Half</>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
         <div className="space-y-3">
           <div className="flex items-center gap-2 justify-center text-emerald-400/70 text-sm">
             <Check className="w-4 h-4" />
-            Capsule ready
+            Capsule ready — your half is sealed
           </div>
           <button onClick={onDownload}
-            className="w-full py-4 rounded-xl bg-emerald-500/10 border border-emerald-400/20 text-emerald-200/80 text-sm
+            className="w-full py-4.5 bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-400/20 rounded-2xl text-emerald-200/80 text-sm font-medium
                        hover:bg-emerald-500/15 transition-all flex items-center justify-center gap-2 min-h-[52px]">
-            <Download className="w-4 h-4" /> Download My Complete Half
+            <Download className="w-5 h-5" /> Download My Complete Half
           </button>
         </div>
-      ) : (
-        <button onClick={onMerge} disabled={isProcessing}
-          className="w-full py-4.5 bg-gradient-to-r from-rose-500/95 to-pink-600/95 rounded-2xl text-white font-medium text-base
-                     transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.02] active:scale-[0.97]
-                     disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px]">
-          {isProcessing ? (
-            <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Merging...</>
-          ) : (
-            <><Download className="w-5 h-5" />Download My Complete Half</>
-          )}
-        </button>
       )}
 
       <p className="text-center text-white/15 text-xs italic font-serif">
