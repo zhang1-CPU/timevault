@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   generateSessionId,
   splitPhotoByRatio,
+  compressForQR,
   saveSession,
   loadSession,
   storeBlobForSession,
@@ -108,7 +109,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   const [msgB, setMsgB] = useState('');
   const [pinBInput, setPinBInput] = useState('');
   const [bHalfBlob, setBHalfBlob] = useState<Blob | null>(null);
-  const [bImage, setBImage] = useState<File | null>(null);
 
   // ─── QR & merge ────────────────────────────────────────────
   const [inviteQR, setInviteQR] = useState('');
@@ -277,8 +277,16 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         merged: false,
       };
 
-      // Store A's half for later merge
+      // Determine halves
       const myHalfBlob = mySide === 'left' ? leftBlob : rightBlob;
+      const theirHalfBlob = mySide === 'left' ? rightBlob : leftBlob;
+
+      // Compress their half for QR code — tiny preview so QR stays scannable
+      const theirPreview = await compressForQR(
+        new File([theirHalfBlob], 'their.png', { type: 'image/png' })
+      );
+
+      // Store A's half for later merge
       storeBlobForSession(sessionId, myHalfBlob);
 
       // Generate invite URL + QR — short URL so phone can scan reliably
@@ -288,6 +296,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         pina: pinA,
         msga: msgA.trim(),
         half: theirSide,
+        preview: theirPreview,
       });
       const qr = await generateQRCodeImage(url);
       setInviteURL(url);
@@ -311,8 +320,12 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
   // ─── Scene: B Write ─────────────────────────────────────────
   const handleBWrite = useCallback(async () => {
-    if (!bParams || !bImage || !msgB.trim() || pinBInput.length !== PIN_LENGTH) {
-      setError('Please upload your half, write a message and enter your 4-digit key');
+    if (!bParams || !msgB.trim() || pinBInput.length !== PIN_LENGTH) {
+      setError('Please write a message and enter your 4-digit key');
+      return;
+    }
+    if (!bParams.preview || !bParams.preview.startsWith('data:')) {
+      setError('Image preview not available in this QR. Please ask TA to resend.');
       return;
     }
     clearError();
@@ -328,9 +341,13 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         merged: false,
       } as CoupleSession;
 
-      // Seal B's half with both messages — use the uploaded image
+      // Convert preview data URL to blob for sealing
+      const res = await fetch(bParams.preview);
+      const theirHalfBlob = await res.blob();
+
+      // Seal B's half with both messages
       const sealedB = await sealCoupleHalf(
-        bImage,
+        new File([theirHalfBlob], 'b-half.png', { type: 'image/png' }),
         bParams.msga,   // A's message
         msgB.trim(),    // B's message
         bParams.pina,   // PIN-A
@@ -341,7 +358,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
       setBHalfBlob(sealedB);
 
-      // Generate merge URL — don't include preview to keep it short
+      // Generate merge URL
       const mergeUrl = generateMergeURL({
         sid: bParams.sid,
         u: bParams.u,
@@ -364,7 +381,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     } catch (err) {
       withError(err instanceof Error ? err.message : 'Failed to seal your half');
     }
-  }, [bParams, bImage, msgB, pinBInput, clearError, withError]);
+  }, [bParams, msgB, pinBInput, clearError, withError]);
 
   // ─── Scene: Merge ────────────────────────────────────────────
   const handleMerge = useCallback(async () => {
@@ -530,8 +547,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
             <BWelcomeStep
               params={bParams}
               onContinue={handleBContinue}
-              bImage={bImage}
-              onImageChange={setBImage}
             />
           )}
 
@@ -543,7 +558,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
               onSeal={handleBWrite}
               isProcessing={isProcessing}
               error={error}
-              bImage={bImage}
             />
           )}
 
@@ -871,16 +885,12 @@ function CreateStep({
 function BWelcomeStep({
   params,
   onContinue,
-  bImage,
-  onImageChange,
 }: {
   params: NonNullable<Awaited<ReturnType<typeof parseInviteURL>>>;
   onContinue: () => void;
-  bImage: File | null;
-  onImageChange: (f: File) => void;
 }) {
   const date = new Date(params.u);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const previewUrl = params.preview && params.preview.startsWith('data:') ? params.preview : null;
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -898,7 +908,15 @@ function BWelcomeStep({
         <p className="text-white/25 text-sm">Scanned from a TimeVault capsule — sealed until today</p>
       </div>
 
-      {/* A's message — show to B so they know what to reply to */}
+      {/* Prompt text */}
+      <div className="text-center">
+        <p className="text-white/40 text-sm leading-relaxed">
+          TA already cropped the photo for you.
+          Write your reply below — then you can save your half.
+        </p>
+      </div>
+
+      {/* A's message */}
       <div className="glass-romantic rounded-2xl p-5 space-y-3 border border-white/[0.05]">
         <p className="text-xs text-white/20 uppercase tracking-widest text-center">TA Wrote</p>
         <p className="text-white/70 text-sm leading-relaxed font-serif italic text-center">
@@ -916,54 +934,24 @@ function BWelcomeStep({
         </div>
       </div>
 
-      {/* B's photo upload — the real half from A */}
-      <div onClick={() => fileRef.current?.click()}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) onImageChange(f); }}
-        className="border-2 border-dashed border-violet-400/20 rounded-2xl p-8 text-center cursor-pointer
-                   hover:border-violet-400/40 hover:bg-violet-500/[0.03] transition-all duration-300 group">
-        {bImage ? (
-          <div className="space-y-3">
-            <img src={URL.createObjectURL(bImage)} alt="Your half"
-              className="max-h-48 mx-auto rounded-xl object-contain" />
-            <div className="flex items-center justify-center gap-2 text-emerald-400/70 text-sm">
-              <Check className="w-4 h-4" />
-              <span>{bImage.name} · {Math.round(bImage.size / 1024)} KB</span>
-            </div>
-            <p className="text-white/20 text-xs">Click to choose a different image</p>
+      {/* Tiny preview — this is B's half, used for sealing */}
+      {previewUrl ? (
+        <div className="rounded-2xl overflow-hidden border border-violet-400/15 max-w-[120px] mx-auto relative">
+          <img src={previewUrl} alt="Your half of the photo" className="w-full" />
+          <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/60 text-violet-300/70 text-[9px] font-medium">
+            Your Half
           </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="w-14 h-14 mx-auto rounded-full bg-violet-500/[0.05] border border-violet-400/20
-                         flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Upload className="w-7 h-7 text-violet-400/50" />
-            </div>
-            <div>
-              <p className="text-white/40 text-sm font-medium">Upload your half of the photo</p>
-              <p className="text-white/15 text-xs mt-1">
-                A should have sent you your half of the shared image. Upload it here.
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-      <input ref={fileRef} type="file" accept="image/*" className="hidden"
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) onImageChange(f); }} />
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-violet-400/10 max-w-[100px] mx-auto h-24 bg-white/[0.03] flex items-center justify-center">
+          <QrCode className="w-8 h-8 text-violet-300/20" />
+        </div>
+      )}
 
-      {/* Info */}
-      <div className="glass rounded-xl p-4 border border-white/[0.04]">
-        <p className="text-white/20 text-xs text-center leading-relaxed">
-          Your message will be hidden inside your uploaded photo — only TA, with your key,
-          can read it.
-        </p>
-      </div>
-
-      <button onClick={onContinue} disabled={!bImage}
-        className={`w-full py-4.5 rounded-2xl text-white font-medium text-base
-                   transition-all duration-300 flex items-center justify-center gap-2 min-h-[56px]
-                   ${bImage
-                    ? 'bg-gradient-to-r from-violet-500/95 to-rose-500/95 hover:shadow-[0_0_60px_rgba(139,92,246,0.3)] hover:scale-[1.02] active:scale-[0.97]'
-                    : 'bg-white/[0.03] text-white/20 border border-white/[0.05] cursor-not-allowed'}`}>
+      <button onClick={onContinue}
+        className="w-full py-4.5 bg-gradient-to-r from-violet-500/95 to-rose-500/95 rounded-2xl text-white font-medium text-base
+                   transition-all duration-300 hover:shadow-[0_0_60px_rgba(139,92,246,0.3)] hover:scale-[1.02] active:scale-[0.97]
+                   flex items-center justify-center gap-2 min-h-[56px]">
         <Heart className="w-5 h-5" /> Write My Reply
       </button>
     </div>
@@ -977,14 +965,12 @@ function BWriteStep({
   onSeal,
   isProcessing,
   error,
-  bImage,
 }: {
   msgB: string; setMsgB: (v: string) => void;
   pinB: string; setPinB: (v: string) => void;
   onSeal: () => void;
   isProcessing: boolean;
   error: string;
-  bImage: File | null;
 }) {
   return (
     <div className="space-y-6 animate-fade-in">
@@ -997,17 +983,6 @@ function BWriteStep({
         <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm flex items-start gap-2">
           <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
           {error}
-        </div>
-      )}
-
-      {/* Image preview — shows B's half */}
-      {bImage && (
-        <div className="rounded-2xl overflow-hidden border border-violet-400/15 max-w-[280px] mx-auto relative">
-          <img src={URL.createObjectURL(bImage)} alt="Your half of the photo"
-            className="w-full max-h-48 object-contain bg-black/20" />
-          <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/50 text-violet-300/70 text-[10px] font-medium">
-            Your Half
-          </div>
         </div>
       )}
 

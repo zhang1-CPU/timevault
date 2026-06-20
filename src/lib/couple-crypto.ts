@@ -44,7 +44,7 @@ export interface InviteParams {
   pina: string;
   msga: string;
   half: 'left' | 'right';
-  preview?: string; // not used anymore — images are too large for QR
+  preview?: string; // optional — QR may fail to scan if too large
 }
 
 export interface MergeParams {
@@ -146,6 +146,10 @@ export function generateInviteURL(params: InviteParams): string {
   p.set('pina', params.pina);
   p.set('msga', params.msga);
   p.set('half', params.half);
+  if (params.preview) {
+    // Tiny preview — 40px JPEG at 0.15 quality should fit in QR
+    p.set('preview', params.preview);
+  }
   return `${buildBase()}#couple-b?${p.toString()}`;
 }
 
@@ -330,7 +334,7 @@ export async function splitPhotoSimple(
 
 // ─── Image Compression ───────────────────────────────────────
 
-export async function compressForQR(imageFile: File, maxWidth = 60, quality = 0.25): Promise<string> {
+export async function compressForQR(imageFile: File, maxWidth = 40, quality = 0.15): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = document.createElement('img');
     const url = URL.createObjectURL(imageFile);
