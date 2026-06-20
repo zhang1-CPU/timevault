@@ -45,7 +45,7 @@ export interface InviteParams {
   msg_a: string;        // A's message in plain text — B encrypts it with PIN-B
   split_x: string;      // split ratio 0-1
   a_side: 'left' | 'right'; // which half A keeps
-  a_half?: string;      // (deprecated) tiny compressed preview — no longer used for downloads
+  a_half?: string;      // compressed data URL of A's half — B uses it for merge QR
 }
 
 export interface MergeParams {
@@ -55,6 +55,7 @@ export interface MergeParams {
   msg_b: string;        // B's message in plain text
   split_x: string;      // same split ratio A used
   a_side: 'left' | 'right'; // which half A keeps, so A can re-split correctly
+  sealed_a_half?: string; // (optional) sealed A half data URL — if present, A downloads directly
 }
 
 // ─── Local Storage ───────────────────────────────────────────
@@ -150,6 +151,7 @@ export function generateInviteURL(params: InviteParams): string {
   p.set('m', params.msg_a);
   p.set('x', params.split_x);
   p.set('d', params.a_side);
+  if (params.a_half) p.set('h', params.a_half);
   return `${buildBase()}#couple-b?${p.toString()}`;
 }
 
@@ -161,6 +163,7 @@ export function generateMergeURL(params: MergeParams): string {
   p.set('m', params.msg_b);
   p.set('x', params.split_x);
   p.set('d', params.a_side);
+  if (params.sealed_a_half) p.set('a', params.sealed_a_half);
   return `${buildBase()}#couple-a?${p.toString()}`;
 }
 
@@ -177,8 +180,9 @@ export function parseInviteURL(hash: string): InviteParams | null {
     const msg_a = params.get('m') || '';
     const split_x = params.get('x') || '';
     const a_side = params.get('d') as 'left' | 'right' | null;
+    const a_half = params.get('h') || undefined;
     if (!sid || !u || !pin_a || !split_x || !a_side) return null;
-    return { sid, u, pin_a, msg_a, split_x, a_side };
+    return { sid, u, pin_a, msg_a, split_x, a_side, a_half };
   } catch {
     return null;
   }
@@ -195,8 +199,9 @@ export function parseMergeURL(hash: string): MergeParams | null {
     const msg_b = params.get('m') || '';
     const split_x = params.get('x') || '';
     const a_side = params.get('d') as 'left' | 'right' | null;
+    const sealed_a_half = params.get('a') || undefined;
     if (!sid || !u || !pin_b || !split_x || !a_side) return null;
-    return { sid, u, pin_b, msg_b, split_x, a_side };
+    return { sid, u, pin_b, msg_b, split_x, a_side, sealed_a_half };
   } catch {
     return null;
   }
@@ -395,6 +400,49 @@ export function blobToDataURL(blob: Blob): Promise<string> {
     reader.onloadend = () => resolve(reader.result as string);
     reader.onerror = () => reject(new Error('blobToDataURL failed'));
     reader.readAsDataURL(blob);
+  });
+}
+
+/**
+ * Compress a half-photo (PNG blob) into a small image data URL for QR code.
+ * - max width ~300px
+ * - JPEG quality ~0.5
+ * Output size goal: <= ~20KB so it can fit in a QR code along with other params.
+ */
+export async function compressForQR(
+  blob: Blob,
+  maxWidth: number = 300,
+  quality: number = 0.5
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = document.createElement('img');
+    const url = URL.createObjectURL(blob);
+    img.onload = () => {
+      try {
+        const ratio = Math.min(1, maxWidth / img.width);
+        const w = Math.max(1, Math.round(img.width * ratio));
+        const h = Math.max(1, Math.round(img.height * ratio));
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { reject(new Error('canvas unavailable')); return; }
+        ctx.drawImage(img, 0, 0, w, h);
+        canvas.toBlob((b) => {
+          URL.revokeObjectURL(url);
+          if (!b) { reject(new Error('compress toBlob failed')); return; }
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = () => reject(new Error('compress read failed'));
+          reader.readAsDataURL(b);
+        }, 'image/jpeg', quality);
+      } catch (err) {
+        URL.revokeObjectURL(url);
+        reject(err);
+      }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('compress img failed')); };
+    img.src = url;
   });
 }
 
