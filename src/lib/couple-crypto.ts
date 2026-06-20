@@ -41,21 +41,19 @@ export type CoupleRole = 'A' | 'B';
 export interface InviteParams {
   sid: string;
   u: string;
-  pin_a: string;        // A's PIN — used by B to encrypt B's message (A decrypts at unlock)
-  msg_a: string;        // A's message in plain text — B encrypts it with PIN-B
+  pin_a: string;        // A's PIN — B uses it to seal B's message for A
+  msg_a: string;        // A's message
   split_x: string;      // split ratio 0-1
   a_side: 'left' | 'right'; // which half A keeps
-  a_half?: string;      // compressed data URL of A's half — B uses it for merge QR
 }
 
 export interface MergeParams {
   sid: string;
   u: string;
-  pin_b: string;        // B's PIN — A uses it to encrypt A's message at merge time
-  msg_b: string;        // B's message in plain text
+  pin_b: string;        // B's PIN
+  msg_b: string;        // B's message
   split_x: string;      // same split ratio A used
-  a_side: 'left' | 'right'; // which half A keeps, so A can re-split correctly
-  sealed_a_half?: string; // (optional) sealed A half data URL — if present, A downloads directly
+  a_side: 'left' | 'right'; // which half A keeps
 }
 
 // ─── Local Storage ───────────────────────────────────────────
@@ -151,7 +149,6 @@ export function generateInviteURL(params: InviteParams): string {
   p.set('m', params.msg_a);
   p.set('x', params.split_x);
   p.set('d', params.a_side);
-  if (params.a_half) p.set('h', params.a_half);
   return `${buildBase()}#couple-b?${p.toString()}`;
 }
 
@@ -163,7 +160,6 @@ export function generateMergeURL(params: MergeParams): string {
   p.set('m', params.msg_b);
   p.set('x', params.split_x);
   p.set('d', params.a_side);
-  if (params.sealed_a_half) p.set('a', params.sealed_a_half);
   return `${buildBase()}#couple-a?${p.toString()}`;
 }
 
@@ -180,9 +176,8 @@ export function parseInviteURL(hash: string): InviteParams | null {
     const msg_a = params.get('m') || '';
     const split_x = params.get('x') || '';
     const a_side = params.get('d') as 'left' | 'right' | null;
-    const a_half = params.get('h') || undefined;
     if (!sid || !u || !pin_a || !split_x || !a_side) return null;
-    return { sid, u, pin_a, msg_a, split_x, a_side, a_half };
+    return { sid, u, pin_a, msg_a, split_x, a_side };
   } catch {
     return null;
   }
@@ -199,9 +194,8 @@ export function parseMergeURL(hash: string): MergeParams | null {
     const msg_b = params.get('m') || '';
     const split_x = params.get('x') || '';
     const a_side = params.get('d') as 'left' | 'right' | null;
-    const sealed_a_half = params.get('a') || undefined;
     if (!sid || !u || !pin_b || !split_x || !a_side) return null;
-    return { sid, u, pin_b, msg_b, split_x, a_side, sealed_a_half };
+    return { sid, u, pin_b, msg_b, split_x, a_side };
   } catch {
     return null;
   }
