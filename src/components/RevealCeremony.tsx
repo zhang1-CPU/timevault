@@ -17,21 +17,20 @@ function buildPreamble(messageLen: number, sealedAt?: Date | null, unlockedAt?: 
 
   const lines: string[] = [];
   if (seal) {
-    const sealStr = seal.toLocaleDateString(undefined, {
-      month: 'long', day: 'numeric', year: 'numeric',
+    const sealStr = seal.toLocaleString(undefined, {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit',
     });
-    const intro = [
-      `On ${sealStr}, you sealed a message meant for this moment.`,
-      `On ${sealStr}, you wrote words to your future self — and kept them secret.`,
-      `On ${sealStr}, you whispered something into time.`,
-    ];
-    lines.push(intro[Math.floor(Math.random() * intro.length)]);
+    lines.push(`Sealed on ${sealStr} — a message kept safe by time.`);
 
     if (un) {
       const diffMs = Math.max(0, un.getTime() - seal.getTime());
       const days = Math.round(diffMs / 86_400_000);
-      if (days > 0) {
+      const hours = Math.round(diffMs / 3_600_000);
+      if (days >= 1) {
         lines.push(`After ${days} ${days === 1 ? 'day' : 'days'} of patient waiting, your letter is ready to be read.`);
+      } else if (hours >= 1) {
+        lines.push(`After ${hours} ${hours === 1 ? 'hour' : 'hours'} of patient waiting, your letter is ready to be read.`);
       } else {
         lines.push(`After a short wait, your letter is ready to be read.`);
       }
@@ -189,7 +188,7 @@ export function RevealCeremony({
         }}
       />
 
-      <div className="relative w-full h-full flex items-center justify-center px-4 sm:px-6">
+      <div className="envelope-stage relative w-full h-full flex items-center justify-center px-4 sm:px-6">
         {/* ── Stage 1-3: 信封阶段 ── */}
         {phase !== 'revealed' && (
           <div className="relative flex flex-col items-center">
@@ -225,7 +224,7 @@ export function RevealCeremony({
                     </linearGradient>
                     <linearGradient id="envPaperDark" x1="0" y1="0" x2="1" y2="1">
                       <stop offset="0%" stopColor="#d9be98" />
-                      <stop offset="100%" stopColor="#b08c63" />
+                      <stop offset="100%" stopColor="#a88863" />
                     </linearGradient>
                     <linearGradient id="envFlap" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#fffaea" />
@@ -244,29 +243,26 @@ export function RevealCeremony({
 
                   {/* 信封面 (底层) */}
                   <rect x="20" y="20" width="480" height="300" rx="10" fill="url(#envPaper)" />
-                  {/* 左右三角侧翼 */}
-                  <polygon points="20,20 260,170 260,320 20,320" fill="url(#envPaperDark)" opacity="0.55" />
-                  <polygon points="500,20 260,170 260,320 500,320" fill="url(#envPaperDark)" opacity="0.65" />
+                  {/* 左右三角侧翼 — 柔和填充, 不添加多余描边 */}
+                  <polygon points="20,20 260,170 260,320 20,320" fill="url(#envPaperDark)" opacity="0.45" />
+                  <polygon points="500,20 260,170 260,320 500,320" fill="url(#envPaperDark)" opacity="0.55" />
                   {/* 底部折痕（最前方，最暗） */}
-                  <polygon points="20,320 260,170 500,320" fill="#b08c63" opacity="0.75" />
-                  {/* 装饰缝线 */}
-                  <rect x="30" y="30" width="460" height="280" rx="7"
-                        fill="none" stroke="#a08050" strokeDasharray="4 6" strokeWidth="0.8" opacity="0.4" />
+                  <polygon points="20,320 260,170 500,320" fill="#a88863" opacity="0.8" />
 
                   {/* 信纸 (只在 opening 阶段滑出) */}
                   {phase === 'opening' && (
                     <g className="envelope-paper">
                       <rect x="70" y="55" width="380" height="210" rx="6" fill="url(#letterPaper)" />
-                      <rect x="85" y="80" width="340" height="1" fill="#c9a97a" opacity="0.55" />
-                      <rect x="85" y="105" width="330" height="1" fill="#c9a97a" opacity="0.45" />
-                      <rect x="85" y="130" width="340" height="1" fill="#c9a97a" opacity="0.4" />
-                      <rect x="85" y="155" width="310" height="1" fill="#c9a97a" opacity="0.4" />
-                      <rect x="85" y="180" width="340" height="1" fill="#c9a97a" opacity="0.35" />
-                      <rect x="85" y="205" width="280" height="1" fill="#c9a97a" opacity="0.3" />
+                      <line x1="85" y1="80" x2="435" y2="80" stroke="#c9a97a" strokeWidth="0.5" opacity="0.4" />
+                      <line x1="85" y1="105" x2="435" y2="105" stroke="#c9a97a" strokeWidth="0.5" opacity="0.35" />
+                      <line x1="85" y1="130" x2="435" y2="130" stroke="#c9a97a" strokeWidth="0.5" opacity="0.3" />
+                      <line x1="85" y1="155" x2="435" y2="155" stroke="#c9a97a" strokeWidth="0.5" opacity="0.28" />
+                      <line x1="85" y1="180" x2="435" y2="180" stroke="#c9a97a" strokeWidth="0.5" opacity="0.25" />
+                      <line x1="85" y1="205" x2="435" y2="205" stroke="#c9a97a" strokeWidth="0.5" opacity="0.22" />
                     </g>
                   )}
 
-                  {/* 盖子（最上层，带翻转动画） */}
+                  {/* 盖子（最上层，带翻转动画）— 3D perspective 由 .envelope-stage 提供 */}
                   <g className={`envelope-flap ${phase === 'opening' ? 'is-open' : ''}`}
                      style={{ transformOrigin: '50% 20px' }}>
                     <polygon points="20,20 260,170 500,20" fill="url(#envFlap)" />

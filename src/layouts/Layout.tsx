@@ -17,8 +17,8 @@ export function Layout({
       {/* Global ambient atmosphere: film grain, bokeh, stars */}
       <AmbientLayer />
       <NavBar page={page} navigate={navigate} />
-      {/* Only a tiny offset below the fixed NavBar; pages manage their own inner spacing. */}
-      <main className="flex-1 relative z-10">
+      {/* Consistent offset below the fixed NavBar (matches NavBar height) */}
+      <main className="flex-1 relative z-10 pt-[64px] sm:pt-[70px]">
         {children}
       </main>
       <Footer navigate={navigate} />

@@ -91,14 +91,20 @@ async function decryptWithPin(b64: string, pin: string): Promise<string> {
  * Full encryption: PIN-encrypt + time-lock + embed in image.
  * Produces a PNG with watermark (品牌 logo + timevault.online + 解锁时间) and LSB hidden data.
  */
+const SEAL_PREFIX = 'TV@';
+
 export async function sealMessage(
   message: string,
   pin: string,
   unlockDate: Date,
   imageFile: File
 ): Promise<Blob> {
-  // Step 1: PIN-encrypt the message
-  const pinEncrypted = await encryptWithPin(message, pin);
+  // Step 0: Prepend seal timestamp so "when the message was written" survives decryption
+  const sealedAt = new Date();
+  const wrappedMessage = `${SEAL_PREFIX}${sealedAt.toISOString()}\n${message}`;
+
+  // Step 1: PIN-encrypt the wrapped message
+  const pinEncrypted = await encryptWithPin(wrappedMessage, pin);
 
   // Step 2: Time-lock the encrypted payload
   const tlockString = await tlockEncryptText(pinEncrypted, unlockDate);
@@ -112,11 +118,13 @@ export async function sealMessage(
 
 /**
  * Full decryption: extract from image + time-lock decrypt + PIN decrypt.
+ * Returns the plain message along with the unlock time and the time the
+ * message was originally sealed (if it carries the TimeVault seal prefix).
  */
 export async function revealMessage(
   imageFile: File,
   pin: string
-): Promise<{ message: string; unlockTime: Date | null }> {
+): Promise<{ message: string; unlockTime: Date | null; sealedAt: Date | null }> {
   // Step 1: Extract TLOCK binary from image
   const binaryData = await extractFromImage(imageFile);
   const tlockString = new TextDecoder().decode(binaryData);
@@ -125,11 +133,27 @@ export async function revealMessage(
   const pinEncrypted = await tlockDecryptText(tlockString);
 
   // Step 3: PIN decrypt
-  const message = await decryptWithPin(pinEncrypted, pin);
+  const raw = await decryptWithPin(pinEncrypted, pin);
+
+  // Step 4: Unwrap seal time prefix if present (backwards-compatible)
+  let message = raw;
+  let sealedAt: Date | null = null;
+  if (raw.startsWith(SEAL_PREFIX)) {
+    const afterPrefix = raw.slice(SEAL_PREFIX.length);
+    const nlIdx = afterPrefix.indexOf('\n');
+    if (nlIdx !== -1) {
+      const candidate = afterPrefix.slice(0, nlIdx).trim();
+      const parsed = new Date(candidate);
+      if (!Number.isNaN(parsed.getTime())) {
+        sealedAt = parsed;
+        message = afterPrefix.slice(nlIdx + 1);
+      }
+    }
+  }
 
   // Get unlock time for display
   const status = checkStatus(tlockString);
-  return { message, unlockTime: status.unlockTime };
+  return { message, unlockTime: status.unlockTime, sealedAt };
 }
 
 /**

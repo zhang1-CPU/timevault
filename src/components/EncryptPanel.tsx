@@ -126,8 +126,8 @@ export function EncryptPanel({ onBack }: EncryptPanelProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header sits directly below the fixed NavBar (which is ~64-70px tall). */}
-      <header className="mt-[64px] sm:mt-[70px] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-white/[0.04] relative z-10 bg-[#0a0612]/80 backdrop-blur-md">
+      {/* Header sits directly below the fixed NavBar — outer Layout already reserves the space. */}
+      <header className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-white/[0.04] relative z-10 bg-[#0a0612]/80 backdrop-blur-md">
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm sm:text-base min-h-[40px] px-2 py-1 rounded-lg hover:bg-white/[0.03] active:scale-[0.98]"

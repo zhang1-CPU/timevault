@@ -99,6 +99,8 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
     }
   }, [preview]);
 
+  const [sealedAt, setSealedAt] = useState<Date | null>(null);
+
   const handleUnlock = async () => {
     if (!image || pin.length !== 4) {
       setError('Please enter your 4-digit PIN');
@@ -110,6 +112,7 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
     try {
       const result = await revealMessage(image, pin);
       setMessage(result.message);
+      setSealedAt(result.sealedAt);
       setStep('revealed');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Decryption failed';
@@ -128,8 +131,8 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header sits directly below the fixed NavBar. */}
-      <header className="mt-[64px] sm:mt-[70px] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-white/[0.04] relative z-10 bg-[#0a0612]/80 backdrop-blur-md">
+      {/* Header sits directly below the fixed NavBar — outer Layout already reserves the space. */}
+      <header className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-white/[0.04] relative z-10 bg-[#0a0612]/80 backdrop-blur-md">
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm sm:text-base min-h-[40px] px-2 py-1 rounded-lg hover:bg-white/[0.03] active:scale-[0.98] transition-transform"
@@ -311,7 +314,7 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
           {step === 'revealed' && (
             <RevealCeremony
               message={message}
-              sealedAt={status?.unlockTime ? undefined : undefined}
+              sealedAt={sealedAt}
               unlockedAt={status?.unlockTime ?? undefined}
               onDismiss={onBack}
             />
