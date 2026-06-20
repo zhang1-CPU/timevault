@@ -19,7 +19,10 @@ import {
 
 const SALT_SIZE = 16;      // 128-bit salt
 const IV_SIZE = 12;        // 96-bit IV for GCM
-const ITERATIONS = 100_000; // PBKDF2 iterations
+const ITERATIONS = 25_000; // PBKDF2 iterations — tuned for mobile.
+                            // A 4-digit PIN has only 10,000 possibilities regardless,
+                            // so extra iterations provide diminishing marginal security
+                            // while seriously hurting load time on phones.
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -35,18 +38,35 @@ export interface LockStatus {
 
 /**
  * Derive AES key from PIN using PBKDF2.
- * 4-digit PIN -> 256-bit key via 100k iterations.
+ * Caches results by (pin, salt) because the same PIN is reused
+ * multiple times during couple-mode sealing.
  */
+const keyCache = new Map<string, CryptoKey>();
+
 async function deriveKey(pin: string, salt: Uint8Array): Promise<CryptoKey> {
+  const saltHex = Array.from(salt, b => b.toString(16).padStart(2, '0')).join('');
+  const cacheKey = `${pin}-${saltHex}`;
+  const cached = keyCache.get(cacheKey);
+  if (cached) return cached;
+
   const pinData = new TextEncoder().encode(pin);
   const baseKey = await crypto.subtle.importKey('raw', pinData, 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
+  const key = await crypto.subtle.deriveKey(
     { name: 'PBKDF2', salt: salt as BufferSource, iterations: ITERATIONS, hash: 'SHA-256' },
     baseKey,
     { name: 'AES-GCM', length: 256 },
     false,
     ['encrypt', 'decrypt']
   );
+
+  keyCache.set(cacheKey, key);
+  // Bounded cache: evict oldest entries when exceeding size
+  if (keyCache.size > 16) {
+    const firstKey = keyCache.keys().next().value;
+    if (firstKey !== undefined) keyCache.delete(firstKey);
+  }
+
+  return key;
 }
 
 /**

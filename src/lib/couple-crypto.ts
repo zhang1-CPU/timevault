@@ -133,6 +133,10 @@ export function generateSessionId(): string {
 }
 
 // ─── URL Generation ──────────────────────────────────────────
+// Short param names keep QR codes small & scannable even on
+// low-resolution phone cameras. Mapping:
+//   s = session id, t = unlock time, p = pin, m = message,
+//   x = split ratio, d = side (which half person A keeps)
 
 function buildBase(): string {
   return `${window.location.origin}${window.location.pathname}`;
@@ -140,26 +144,23 @@ function buildBase(): string {
 
 export function generateInviteURL(params: InviteParams): string {
   const p = new URLSearchParams();
-  p.set('sid', params.sid);
-  p.set('u', params.u);
-  p.set('pin_a', params.pin_a);
-  p.set('msg_a', params.msg_a);
-  p.set('split_x', params.split_x);
-  p.set('a_side', params.a_side);
-  // No a_half in QR anymore — it was too small to be useful for downloads.
+  p.set('s', params.sid);
+  p.set('t', params.u);
+  p.set('p', params.pin_a);
+  p.set('m', params.msg_a);
+  p.set('x', params.split_x);
+  p.set('d', params.a_side);
   return `${buildBase()}#couple-b?${p.toString()}`;
 }
 
 export function generateMergeURL(params: MergeParams): string {
   const p = new URLSearchParams();
-  p.set('sid', params.sid);
-  p.set('u', params.u);
-  p.set('pin_b', params.pin_b);
-  p.set('msg_b', params.msg_b);
-  p.set('split_x', params.split_x);
-  p.set('a_side', params.a_side);
-  // A will re-upload the original photo, re-split at split_x, and seal
-  // both messages into A's half locally — no photo data in QR.
+  p.set('s', params.sid);
+  p.set('t', params.u);
+  p.set('p', params.pin_b);
+  p.set('m', params.msg_b);
+  p.set('x', params.split_x);
+  p.set('d', params.a_side);
   return `${buildBase()}#couple-a?${p.toString()}`;
 }
 
@@ -170,12 +171,12 @@ export function parseInviteURL(hash: string): InviteParams | null {
     const raw = hash.startsWith('#') ? hash.slice(1) : hash;
     const paramStr = raw.split('?')[1] || '';
     const params = new URLSearchParams(paramStr);
-    const sid = params.get('sid');
-    const u = params.get('u');
-    const pin_a = params.get('pin_a');
-    const msg_a = params.get('msg_a') || '';
-    const split_x = params.get('split_x') || '';
-    const a_side = params.get('a_side') as 'left' | 'right' | null;
+    const sid = params.get('s');
+    const u = params.get('t');
+    const pin_a = params.get('p');
+    const msg_a = params.get('m') || '';
+    const split_x = params.get('x') || '';
+    const a_side = params.get('d') as 'left' | 'right' | null;
     if (!sid || !u || !pin_a || !split_x || !a_side) return null;
     return { sid, u, pin_a, msg_a, split_x, a_side };
   } catch {
@@ -188,12 +189,12 @@ export function parseMergeURL(hash: string): MergeParams | null {
     const raw = hash.startsWith('#') ? hash.slice(1) : hash;
     const paramStr = raw.split('?')[1] || '';
     const params = new URLSearchParams(paramStr);
-    const sid = params.get('sid');
-    const u = params.get('u');
-    const pin_b = params.get('pin_b');
-    const msg_b = params.get('msg_b') || '';
-    const split_x = params.get('split_x') || '';
-    const a_side = params.get('a_side') as 'left' | 'right' | null;
+    const sid = params.get('s');
+    const u = params.get('t');
+    const pin_b = params.get('p');
+    const msg_b = params.get('m') || '';
+    const split_x = params.get('x') || '';
+    const a_side = params.get('d') as 'left' | 'right' | null;
     if (!sid || !u || !pin_b || !split_x || !a_side) return null;
     return { sid, u, pin_b, msg_b, split_x, a_side };
   } catch {
@@ -223,7 +224,10 @@ export async function generateQRCodeImage(dataUrl: string): Promise<string> {
 // maximum of 1800px on the long edge — still a high-quality shareable image,
 // but dramatically faster to process.
 
-const MAX_SEAL_DIMENSION = 1800;
+const MAX_SEAL_DIMENSION = 1200; // Long-edge max for sealing.
+                                  // 1200px is large enough for a sharp keepsake on any phone screen,
+                                  // but ~2.25x faster to process than 1800px
+                                  // (pixel count scales with the square of linear size).
 
 async function scaleImageToMaxDimension(imageFile: File, maxPx: number = MAX_SEAL_DIMENSION): Promise<File> {
   return new Promise((resolve, reject) => {
@@ -382,49 +386,8 @@ export async function splitPhotoSimple(
 }
 
 // ─── Image Compression ───────────────────────────────────────
-
-/**
- * Produce a small JPEG data URL suitable for embedding in a QR code.
- * Also applies max-dimension pre-scaling so phone-sized photos stay fast.
- */
-export async function compressForQR(imageFile: File, maxWidth: number = 40, quality: number = 0.15): Promise<string> {
-  const scaled = await scaleImageToMaxDimension(imageFile, maxWidth * 4); // safety cap
-  return new Promise((resolve, reject) => {
-    const img = document.createElement('img');
-    const url = URL.createObjectURL(scaled);
-    let cleaned = false;
-    const cleanup = () => {
-      if (!cleaned) {
-        cleaned = true;
-        try { URL.revokeObjectURL(url); } catch { /* no-op */ }
-      }
-    };
-    img.onload = () => {
-      try {
-        const w = img.width;
-        const h = img.height;
-        if (!w || !h) { cleanup(); reject(new Error('Image has no content')); return; }
-        const scale = Math.min(1, maxWidth / w);
-        const cw = Math.max(1, Math.round(w * scale));
-        const ch = Math.max(1, Math.round(h * scale));
-        const canvas = document.createElement('canvas');
-        canvas.width = cw;
-        canvas.height = ch;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) { cleanup(); reject(new Error('Canvas 2D context not available')); return; }
-        ctx.drawImage(img, 0, 0, cw, ch);
-        const dataUrl = canvas.toDataURL('image/jpeg', quality);
-        cleanup();
-        resolve(dataUrl);
-      } catch (err) {
-        cleanup();
-        reject(err);
-      }
-    };
-    img.onerror = () => { cleanup(); reject(new Error('Failed to load image')); };
-    img.src = url;
-  });
-}
+// (removed: compressForQR — no longer needed since QR codes carry
+// metadata only, not low-res photo thumbnails.)
 
 export function blobToDataURL(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
