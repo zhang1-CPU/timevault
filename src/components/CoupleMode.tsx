@@ -11,6 +11,7 @@ import {
   parseInviteURL,
   parseMergeURL,
   generateQRCodeImage,
+  compressForQR,
   type CoupleSession,
 } from '@/lib/couple-crypto';
 import {
@@ -260,39 +261,36 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     setIsProcessing(true);
 
     try {
-      // 1) Split photo at original resolution (high quality)
+      // 1) Split photo at original resolution
       const { leftBlob, rightBlob } = await splitPhotoByRatio(originalImage, splitX);
 
       // Determine sides
       const mySide: 'left' | 'right' = sideChoice;
       const theirSide: 'left' | 'right' = sideChoice === 'left' ? 'right' : 'left';
 
-      // 2) Take A's half
+      // 2) Take A's half — seal message into it, then compress for QR
       const aHalfBlob = mySide === 'left' ? leftBlob : rightBlob;
       const aHalfFile = new File([aHalfBlob], 'a-half.png', { type: 'image/png' });
 
-      // 3) Seal BOTH messages into A's half — using the full sealCoupleHalf flow
-      //    A's message is encrypted with PIN-B (so B can read it)
-      //    B's message slot is empty for now (B will fill in their own half)
-      //    For A's half: we only embed A's own message (encrypted with PIN-A)
-      //    because A needs to read it at unlock time.
+      // Seal A's message into the half image (LSB steganography)
       const sealedA = await sealCoupleHalf(
         aHalfFile,
-        msgA.trim(),   // A's message (encrypted with PIN-B in the payload — for B to read)
+        msgA.trim(),   // A's message
         '',            // B's message — not yet written
         pinA,          // PIN-A
         pinB,          // PIN-B
         unlock,
         mySide,
       );
+      const sealedAFile = new File([sealedA], 'a-half-sealed.png', { type: 'image/png' });
 
-      // 4) Immediately download A's high-quality half (this is the key fix!)
-      await downloadBlob(sealedA, 'timevault-couple-A.png');
+      // Compress sealed A half for QR (very small data URL)
+      const aHalfDataURL = await compressForQR(sealedAFile);
 
-      // 5) Encrypt A's message with PIN-A (for sharing in QR — so B could decrypt if needed)
+      // 3) Encrypt A's message with PIN-A (also share as text in QR for B to read)
       const msgaCipher = await encryptWithPin(msgA.trim(), pinA);
 
-      // 6) Generate session & save
+      // 4) Generate session & save
       const sessionId = generateSessionId();
       const sess: CoupleSession = {
         sessionId,
@@ -309,7 +307,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       saveActiveSessionId(sessionId);
       setSession(sess);
 
-      // 7) Generate invite URL + QR — QR contains ONLY text params, NO image data
+      // 5) Generate invite URL + QR — includes compressed A half in QR
       const url = generateInviteURL({
         sid: sessionId,
         u: unlock.toISOString(),
@@ -317,6 +315,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         msga_cipher: msgaCipher,
         split_x: splitX.toFixed(4),
         a_side: mySide,
+        a_half: aHalfDataURL,
       });
       const qr = await generateQRCodeImage(url);
       setInviteURL(url);
@@ -356,7 +355,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       const splitRatio = parseFloat(bParams.split_x);
       const { leftBlob, rightBlob } = await splitPhotoByRatio(bOriginalImage, splitRatio);
 
-      // Take B's half (the half A didn't keep) — HIGH QUALITY
+      // Take B's half (the half A didn't keep) — HIGH QUALITY for B download
       const bHalfBlob = bSide === 'left' ? leftBlob : rightBlob;
       const bHalfFile = new File([bHalfBlob], 'b-half.png', { type: 'image/png' });
 
@@ -381,13 +380,43 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         bSide,
       );
 
-      // Immediately download B's high-quality half — THIS IS THE DOWNLOAD FIX
+      // Immediately download B's high-quality half
       await downloadBlob(sealedB, 'timevault-couple-B.png');
 
-      // Encrypt B's message with PIN-A for the merge QR (so A can read B's message)
+      // Now process A's half for the merge QR:
+      // Take A's half from the invite QR, re-seal with B's message, re-compress, put in merge QR
+      let sealedADataURL = '';
+      if (bParams.a_half && bParams.a_half.startsWith('data:')) {
+        try {
+          // Fetch compressed A half from dataURL → Blob → File
+          const aHalfRes = await fetch(bParams.a_half);
+          const aHalfBlob = await aHalfRes.blob();
+          const aHalfFile = new File([aHalfBlob], 'a-half.png', { type: 'image/png' });
+
+          // Re-seal with B's message embedded (so A can read B's words at unlock)
+          const sealedAWithBMsg = await sealCoupleHalf(
+            aHalfFile,
+            aMsg,          // A's message
+            msgB.trim(),   // B's message — now embedded in A's half too
+            bParams.pina,  // PIN-A
+            pinBInput,     // PIN-B
+            unlock,
+            bParams.a_side, // A's side
+          );
+          const sealedAWithBMsgFile = new File([sealedAWithBMsg], 'a-half-sealed.png', { type: 'image/png' });
+
+          // Re-compress for QR
+          sealedADataURL = await compressForQR(sealedAWithBMsgFile);
+        } catch {
+          // If re-sealing fails, just pass the original a_half through
+          sealedADataURL = bParams.a_half;
+        }
+      }
+
+      // Encrypt B's message with PIN-A for the merge QR text payload
       const msgbCipher = await encryptWithPin(msgB.trim(), bParams.pina);
 
-      // Generate merge URL — ONLY text params, NO image data
+      // Generate merge URL — includes re-sealed A half in QR
       const mergeUrl = generateMergeURL({
         sid: bParams.sid,
         u: bParams.u,
@@ -396,6 +425,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         sealedat: new Date().toISOString(),
         split_x: bParams.split_x,
         a_side: bParams.a_side,
+        a_half: sealedADataURL,
       });
       const mergeQRImg = await generateQRCodeImage(mergeUrl);
       setMergeURL(mergeUrl);
@@ -419,21 +449,23 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     }
   }, [bParams, msgB, pinBInput, bOriginalImage, clearError, withError]);
 
-  // ─── Scene: Merge — A scans B's QR, no upload needed ───────
-  // A already downloaded their own half during creation.
-  // The merge QR just lets A know B has completed, and carries msgb_cipher
-  // so A can decrypt B's message at unlock time (in addition to A's own message
-  // which is already embedded in A's half image).
+  // ─── Scene: Merge — A scans B's QR and downloads A's half (含 B 的消息) ───
   const handleMerge = useCallback(async () => {
     if (!mergeParams) { setError('Missing merge data'); return; }
+    if (!mergeParams.a_half || !mergeParams.a_half.startsWith('data:')) {
+      setError('Missing your half photo data in the QR — please try scanning again');
+      return;
+    }
     clearError();
     setIsProcessing(true);
 
     try {
-      // Update session: mark as merged.
-      // A already has their own sealed half from step 1.
-      // A's half already has A's own message embedded.
-      // B's message comes from the QR (msgb_cipher, encrypted with PIN-A).
+      // Directly download the A half from QR (with B's message embedded)
+      const aHalfRes = await fetch(mergeParams.a_half);
+      const aHalfBlob = await aHalfRes.blob();
+      await downloadBlob(aHalfBlob, 'timevault-couple-A.png');
+
+      // Update session: mark as merged
       const sess = loadSession(mergeParams.sid);
       if (sess) {
         sess.merged = true;
@@ -444,7 +476,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
       setIsProcessing(false);
     } catch (err) {
-      withError(err instanceof Error ? err.message : 'Failed to process');
+      withError(err instanceof Error ? err.message : 'Failed to download your half photo');
     }
   }, [mergeParams, clearError, withError]);
 
@@ -1161,7 +1193,7 @@ function MergeStep({
           TA Wrote Back
         </h2>
         <p className="text-white/30 text-sm">
-          TA has sealed their reply. Your half is already downloaded from the first step — just confirm below to mark it complete.
+          TA has sealed their reply into your half of the photo. Tap below to download it — this is the copy you&apos;ll keep.
         </p>
       </div>
 
@@ -1195,9 +1227,9 @@ function MergeStep({
                    transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.02] active:scale-[0.97]
                    disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px]">
         {isProcessing ? (
-          <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Confirming...</>
+          <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Preparing download...</>
         ) : (
-          <><Check className="w-5 h-5" /> Mark as Complete</>
+          <><Download className="w-5 h-5" /> Download Your Half Photo</>
         )}
       </button>
 
