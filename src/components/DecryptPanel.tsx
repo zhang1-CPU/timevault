@@ -87,6 +87,18 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
         return;
       }
 
+      // This image was created as a two-person (couple) letter — route the
+      // user to the couple unlock flow instead of asking for a PIN.
+      if (lockStatus.isCoupleMode) {
+        if (lockStatus.isCoupleModeReady === false) {
+          setError('This couple letter is incomplete — the second person hasn\'t written yet.');
+        } else {
+          setError('This is a two-person message — please use the Couple mode unlock page instead.');
+        }
+        setStep('upload');
+        return;
+      }
+
       if (!lockStatus.canUnlock) {
         setStep('locked');
         return;
@@ -120,6 +132,11 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
         setError('This message is still time-locked');
       } else if (msg.includes('PIN') || msg.includes('password') || msg.includes('key')) {
         setError('Wrong PIN. Please try again.');
+      } else if (msg.includes('two-person')) {
+        setError(msg);
+      } else if (msg.includes('atob') || msg.includes('base64') || msg.includes('correctly encoded')) {
+        // Fallback: the image may be corrupted or was not a valid TimeVault image
+        setError('The message inside this image could not be read. Try with your original PNG download.');
       } else {
         setError(msg);
       }

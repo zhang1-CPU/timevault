@@ -32,6 +32,8 @@ export interface LockStatus {
   remainingSeconds: number;
   formattedRemaining: string;
   checkTimeMs?: number;
+  isCoupleMode?: boolean;    // true if the image contains two-person sealed messages
+  isCoupleModeReady?: boolean; // true if both a_msg & b_msg ciphers are present in the payload
 }
 
 // ─── PIN-Based AES Encryption ────────────────────────────────
@@ -145,17 +147,32 @@ export async function revealMessage(
   imageFile: File,
   pin: string
 ): Promise<{ message: string; unlockTime: Date | null; sealedAt: Date | null }> {
-  // Step 1: Extract TLOCK binary from image
   const binaryData = await extractFromImage(imageFile);
   const tlockString = new TextDecoder().decode(binaryData);
 
-  // Step 2: Time-lock decrypt (checks time internally)
   const pinEncrypted = await tlockDecryptText(tlockString);
 
-  // Step 3: PIN decrypt
+  // Detect couple-mode payload: it's JSON carrying two ciphertext messages.
+  // Attempting to feed JSON through decryptWithPin would fail with an
+  // unhelpful "atob" error — intercept early and give the user clear
+  // instructions.
+  let maybeCouple: any = null;
+  try {
+    maybeCouple = JSON.parse(pinEncrypted);
+  } catch {
+    maybeCouple = null;
+  }
+  if (maybeCouple && maybeCouple.role === 'couple') {
+    throw new Error(
+      'This is a two-person message — open it through the Couple unlock page. ' +
+      'You will need your own half of the original image and the PIN set when writing it.'
+    );
+  }
+
+  // Single-person flow: expect a base64(salt+iv+ciphertext) string.
   const raw = await decryptWithPin(pinEncrypted, pin);
 
-  // Step 4: Unwrap seal time prefix if present (backwards-compatible)
+  // Unwrap seal-time prefix for single-person messages.
   let message = raw;
   let sealedAt: Date | null = null;
   if (raw.startsWith(SEAL_PREFIX)) {
@@ -171,7 +188,6 @@ export async function revealMessage(
     }
   }
 
-  // Get unlock time for display
   const status = checkStatus(tlockString);
   return { message, unlockTime: status.unlockTime, sealedAt };
 }
@@ -190,7 +206,7 @@ export async function revealMessage(
  */
 export async function checkImageStatus(imageFile: File): Promise<LockStatus> {
   try {
-    // Fast check: if the uploaded file is JPEG / JPG it is impossible to recover data
+    // Fast check: if the uploaded file is JPEG / JPG, LSB data is destroyed
     const isJpeg = /\.(jpe?g)$/i.test(imageFile.name) ||
                    imageFile.type === 'image/jpeg' ||
                    (imageFile.type === '' && imageFile.name.endsWith('.jpg'));
@@ -200,7 +216,24 @@ export async function checkImageStatus(imageFile: File): Promise<LockStatus> {
 
     const binaryData = await extractFromImage(imageFile);
     const tlockString = new TextDecoder().decode(binaryData);
-    return checkStatus(tlockString);
+
+    const status = checkStatus(tlockString);
+
+    // Detect couple-mode payload so the UI can route users to the right page
+    // (instead of letting them hit a cryptic "atob" error later).
+    try {
+      const decoded = await tlockDecryptText(tlockString);
+      const payload = JSON.parse(decoded);
+      if (payload && payload.role === 'couple') {
+        status.isCoupleMode = true;
+        status.isCoupleModeReady = !!(payload.a_msg?.cipher && payload.b_msg?.cipher);
+      }
+    } catch {
+      // If tlock isn't ready yet, or the payload isn't JSON, ignore — status
+      // as returned by checkStatus is still accurate (e.g. "not yet unlocked").
+    }
+
+    return status;
   } catch (err) {
     const msg = err instanceof Error ? err.message : '';
     if (msg === 'JPEG_COMPRESSION') {
