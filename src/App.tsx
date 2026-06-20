@@ -41,6 +41,7 @@ const ROUTE_MAP: Record<string, Page> = {
 
 const parseHash = (): Page => {
   const hash = window.location.hash.replace('#', '').replace('/', '');
+  if (hash.startsWith('couple-')) return 'couple';
   return ROUTE_MAP[hash] ?? 'home';
 };
 
