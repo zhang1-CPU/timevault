@@ -910,17 +910,9 @@ function BWelcomeStep({
 
       {/* Prompt text */}
       <div className="text-center">
-        <p className="text-white/40 text-sm leading-relaxed">
+        <p className="text-white/50 text-sm leading-relaxed">
           TA already cropped the photo for you.
           Write your reply below — then you can save your half.
-        </p>
-      </div>
-
-      {/* A's message */}
-      <div className="glass-romantic rounded-2xl p-5 space-y-3 border border-white/[0.05]">
-        <p className="text-xs text-white/20 uppercase tracking-widest text-center">TA Wrote</p>
-        <p className="text-white/70 text-sm leading-relaxed font-serif italic text-center">
-          &ldquo;{params.msga}&rdquo;
         </p>
       </div>
 
@@ -934,7 +926,7 @@ function BWelcomeStep({
         </div>
       </div>
 
-      {/* Tiny preview — this is B's half, used for sealing */}
+      {/* B's half preview */}
       {previewUrl ? (
         <div className="rounded-2xl overflow-hidden border border-violet-400/15 max-w-[120px] mx-auto relative">
           <img src={previewUrl} alt="Your half of the photo" className="w-full" />
