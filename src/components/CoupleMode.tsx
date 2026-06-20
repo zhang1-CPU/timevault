@@ -2,9 +2,10 @@ import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   generateSessionId,
   splitPhotoByRatio,
+  compressForQR,
+  blobToDataURL,
   saveSession,
   loadSession,
-  storeBlobForSession,
   getActiveSessionId,
   generateInviteURL,
   generateMergeURL,
@@ -15,7 +16,6 @@ import {
 } from '@/lib/couple-crypto';
 import {
   sealCoupleHalf,
-  mergeCoupleHalfA,
   revealCoupleMessage,
   encryptWithPin,
   decryptWithPin,
@@ -111,9 +111,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   const [pinBInput, setPinBInput] = useState('');
   const [bHalfBlob, setBHalfBlob] = useState<Blob | null>(null);
   const [bOriginalImage, setBOriginalImage] = useState<File | null>(null); // B's original half photo for high quality
-
-  // ─── Merge (A) data ───────────────────────────────────────
-  const [aMergeImage, setAMergeImage] = useState<File | null>(null);
 
   // ─── QR & merge ────────────────────────────────────────────
   const [inviteQR, setInviteQR] = useState('');
@@ -285,13 +282,15 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       // Determine halves
       const myHalfBlob = mySide === 'left' ? leftBlob : rightBlob;
 
-      // Store A's half for later merge
-      storeBlobForSession(sessionId, myHalfBlob);
+      // Compress A's half for QR code — tiny so it fits in the URL
+      const aHalfCompressed = await compressForQR(
+        new File([myHalfBlob], 'a-half.png', { type: 'image/png' })
+      );
 
       // Encrypt A's message with PIN-A for secure transmission
       const msgaCipher = await encryptWithPin(msgA.trim(), pinA);
       
-      // Generate invite URL + QR — carries split data so B can split same photo
+      // Generate invite URL + QR — A's half is compressed and embedded
       const url = generateInviteURL({
         sid: sessionId,
         u: unlock.toISOString(),
@@ -299,6 +298,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         msga_cipher: msgaCipher,
         split_x: splitX.toFixed(4),
         a_side: mySide,
+        a_half: aHalfCompressed,
       });
       const qr = await generateQRCodeImage(url);
       setInviteURL(url);
@@ -330,6 +330,10 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       setError('Please upload the original photo first');
       return;
     }
+    if (!bParams.a_half || !bParams.a_half.startsWith('data:')) {
+      setError('Missing A\'s half data. The QR code may be incomplete.');
+      return;
+    }
     clearError();
     setIsProcessing(true);
 
@@ -339,26 +343,18 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       // Determine B's side (opposite of A's)
       const bSide: 'left' | 'right' = bParams.a_side === 'left' ? 'right' : 'left';
 
-      const sess = loadSession(bParams.sid) || {
-        sessionId: bParams.sid,
-        mySide: bSide,
-        theirSide: bParams.a_side,
-        unlockTime: bParams.u,
-        merged: false,
-      } as CoupleSession;
-
-      // Split the photo using the same split ratio A used
+      // Split B's photo using the same split ratio A used
       const splitRatio = parseFloat(bParams.split_x);
       const { leftBlob, rightBlob } = await splitPhotoByRatio(bOriginalImage, splitRatio);
 
-      // Take B's half (the half A didn't keep)
+      // Take B's half (the half A didn't keep) — HIGH QUALITY
       const bHalfBlobRaw = bSide === 'left' ? leftBlob : rightBlob;
       const bHalfFile = new File([bHalfBlobRaw], 'b-half.png', { type: 'image/png' });
 
       // Decrypt A's message from URL (encrypted with PIN-A)
       const msgA = bParams.msga_cipher ? await decryptWithPin(bParams.msga_cipher, bParams.pina) : '';
 
-      // Seal messages into B's half photo (high quality)
+      // Seal messages into B's half photo (high quality) — B downloads this
       const sealedB = await sealCoupleHalf(
         bHalfFile,
         msgA,           // A's decrypted message
@@ -371,10 +367,30 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
       setBHalfBlob(sealedB);
 
+      // ── Also seal A's half with B's encrypted message for merge QR ──
+      // Convert A's compressed data URL to blob
+      const aHalfRes = await fetch(bParams.a_half);
+      const aHalfBlob = await aHalfRes.blob();
+      const aHalfFile = new File([aHalfBlob], 'a-half.jpg', { type: 'image/jpeg' });
+
       // Encrypt B's message with PIN-A for secure transmission to A
       const msgbCipher = await encryptWithPin(msgB.trim(), bParams.pina);
 
-      // Generate merge URL — carry split data so A can re-split
+      // Seal A's half with B's message — A will download this from merge QR
+      const sealedAForMerge = await sealCoupleHalf(
+        aHalfFile,
+        msgA,           // A's decrypted message
+        msgB.trim(),    // B's message
+        bParams.pina,   // PIN-A
+        pinBInput,      // PIN-B (B's own PIN)
+        unlock,
+        bParams.a_side  // A's side
+      );
+
+      // Convert sealed A half to data URL for QR
+      const sealedADataUrl = await blobToDataURL(sealedAForMerge);
+
+      // Generate merge URL — carries A's sealed half so A downloads directly
       const mergeUrl = generateMergeURL({
         sid: bParams.sid,
         u: bParams.u,
@@ -383,12 +399,20 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         sealedat: bParams.sid,
         split_x: bParams.split_x,
         a_side: bParams.a_side,
+        a_half: sealedADataUrl,
       });
       const mergeQRImg = await generateQRCodeImage(mergeUrl);
       setMergeURL(mergeUrl);
       setMergeQR(mergeQRImg);
 
-      // Save B's data to session
+      // Save B's data to session (optional, for history)
+      const sess = loadSession(bParams.sid) || {
+        sessionId: bParams.sid,
+        mySide: bSide,
+        theirSide: bParams.a_side,
+        unlockTime: bParams.u,
+        merged: false,
+      } as CoupleSession;
       sess.msgB = msgB.trim();
       saveSession(sess);
 
@@ -402,46 +426,22 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   // ─── Scene: Merge ────────────────────────────────────────────
   const handleMerge = useCallback(async () => {
     if (!mergeParams) { setError('Missing merge data'); return; }
-    if (!aMergeImage) { setError('Please upload the original photo first'); return; }
+    if (!mergeParams.a_half || !mergeParams.a_half.startsWith('data:')) {
+      setError('Missing your half data in the QR. The QR may be incomplete.');
+      return;
+    }
     clearError();
     setIsProcessing(true);
 
     try {
-      // Split photo using the same split ratio from the QR
-      const splitRatio = parseFloat(mergeParams.split_x);
-      const { leftBlob, rightBlob } = await splitPhotoByRatio(aMergeImage, splitRatio);
-      const aHalfBlob = mergeParams.a_side === 'left' ? leftBlob : rightBlob;
+      // A's half is already sealed by B with both messages embedded
+      // Just convert the data URL from QR to a Blob and let user download directly
+      const aHalfRes = await fetch(mergeParams.a_half);
+      const aHalfBlob = await aHalfRes.blob();
+      setSealedBlobA(aHalfBlob);
 
-      // Try to get session data (for PIN-A and msgA)
-      let sess = loadSession(mergeParams.sid);
-
-      const unlock = new Date(mergeParams.u);
-
-      // Decrypt B's message — need PIN-A
-      // If session lost PIN-A, fall back to asking for it later
-      let pinAForMerge = sess?.pinA || '';
-      if (!pinAForMerge) {
-        // Fallback: need A to re-enter PIN
-        setError('Please re-enter your 4-digit PIN to unlock the merge');
-        setIsProcessing(false);
-        return;
-      }
-
-      const msgB = mergeParams.msgb_cipher ? await decryptWithPin(mergeParams.msgb_cipher, pinAForMerge) : '';
-
-      // Merge B's message into A's half
-      const finalBlob = await mergeCoupleHalfA(
-        new File([aHalfBlob], 'a-half.png', { type: 'image/png' }),
-        sess?.msgA || '',
-        msgB,
-        pinAForMerge,
-        mergeParams.pinb,
-        unlock,
-        mergeParams.a_side,
-        new Date(mergeParams.sealedat)
-      );
-
-      setSealedBlobA(finalBlob);
+      // Update session
+      const sess = loadSession(mergeParams.sid);
       if (sess) {
         sess.merged = true;
         sess.mergedAt = new Date().toISOString();
@@ -450,9 +450,9 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
       setIsProcessing(false);
     } catch (err) {
-      withError(err instanceof Error ? err.message : 'Failed to merge messages');
+      withError(err instanceof Error ? err.message : 'Failed to prepare your download');
     }
-  }, [mergeParams, aMergeImage, clearError, withError]);
+  }, [mergeParams, clearError, withError]);
 
   // ─── Scene: Unlock ───────────────────────────────────────────
   const handleUnlock = useCallback(async () => {
@@ -599,8 +599,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
               onDownload={handleDownloadA}
               sealedBlobA={sealedBlobA}
               onDone={onHome}
-              aMergeImage={aMergeImage}
-              onImageChange={setAMergeImage}
               error={error}
             />
           )}
@@ -924,6 +922,16 @@ function BWelcomeStep({
         <p className="text-white/25 text-sm">Scanned from a TimeVault capsule — sealed until today</p>
       </div>
 
+      {/* A's half preview */}
+      {params.a_half && params.a_half.startsWith('data:') && (
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-white/30 text-xs">TA&apos;s half preview</p>
+          <div className="rounded-xl overflow-hidden border border-violet-400/20 bg-black/20 max-w-[200px]">
+            <img src={params.a_half} alt="TA's half" className="w-full object-contain" />
+          </div>
+        </div>
+      )}
+
       <div className="text-center space-y-2">
         <p className="text-white/50 text-sm leading-relaxed">
           Please upload the same photo you shared with TA.
@@ -1116,8 +1124,6 @@ function MergeStep({
   onDownload,
   sealedBlobA,
   onDone,
-  aMergeImage,
-  onImageChange,
   error,
 }: {
   params: NonNullable<Awaited<ReturnType<typeof parseMergeURL>>>;
@@ -1126,21 +1132,9 @@ function MergeStep({
   onDownload: () => void;
   sealedBlobA: Blob | null;
   onDone: () => void;
-  aMergeImage: File | null;
-  onImageChange: (f: File) => void;
   error: string;
 }) {
   const date = new Date(params.u);
-  const [previewUrl, setPreviewUrl] = useState('');
-
-  useEffect(() => {
-    if (aMergeImage) {
-      const url = URL.createObjectURL(aMergeImage);
-      setPreviewUrl(url);
-      return () => URL.revokeObjectURL(url);
-    }
-    setPreviewUrl('');
-  }, [aMergeImage]);
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -1154,7 +1148,7 @@ function MergeStep({
           TA Wrote Back
         </h2>
         <p className="text-white/30 text-sm">
-          Upload the same photo — it will be auto-cut and merged.
+          Your half is ready — just download it
         </p>
       </div>
 
@@ -1175,53 +1169,23 @@ function MergeStep({
         </div>
       )}
 
-      {/* Photo upload or ready state */}
+      {/* Download area */}
       {!sealedBlobA ? (
-        <div className="space-y-4">
-          {!aMergeImage ? (
-            <label className="flex flex-col items-center justify-center w-full h-40 rounded-xl border-2 border-dashed border-rose-400/20
-                             bg-white/[0.02] cursor-pointer hover:border-rose-400/40 hover:bg-white/[0.04] transition-all">
-              <Upload className="w-8 h-8 text-rose-300/30 mb-2" />
-              <span className="text-white/30 text-sm">Tap to upload the original photo</span>
-              <span className="text-white/15 text-[10px] mt-1">Must be the same photo you shared</span>
-              <input type="file" accept="image/*" className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) onImageChange(file);
-                }} />
-            </label>
+        <button onClick={onMerge} disabled={isProcessing}
+          className="w-full py-4.5 bg-gradient-to-r from-rose-500/95 to-pink-600/95 rounded-2xl text-white font-medium text-base
+                     transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.02] active:scale-[0.97]
+                     disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px]">
+          {isProcessing ? (
+            <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Preparing...</>
           ) : (
-            <div className="space-y-4">
-              <div className="relative rounded-xl overflow-hidden border border-rose-400/20">
-                <img src={previewUrl} alt="Original photo" className="w-full max-h-48 object-contain bg-black/30" />
-                <label className="absolute top-2 right-2 px-3 py-1.5 rounded-full bg-black/50 text-white/60 text-xs cursor-pointer hover:bg-black/70">
-                  Change
-                  <input type="file" accept="image/*" className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) onImageChange(file);
-                    }} />
-                </label>
-              </div>
-
-              <button onClick={onMerge} disabled={isProcessing}
-                className="w-full py-4.5 bg-gradient-to-r from-rose-500/95 to-pink-600/95 rounded-2xl text-white font-medium text-base
-                           transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.02] active:scale-[0.97]
-                           disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px]">
-                {isProcessing ? (
-                  <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Merging...</>
-                ) : (
-                  <><Download className="w-5 h-5" />Merge &amp; Download My Half</>
-                )}
-              </button>
-            </div>
+            <><Download className="w-5 h-5" />Download My Half</>
           )}
-        </div>
+        </button>
       ) : (
         <div className="space-y-3">
           <div className="flex items-center gap-2 justify-center text-emerald-400/70 text-sm">
             <Check className="w-4 h-4" />
-            Capsule ready — your half is sealed
+            Ready to download
           </div>
           <button onClick={onDownload}
             className="w-full py-4.5 bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-400/20 rounded-2xl text-emerald-200/80 text-sm font-medium
