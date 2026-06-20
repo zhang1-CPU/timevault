@@ -45,6 +45,7 @@ export interface InviteParams {
   msg_a: string;        // A's message
   split_x: string;      // split ratio 0-1
   a_side: 'left' | 'right'; // which half A keeps
+  a_half?: string;      // tiny compressed JPEG of A's half (base64 data URL)
 }
 
 export interface MergeParams {
@@ -149,6 +150,7 @@ export function generateInviteURL(params: InviteParams): string {
   p.set('m', params.msg_a);
   p.set('x', params.split_x);
   p.set('d', params.a_side);
+  if (params.a_half) p.set('h', params.a_half);
   return `${buildBase()}#couple-b?${p.toString()}`;
 }
 
@@ -176,8 +178,9 @@ export function parseInviteURL(hash: string): InviteParams | null {
     const msg_a = params.get('m') || '';
     const split_x = params.get('x') || '';
     const a_side = params.get('d') as 'left' | 'right' | null;
+    const a_half = params.get('h') || undefined;
     if (!sid || !u || !pin_a || !split_x || !a_side) return null;
-    return { sid, u, pin_a, msg_a, split_x, a_side };
+    return { sid, u, pin_a, msg_a, split_x, a_side, a_half };
   } catch {
     return null;
   }
@@ -211,7 +214,7 @@ export async function generateQRCodeImage(dataUrl: string): Promise<string> {
       dark: '#e8a0a0',
       light: '#0a0612',
     },
-    errorCorrectionLevel: 'M',
+    errorCorrectionLevel: 'L', // Lowest EC = max data capacity (~2953 bytes byte mode)
   });
 }
 
@@ -398,15 +401,16 @@ export function blobToDataURL(blob: Blob): Promise<string> {
 }
 
 /**
- * Compress a half-photo (PNG blob) into a small image data URL for QR code.
- * - max width ~300px
- * - JPEG quality ~0.5
- * Output size goal: <= ~20KB so it can fit in a QR code along with other params.
+ * Compress a half-photo (PNG blob) into a tiny JPEG data URL for QR code.
+ * QR code byte-mode max capacity is ~2953 bytes, so we use aggressive compression:
+ *   - max width 80px
+ *   - JPEG quality 0.25
+ * Typical output: 300-800 bytes raw JPEG → 400-1100 chars as base64 data URL.
  */
 export async function compressForQR(
   blob: Blob,
-  maxWidth: number = 300,
-  quality: number = 0.5
+  maxWidth: number = 80,
+  quality: number = 0.25
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = document.createElement('img');
