@@ -211,18 +211,74 @@ export async function generateQRCodeImage(dataUrl: string): Promise<string> {
   });
 }
 
+// ─── Image Pre-Scaling ──────────────────────────────────────
+//
+// Many mobile phones emit 4000+ pixel photos. Splitting / watermarking /
+// LSB embedding at full resolution blocks the main thread for several seconds,
+// which looks like a blank (black) screen to the user. We pre-scale to a
+// maximum of 1800px on the long edge — still a high-quality shareable image,
+// but dramatically faster to process.
+
+const MAX_SEAL_DIMENSION = 1800;
+
+async function scaleImageToMaxDimension(imageFile: File, maxPx: number = MAX_SEAL_DIMENSION): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = document.createElement('img');
+    const url = URL.createObjectURL(imageFile);
+    img.onload = () => {
+      try {
+        const w = img.width;
+        const h = img.height;
+        if (Math.max(w, h) <= maxPx) {
+          URL.revokeObjectURL(url);
+          resolve(imageFile);
+          return;
+        }
+        const ratio = maxPx / Math.max(w, h);
+        const cw = Math.round(w * ratio);
+        const ch = Math.round(h * ratio);
+        const canvas = document.createElement('canvas');
+        canvas.width = cw;
+        canvas.height = ch;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { URL.revokeObjectURL(url); reject(new Error('Canvas unavailable')); return; }
+        // Soft downscaling — drawImage uses bilinear filtering by default
+        ctx.drawImage(img, 0, 0, cw, ch);
+        canvas.toBlob((blob) => {
+          URL.revokeObjectURL(url);
+          if (!blob) { reject(new Error('Image scaling failed')); return; }
+          // Preserve original filename; signal size change via timestamp suffix
+          const origName = imageFile.name.replace(/\.[^/.]+$/, '') || 'image';
+          resolve(new File([blob], `${origName}-resized.png`, { type: 'image/png' }));
+        }, 'image/png');
+      } catch (err) {
+        URL.revokeObjectURL(url);
+        reject(err);
+      }
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Failed to load image'));
+    };
+    img.src = url;
+  });
+}
+
 // ─── Image Splitting ─────────────────────────────────────────
 
 /**
  * Split an image into left and right halves at the given normalized position.
+ * Automatically scales very large images down to avoid multi-second UI freezes
+ * that look like a blank / black screen on some devices.
  */
 export async function splitPhotoByRatio(
   imageFile: File,
   splitRatio: number // 0-1, normalized
 ): Promise<{ leftBlob: Blob; rightBlob: Blob }> {
+  const scaledFile = await scaleImageToMaxDimension(imageFile);
   return new Promise((resolve, reject) => {
     const img = document.createElement('img');
-    const url = URL.createObjectURL(imageFile);
+    const url = URL.createObjectURL(scaledFile);
     let cleaned = false;
     const cleanup = () => {
       if (!cleaned) {
@@ -323,10 +379,15 @@ export async function splitPhotoSimple(
 
 // ─── Image Compression ───────────────────────────────────────
 
-export async function compressForQR(imageFile: File, maxWidth = 40, quality = 0.15): Promise<string> {
+/**
+ * Produce a small JPEG data URL suitable for embedding in a QR code.
+ * Also applies max-dimension pre-scaling so phone-sized photos stay fast.
+ */
+export async function compressForQR(imageFile: File, maxWidth: number = 40, quality: number = 0.15): Promise<string> {
+  const scaled = await scaleImageToMaxDimension(imageFile, maxWidth * 4); // safety cap
   return new Promise((resolve, reject) => {
     const img = document.createElement('img');
-    const url = URL.createObjectURL(imageFile);
+    const url = URL.createObjectURL(scaled);
     let cleaned = false;
     const cleanup = () => {
       if (!cleaned) {
