@@ -17,8 +17,6 @@ import {
 import {
   sealCoupleHalf,
   revealCoupleMessage,
-  encryptWithPin,
-  decryptWithPin,
 } from '@/lib/crypto';
 import { CoupleHeader } from './CoupleHeader';
 import { CoupleCeremony } from './CoupleCeremony';
@@ -103,7 +101,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   const [sideChoice, setSideChoice] = useState<'left' | 'right' | null>(null);
   const [msgA, setMsgA] = useState('');
   const [pinA, setPinA] = useState('');
-  const [pinB, setPinB] = useState('');
   const [unlockDate, setUnlockDate] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
@@ -245,11 +242,10 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
   const handleCutPointerUp = useCallback(() => setIsDragging(false), []);
 
-  // ─── Scene: Create — A uploads + cuts + downloads half + generates invite QR ───
+  // ─── Scene: Create — A uploads + cuts + generates invite QR (no download yet) ───
   const handleCreate = useCallback(async () => {
-    if (!originalImage || !sideChoice || !msgA.trim() || pinA.length !== PIN_LENGTH
-        || pinB.length !== PIN_LENGTH || !unlockDate) {
-      setError('Please fill in all fields (both keys and message)');
+    if (!originalImage || !sideChoice || !msgA.trim() || pinA.length !== PIN_LENGTH || !unlockDate) {
+      setError('Please fill in all fields');
       return;
     }
     const unlock = new Date(unlockDate);
@@ -264,33 +260,15 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       // 1) Split photo at original resolution
       const { leftBlob, rightBlob } = await splitPhotoByRatio(originalImage, splitX);
 
-      // Determine sides
       const mySide: 'left' | 'right' = sideChoice;
       const theirSide: 'left' | 'right' = sideChoice === 'left' ? 'right' : 'left';
 
-      // 2) Take A's half — seal message into it, then compress for QR
+      // 2) Take A's half — compress it for QR (no sealing yet, B handles encryption)
       const aHalfBlob = mySide === 'left' ? leftBlob : rightBlob;
       const aHalfFile = new File([aHalfBlob], 'a-half.png', { type: 'image/png' });
+      const aHalfDataURL = await compressForQR(aHalfFile);
 
-      // Seal A's message into the half image (LSB steganography)
-      const sealedA = await sealCoupleHalf(
-        aHalfFile,
-        msgA.trim(),   // A's message
-        '',            // B's message — not yet written
-        pinA,          // PIN-A
-        pinB,          // PIN-B
-        unlock,
-        mySide,
-      );
-      const sealedAFile = new File([sealedA], 'a-half-sealed.png', { type: 'image/png' });
-
-      // Compress sealed A half for QR (very small data URL)
-      const aHalfDataURL = await compressForQR(sealedAFile);
-
-      // 3) Encrypt A's message with PIN-A (also share as text in QR for B to read)
-      const msgaCipher = await encryptWithPin(msgA.trim(), pinA);
-
-      // 4) Generate session & save
+      // 3) Save session
       const sessionId = generateSessionId();
       const sess: CoupleSession = {
         sessionId,
@@ -299,7 +277,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         unlockTime: unlock.toISOString(),
         msgA: msgA.trim(),
         pinA,
-        pinB,
         sealedAtA: new Date().toISOString(),
         merged: false,
       };
@@ -307,12 +284,14 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       saveActiveSessionId(sessionId);
       setSession(sess);
 
-      // 5) Generate invite URL + QR — includes compressed A half in QR
+      // 4) Generate invite URL + QR — PIN-A and A's message in plain text
+      //    B needs PIN-A to encrypt B's message (so A can decrypt it later)
+      //    B needs A's message to encrypt it with PIN-B (so B can decrypt it later)
       const url = generateInviteURL({
         sid: sessionId,
         u: unlock.toISOString(),
-        pina: pinA,
-        msga_cipher: msgaCipher,
+        pin_a: pinA,
+        msg_a: msgA.trim(),
         split_x: splitX.toFixed(4),
         a_side: mySide,
         a_half: aHalfDataURL,
@@ -325,7 +304,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     } catch (err) {
       withError(err instanceof Error ? err.message : 'Something went wrong');
     }
-  }, [originalImage, sideChoice, msgA, pinA, pinB, unlockDate, splitX, clearError, withError]);
+  }, [originalImage, sideChoice, msgA, pinA, unlockDate, splitX, clearError, withError]);
 
   // ─── Scene: B Welcome ───────────────────────────────────────
   const handleBContinue = useCallback(() => {
@@ -347,99 +326,83 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
     try {
       const unlock = new Date(bParams.u);
+      const pinA = bParams.pin_a;
+      const pinB = pinBInput;
+      const aMsg = bParams.msg_a || '';
+      const bMsg = msgB.trim();
 
       // Determine B's side (opposite of A's)
       const bSide: 'left' | 'right' = bParams.a_side === 'left' ? 'right' : 'left';
+      const aSide: 'left' | 'right' = bParams.a_side;
 
-      // Split B's photo using the same split ratio A used (original resolution — HIGH QUALITY)
+      // Split B's photo using the same split ratio A used
       const splitRatio = parseFloat(bParams.split_x);
       const { leftBlob, rightBlob } = await splitPhotoByRatio(bOriginalImage, splitRatio);
 
-      // Take B's half (the half A didn't keep) — HIGH QUALITY for B download
+      // ── 1) Seal B's half (high quality) and download ──
+      // A's message → encrypted with PIN-B (so B can decrypt at unlock)
+      // B's message → encrypted with PIN-A (but B's half only stores A's message for B to read)
+      // In our sealCoupleHalf: a_msg.cipher = encrypt(msgA, pinB), b_msg.cipher = encrypt(msgB, pinA)
+      // Both halves contain both messages — unlock logic handles which PIN decrypts which.
       const bHalfBlob = bSide === 'left' ? leftBlob : rightBlob;
       const bHalfFile = new File([bHalfBlob], 'b-half.png', { type: 'image/png' });
 
-      // Decrypt A's message from QR (encrypted with PIN-A)
-      let aMsg = '';
-      if (bParams.msga_cipher) {
-        try {
-          aMsg = await decryptWithPin(bParams.msga_cipher, bParams.pina);
-        } catch {
-          // ignore — B's half will just have empty A message if decryption fails
-        }
-      }
-
-      // Seal messages into B's half (high quality)
       const sealedB = await sealCoupleHalf(
         bHalfFile,
-        aMsg,          // A's message — so B can read A's words at unlock
-        msgB.trim(),   // B's message
-        bParams.pina,  // PIN-A
-        pinBInput,     // PIN-B (B's own PIN)
+        aMsg,           // A's message (encrypted with PIN-B → B reads at unlock)
+        bMsg,           // B's message (encrypted with PIN-A → A reads at unlock from A's half)
+        pinA,           // PIN-A
+        pinB,           // PIN-B
         unlock,
         bSide,
       );
-
-      // Immediately download B's high-quality half
       await downloadBlob(sealedB, 'timevault-couple-B.png');
 
-      // Now process A's half for the merge QR:
-      // Take A's half from the invite QR, re-seal with B's message, re-compress, put in merge QR
+      // ── 2) Re-seal A's half (from invite QR) with both messages, compress for merge QR ──
       let sealedADataURL = '';
       if (bParams.a_half && bParams.a_half.startsWith('data:')) {
         try {
-          // Fetch compressed A half from dataURL → Blob → File
           const aHalfRes = await fetch(bParams.a_half);
           const aHalfBlob = await aHalfRes.blob();
           const aHalfFile = new File([aHalfBlob], 'a-half.png', { type: 'image/png' });
 
-          // Re-seal with B's message embedded (so A can read B's words at unlock)
-          const sealedAWithBMsg = await sealCoupleHalf(
+          const sealedAWithBoth = await sealCoupleHalf(
             aHalfFile,
-            aMsg,          // A's message
-            msgB.trim(),   // B's message — now embedded in A's half too
-            bParams.pina,  // PIN-A
-            pinBInput,     // PIN-B
+            aMsg,           // A's message
+            bMsg,           // B's message — now in A's half too
+            pinA,           // PIN-A
+            pinB,           // PIN-B
             unlock,
-            bParams.a_side, // A's side
+            aSide,
           );
-          const sealedAWithBMsgFile = new File([sealedAWithBMsg], 'a-half-sealed.png', { type: 'image/png' });
-
-          // Re-compress for QR
-          sealedADataURL = await compressForQR(sealedAWithBMsgFile);
+          const sealedAFile = new File([sealedAWithBoth], 'a-half-sealed.png', { type: 'image/png' });
+          sealedADataURL = await compressForQR(sealedAFile);
         } catch {
-          // If re-sealing fails, just pass the original a_half through
+          // Fallback: pass original a_half through
           sealedADataURL = bParams.a_half;
         }
       }
 
-      // Encrypt B's message with PIN-A for the merge QR text payload
-      const msgbCipher = await encryptWithPin(msgB.trim(), bParams.pina);
-
-      // Generate merge URL — includes re-sealed A half in QR
+      // ── 3) Generate merge URL + QR ──
       const mergeUrl = generateMergeURL({
         sid: bParams.sid,
         u: bParams.u,
-        pinb: pinBInput,
-        msgb_cipher: msgbCipher,
-        sealedat: new Date().toISOString(),
-        split_x: bParams.split_x,
-        a_side: bParams.a_side,
         a_half: sealedADataURL,
       });
       const mergeQRImg = await generateQRCodeImage(mergeUrl);
       setMergeURL(mergeUrl);
       setMergeQR(mergeQRImg);
 
-      // Save B's data to session (optional, for history)
+      // Save B's data to session
       const sess = loadSession(bParams.sid) || {
         sessionId: bParams.sid,
-        mySide: bSide,
-        theirSide: bParams.a_side,
+        mySide: aSide,
+        theirSide: bSide,
         unlockTime: bParams.u,
         merged: false,
       } as CoupleSession;
-      sess.msgB = msgB.trim();
+      sess.msgB = bMsg;
+      sess.pinB = pinB;
       saveSession(sess);
 
       setIsProcessing(false);
@@ -449,18 +412,18 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
     }
   }, [bParams, msgB, pinBInput, bOriginalImage, clearError, withError]);
 
-  // ─── Scene: Merge — A scans B's QR and downloads A's half (含 B 的消息) ───
+  // ─── Scene: Merge — A scans B's QR and downloads A's half directly ───
   const handleMerge = useCallback(async () => {
     if (!mergeParams) { setError('Missing merge data'); return; }
     if (!mergeParams.a_half || !mergeParams.a_half.startsWith('data:')) {
-      setError('Missing your half photo data in the QR — please try scanning again');
+      setError('Missing your half photo in the QR — please try again');
       return;
     }
     clearError();
     setIsProcessing(true);
 
     try {
-      // Directly download the A half from QR (with B's message embedded)
+      // Directly download A's half from QR data URL (contains both messages, tlock-wrapped)
       const aHalfRes = await fetch(mergeParams.a_half);
       const aHalfBlob = await aHalfRes.blob();
       await downloadBlob(aHalfBlob, 'timevault-couple-A.png');
@@ -577,7 +540,6 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
               onSideChoice={setSideChoice}
               msgA={msgA} setMsgA={setMsgA}
               pinA={pinA} setPinA={setPinA}
-              pinB={pinB} setPinB={setPinB}
               unlockDate={unlockDate} setUnlockDate={setUnlockDate}
               minUnlockDate={minUnlockDate}
               onCreate={handleCreate}
@@ -743,7 +705,7 @@ function CreateStep({
   originalImage, onUpload, cutCanvasRef, splitX,
   onPointerDown, onPointerMove, onPointerUp,
   sideChoice, onSideChoice,
-  msgA, setMsgA, pinA, setPinA, pinB, setPinB,
+  msgA, setMsgA, pinA, setPinA,
   unlockDate, setUnlockDate, minUnlockDate,
   onCreate, isProcessing,
   inviteQR, copied, onCopy,
@@ -760,7 +722,6 @@ function CreateStep({
   onSideChoice: (s: 'left' | 'right') => void;
   msgA: string; setMsgA: (v: string) => void;
   pinA: string; setPinA: (v: string) => void;
-  pinB: string; setPinB: (v: string) => void;
   unlockDate: string; setUnlockDate: (v: string) => void;
   minUnlockDate: string;
   onCreate: () => void;
@@ -900,22 +861,7 @@ function CreateStep({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
-                <FileKey className="w-3 h-3" /> TA&apos;s Key (for sharing)
-              </label>
-              <input type="password" inputMode="numeric" pattern="[0-9]*" maxLength={4}
-                value={pinB} onChange={(e) => setPinB(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                placeholder="****"
-                className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
-                           tracking-[1em] text-xl font-mono placeholder:tracking-normal placeholder:text-white/10
-                           focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 transition-all" />
-              <p className="text-white/15 text-[10px] text-center">
-                You&apos;ll share this key with TA — it lets TA read your message and encrypt their reply
-              </p>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-white/30 text-xs uppercase tracking-wider font-light">Your Message</label>
+              <label className="text-white/30 text-xs uppercase tracking-wider font-light">Your Message to TA</label>
               <textarea value={msgA} onChange={(e) => setMsgA(e.target.value)}
                 placeholder="Write what you want TA to read on the appointed day..."
                 rows={5} maxLength={2000}
