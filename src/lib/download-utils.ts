@@ -30,52 +30,30 @@ export async function downloadBlob(
   blob: Blob,
   filename: string,
 ): Promise<void> {
-  // Prefer native share on mobile — this is what Android users expect.
-  if (
-    typeof navigator !== 'undefined' &&
-    'share' in navigator &&
-    'canShare' in navigator &&
-    /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-  ) {
-    try {
-      const fileLike = new File([blob], filename, { type: blob.type || 'application/octet-stream' });
-      const shareData: ShareData = {
-        files: [fileLike],
-        title: filename,
-        text: filename,
-      };
-      if ((navigator as Navigator & { canShare: (d: ShareData) => boolean }).canShare(shareData)) {
-        await (navigator as Navigator & { share: (d: ShareData) => Promise<void> }).share(shareData);
-        return;
-      }
-    } catch {
-      // fall through to anchor-based download
-    }
-  }
-
   const url = URL.createObjectURL(blob);
   try {
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
     a.rel = 'noopener';
-    a.target = '_self';
-    // dispatching click directly (not using `.click()`) plays nicer with
-    // browsers that require a user gesture for downloads.
+    a.target = '_blank';
     document.body.appendChild(a);
-    const evt = new MouseEvent('click', {
-      bubbles: false,
-      cancelable: true,
-      view: window,
-    });
-    a.dispatchEvent(evt);
-    // Small delay before revocation so the browser has enough time to
-    // read the blob and start the download.
+    a.click();
+    // Mobile fallback: some browsers ignore click() on anchors
+    // so also navigate directly to the blob URL
+    if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      window.setTimeout(() => {
+        try { window.location.href = url; } catch { /* noop */ }
+      }, 300);
+    }
     window.setTimeout(() => {
       try { URL.revokeObjectURL(url); } catch { /* noop */ }
       if (a.parentNode) a.parentNode.removeChild(a);
-    }, 1500);
+    }, 2000);
   } catch {
-    try { URL.revokeObjectURL(url); } catch { /* noop */ }
+    try {
+      // Last-resort fallback: navigate directly
+      window.location.href = URL.createObjectURL(blob);
+    } catch { /* noop */ }
   }
 }
