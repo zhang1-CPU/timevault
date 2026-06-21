@@ -1,5 +1,3 @@
-const counters = { solo: 0, 'couple-a': 0, 'couple-b': 0, unlock: 0 };
-
 export async function onRequestPost(context) {
   const { request } = context;
   try {
@@ -9,21 +7,10 @@ export async function onRequestPost(context) {
     if (!mode || !validModes.includes(mode)) {
       return json({ error: 'Invalid mode' }, 400);
     }
-    counters[mode] = (counters[mode] || 0) + 1;
     return new Response(null, { status: 204 });
   } catch {
     return new Response(null, { status: 204 });
   }
-}
-
-export async function onRequestGet(context) {
-  const { request, env } = context;
-  const secret = request.headers.get('X-Admin-Secret');
-  const expectedSecret = env.ADMIN_SECRET || 'changeme';
-  if (secret !== expectedSecret) {
-    return json({ error: 'Unauthorized' }, 401);
-  }
-  return json({ stats: counters, persistent: false }, 200);
 }
 
 function json(data, status = 200) {
