@@ -1,13 +1,2 @@
 name = "timevault"
 compatibility_date = "2026-06-21"
-
-[vars]
-ADMIN_SECRET = "changeme"
-
-[[durable_objects.bindings]]
-name = "STATS_STORE"
-class_name = "StatsStore"
-
-[[migrations]]
-tag = "v1"
-new_classes = ["StatsStore"]
