@@ -631,65 +631,89 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 // ─── Landing ─────────────────────────────────────────────────
 function LandingStep({ onStart }: { onStart: () => void }) {
   return (
-    <div className="space-y-10 pt-4 animate-fade-in">
+    <div className="space-y-12 pt-6 animate-fade-in">
       {/* Hero */}
-      <div className="text-center space-y-5">
+      <div className="text-center space-y-7">
         <div className="flex justify-center">
           <div className="relative">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-rose-500/20 to-violet-500/20 border border-rose-400/20 flex items-center justify-center">
-              <Heart className="w-10 h-10 text-rose-300/70 animate-pulse" strokeWidth={1.5} fill="rgba(244,114,182,0.2)" />
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-rose-500/25 to-violet-500/20 border border-rose-400/25 flex items-center justify-center">
+              <Heart className="w-12 h-12 text-rose-300/70 animate-pulse" strokeWidth={1.3} fill="rgba(244,114,182,0.25)" />
             </div>
             <div className="absolute -inset-2 rounded-full bg-rose-500/10 animate-ping" style={{ animationDuration: '3s' }} />
           </div>
         </div>
-        <h1 className="text-4xl sm:text-5xl font-serif font-light">
-          <span className="bg-gradient-to-r from-rose-300/80 via-pink-300/70 to-violet-300/70 bg-clip-text text-transparent">
-            For Two
-          </span>
+
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-rose-500/15 to-violet-500/10 border border-rose-400/20">
+          <span className="text-rose-300/60 text-[11px] tracking-[0.25em] uppercase">For Two Hearts</span>
+        </div>
+
+        <h1 className="text-4xl sm:text-6xl font-serif font-light leading-[1.15]">
+          <span className="block text-white/70">One photo.</span>
+          <span className="block bg-gradient-to-r from-rose-300/85 via-pink-300/75 to-violet-300/80 bg-clip-text text-transparent">Two halves.</span>
+          <span className="block text-white/50 text-3xl sm:text-4xl mt-3">Sealed by time.</span>
         </h1>
-        <p className="text-white/30 text-sm leading-relaxed max-w-sm mx-auto font-light">
-          One photo, cut in two. Each of you writes a secret.<br />
-          Only at the appointed hour, with your key, can the other read it.
+
+        <p className="text-white/35 text-sm sm:text-base leading-relaxed max-w-md mx-auto font-light">
+          Cut a photo in two. Each of you writes a secret across the cut.<br />
+          Until the day you chose, neither half knows the other's words.
         </p>
       </div>
 
-      {/* How it works */}
-      <div className="glass-romantic rounded-2xl p-5 sm:p-6 border border-white/[0.05] space-y-4">
-        <h3 className="font-serif text-white/40 text-sm text-center">How it works</h3>
-        {[
-          { icon: '✂️', label: 'You', desc: 'Upload a photo, split it, write your secret, download your half, share a QR code' },
-          { icon: '📱', label: 'TA', desc: 'Scans the QR, uploads the same photo, writes their reply, downloads their half' },
-          { icon: '🔓', label: 'Together', desc: 'On the chosen day, each of you uploads your half and types your key' },
-        ].map((item, i) => (
-          <div key={i} className="flex gap-3.5 items-start">
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-sm">
-              {item.icon}
+      {/* How it works — more dramatic */}
+      <div className="glass-romantic rounded-2xl p-6 sm:p-7 border border-white/[0.06] space-y-5">
+        <div className="text-center">
+          <h3 className="font-serif text-white/50 text-sm tracking-[0.3em] uppercase">The Ritual</h3>
+        </div>
+
+        <div className="space-y-4">
+          {[
+            { icon: '✂️', label: 'You — Cut', desc: 'Upload a photo you both love. Draw a line. Write your secret. Take your half. A QR is born for them.' },
+            { icon: '💌', label: 'Them — Reply', desc: 'They scan the QR, upload the same photo, write their reply back. Now two halves exist, but neither can read the other.' },
+            { icon: '🕯️', label: 'That Day — Reveal', desc: 'Only on the date you chose — with your half and your key — can you finally read each other\'s words.' },
+          ].map((item, i) => (
+            <div key={i} className="flex gap-4 items-start">
+              <div className="flex-shrink-0 flex flex-col items-center">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-rose-500/15 to-violet-500/10 border border-white/[0.07] flex items-center justify-center text-base">
+                  {item.icon}
+                </div>
+                {i < 2 && <div className="w-px h-5 bg-white/[0.08] mt-1.5" />}
+              </div>
+              <div className="flex-1 pt-0.5">
+                <p className="text-white/65 text-sm font-medium mb-1">{item.label}</p>
+                <p className="text-white/28 text-xs leading-relaxed font-light">{item.desc}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-white/55 text-sm font-serif">{item.label}</p>
-              <p className="text-white/25 text-xs leading-relaxed font-light">{item.desc}</p>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      {/* Quote */}
-      <blockquote className="text-center space-y-2">
-        <p className="text-white/20 text-sm italic font-serif">
-          "I fell in love with the sense of waiting — the idea that some words are worth saving for the right moment."
-        </p>
-      </blockquote>
+      {/* Mysterious promise — short and poetic */}
+      <div className="text-center space-y-3 px-4">
+        <div className="inline-block">
+          <p className="text-white/25 text-sm italic font-serif leading-relaxed">
+            &ldquo;Time is not something to race through.<br />
+            Some words are worth waiting for.&rdquo;
+          </p>
+        </div>
+      </div>
 
-      {/* CTA */}
+      {/* CTA — larger, more dramatic */}
       <button
         onClick={onStart}
-        className="w-full py-5 bg-gradient-to-r from-rose-500 to-pink-600 rounded-2xl text-white font-medium text-base
-                   transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.35)] hover:scale-[1.02] active:scale-[0.97]
-                   flex items-center justify-center gap-3 min-h-[60px]"
+        className="w-full py-6 bg-gradient-to-r from-rose-500 via-pink-500 to-violet-500 rounded-2xl text-white font-medium text-base sm:text-lg
+                   transition-all duration-500 hover:shadow-[0_0_80px_rgba(244,63,94,0.35)] hover:shadow-[0_0_80px_rgba(139,92,246,0.25)] hover:scale-[1.02] active:scale-[0.97]
+                   flex items-center justify-center gap-3 min-h-[68px] relative overflow-hidden group"
       >
-        <Sparkles className="w-5 h-5" />
-        Begin a Time Capsule for Two
+        <span className="absolute inset-0 bg-white/0 group-hover:bg-white/[0.04] transition-all duration-500" />
+        <Sparkles className="w-5 h-5 relative z-10" />
+        <span className="relative z-10">Begin Your Time Capsule for Two</span>
+        <span className="relative z-10 text-white/50 group-hover:translate-x-0.5 transition-transform">→</span>
       </button>
+
+      {/* Tiny hint — builds intrigue */}
+      <p className="text-center text-white/15 text-[11px] font-light tracking-wide">
+        No servers. No storage. Your words live only inside your half of the photo.
+      </p>
     </div>
   );
 }
@@ -728,40 +752,50 @@ function CreateStep({
   // If we have invite QR, show the share screen
   if (inviteQR) {
     return (
-      <div className="space-y-8 animate-fade-in">
-        <div className="text-center space-y-3">
+      <div className="space-y-10 animate-fade-in">
+        <div className="text-center space-y-5">
           <div className="flex justify-center">
-            <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center">
-              <Check className="w-7 h-7 text-emerald-400" />
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-rose-500/15 to-violet-500/10 border border-rose-400/20 flex items-center justify-center">
+              <Check className="w-8 h-8 text-rose-300/80" />
             </div>
           </div>
-          <h2 className="text-2xl font-serif font-light text-white/80">Invitation Ready</h2>
-          <p className="text-white/30 text-sm">
-            Send this QR to TA so they can write their reply.<br />
-            TA will send your half-file back to you when they&apos;re done.
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10">
+            <span className="text-white/40 text-[11px] tracking-[0.25em] uppercase">Step 4 of 4</span>
+          </div>
+          <h2 className="text-3xl font-serif font-light text-white/80">
+            <span className="bg-gradient-to-r from-rose-300/75 to-violet-300/75 bg-clip-text text-transparent">
+              Your Half is Sealed
+            </span>
+          </h2>
+          <p className="text-white/35 text-sm max-w-xs mx-auto leading-relaxed">
+            Your words are hidden inside your half of the photo.<br />
+            Now send this code to them — so they can write their reply, and take their half.
           </p>
         </div>
 
         {/* QR Code */}
-        <div className="flex flex-col items-center gap-4">
-          <div className="p-5 rounded-2xl border border-rose-400/15 bg-white/[0.02]">
-            <img src={inviteQR} alt="Invite QR Code" className="w-60 h-60 rounded-xl" />
+        <div className="flex flex-col items-center gap-5">
+          <div className="p-6 rounded-2xl border border-rose-400/15 bg-white/[0.02]">
+            <img src={inviteQR} alt="Invite QR Code" className="w-64 h-64 rounded-xl" />
           </div>
           <button onClick={onCopy}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.08] text-white/30 text-sm
-                       hover:bg-white/[0.03] hover:border-white/15 hover:text-white/50 transition-all">
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Copied!' : 'Copy Link'}
+            className="flex items-center gap-2.5 px-6 py-3 rounded-xl border border-white/[0.08] text-white/40 text-sm
+                       hover:bg-white/[0.03] hover:border-white/15 hover:text-white/60 transition-all">
+            {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+            {copied ? 'Link Copied — Share It' : 'Copy Invitation Link'}
           </button>
         </div>
 
-        <p className="text-center text-white/15 text-xs italic font-serif">
-          "The right word at the right moment is like a seed that waits for its season."
-        </p>
+        <div className="text-center">
+          <p className="text-white/20 text-sm italic font-serif max-w-xs mx-auto leading-relaxed">
+            &ldquo;Neither of you can read each other yet.<br />
+            Only time — and that day — can open what you wrote.&rdquo;
+          </p>
+        </div>
 
         <button onClick={onDone}
           className="w-full py-3 text-white/30 text-sm hover:text-white/60 transition-all">
-          ← Return home
+          ← I&apos;m done
         </button>
       </div>
     );
@@ -771,47 +805,50 @@ function CreateStep({
     <div className="space-y-6 animate-fade-in">
       {/* Step 1: Upload */}
       {!originalImage && (
-        <div className="space-y-6">
+        <div className="space-y-7">
           {/* Romantic header */}
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-5">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-rose-500/10 to-violet-500/10 border border-rose-400/20">
-              <Heart className="w-3.5 h-3.5 text-rose-400/60" fill="rgba(244,63,94,0.1)" />
-              <span className="text-rose-300/50 text-xs tracking-[0.2em] uppercase">A Letter for Two</span>
+              <Heart className="w-3.5 h-3.5 text-rose-400/70" fill="rgba(244,63,94,0.15)" />
+              <span className="text-rose-300/60 text-[11px] tracking-[0.25em] uppercase">Sealed by Two</span>
             </div>
-            <h2 className="text-3xl font-serif font-light text-white/80">
-              <span className="bg-gradient-to-r from-rose-300/70 via-pink-300/70 to-violet-300/70 bg-clip-text text-transparent">
-                Begin Your Story
+            <h2 className="text-4xl font-serif font-light text-white/80 leading-tight">
+              <span className="block text-white/70">Pick a photo</span>
+              <span className="block bg-gradient-to-r from-rose-300/80 via-pink-300/70 to-violet-300/80 bg-clip-text text-transparent text-3xl mt-1">
+                you both love
               </span>
             </h2>
-            <p className="text-white/25 text-sm max-w-xs mx-auto leading-relaxed">
-              "Every love story deserves a secret shared only by two hearts..."
+            <p className="text-white/30 text-sm max-w-sm mx-auto leading-relaxed">
+              Choose something meaningful — a moment you shared. It will become the vessel for your words.
             </p>
           </div>
 
           <div className="text-center space-y-2">
-            <p className="text-rose-300/30 text-xs tracking-[0.3em] uppercase">Step 1 of 4</p>
-            <h3 className="text-xl font-serif font-light text-white/60">Choose Your Photo</h3>
+            <p className="text-rose-300/30 text-[11px] tracking-[0.3em] uppercase">Step 1 of 4</p>
+            <h3 className="text-2xl font-serif font-light text-white/55">Choose Your Photo</h3>
           </div>
 
           <div onClick={() => fileRef.current?.click()}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) onUpload(f); }}
-            className="border-2 border-dashed border-white/[0.08] rounded-2xl p-14 text-center cursor-pointer
-                       hover:border-rose-400/30 hover:bg-gradient-to-b hover:from-rose-500/[0.02] hover:to-violet-500/[0.02] transition-all duration-300 group">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-rose-500/10 to-violet-500/10 flex items-center justify-center mx-auto mb-5
-                            group-hover:from-rose-500/20 group-hover:to-violet-500/20 group-hover:scale-110 transition-all duration-300">
-              <Upload className="w-8 h-8 text-rose-400/60" />
+            className="border-2 border-dashed border-white/[0.08] rounded-2xl p-12 sm:p-14 text-center cursor-pointer
+                       hover:border-rose-400/30 hover:bg-gradient-to-b hover:from-rose-500/[0.03] hover:to-violet-500/[0.03] transition-all duration-300 group">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-rose-500/10 to-violet-500/10 flex items-center justify-center mx-auto mb-5
+                            group-hover:from-rose-500/25 group-hover:to-violet-500/20 group-hover:scale-110 transition-all duration-300">
+              <Upload className="w-9 h-9 text-rose-400/60" />
             </div>
-            <p className="text-white/50 text-lg mb-1 font-light">Drop a photo here</p>
-            <p className="text-white/20 text-sm">or click to browse</p>
-            <p className="text-white/10 text-xs mt-4">PNG, JPG, WebP — up to 20MB</p>
-            <p className="text-rose-300/40 text-[10px] mt-2">💖 For your privacy, we never save your photos — please upload again when needed</p>
+            <p className="text-white/55 text-lg mb-1 font-light">Drop a photo here</p>
+            <p className="text-white/25 text-sm">or click to browse</p>
+            <p className="text-white/10 text-xs mt-4">PNG · JPG · WebP — up to 20MB</p>
+            <p className="text-rose-300/40 text-[11px] mt-3">
+              💖 Your photo never leaves your device — it is split and sealed entirely in your browser
+            </p>
           </div>
 
-          {/* Romantic quote */}
-          <div className="text-center">
-            <p className="text-white/15 text-xs italic font-serif max-w-sm mx-auto">
-              "A picture is worth a thousand words — but the words you write together will be worth more than a lifetime."
+          <div className="text-center space-y-3 px-4">
+            <p className="text-white/18 text-sm italic font-serif leading-relaxed max-w-sm mx-auto">
+              &ldquo;What you are about to create is not a message.<br />
+              It is a moment, kept for a future moment.&rdquo;
             </p>
           </div>
 
@@ -823,29 +860,24 @@ function CreateStep({
       {/* Step 2: Cut */}
       {originalImage && !sideChoice && (
         <div className="space-y-6">
-          <div className="text-center space-y-3">
+          <div className="text-center space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/10">
               <Scissors className="w-3 h-3 text-rose-400/50" />
-              <span className="text-rose-300/40 text-xs tracking-[0.2em] uppercase">Step 2 of 4</span>
+              <span className="text-rose-300/40 text-[11px] tracking-[0.25em] uppercase">Step 2 of 4</span>
             </div>
-            <h2 className="text-3xl font-serif font-light text-white/80">
-              <span className="bg-gradient-to-r from-rose-300/70 to-violet-300/70 bg-clip-text text-transparent">
-                Draw the Line
+            <h2 className="text-4xl font-serif font-light text-white/80 leading-tight">
+              <span className="block text-white/65">Draw the line</span>
+              <span className="block bg-gradient-to-r from-rose-300/75 to-violet-300/75 bg-clip-text text-transparent text-3xl mt-1">
+                between you
               </span>
             </h2>
-            <p className="text-white/30 text-sm max-w-sm mx-auto">
-              Drag the line to split your story. What will you keep, and what will you share?
+            <p className="text-white/30 text-sm max-w-sm mx-auto leading-relaxed">
+              Drag anywhere on the photo to choose where it splits.<br />
+              One side is yours to keep. The other — is theirs.
             </p>
           </div>
 
-          {/* Romantic hint */}
-          <div className="text-center">
-            <p className="text-white/15 text-xs italic font-serif">
-              "Every separation holds a promise of reunion..."
-            </p>
-          </div>
-
-          <div className="relative rounded-xl overflow-hidden border border-white/[0.06] bg-black/20 select-none shadow-xl shadow-black/20">
+          <div className="relative rounded-2xl overflow-hidden border border-white/[0.06] bg-black/20 select-none shadow-xl shadow-black/30">
             <canvas
               ref={cutCanvasRef}
               onPointerDown={onPointerDown}
@@ -860,24 +892,24 @@ function CreateStep({
           <div className="flex gap-4">
             <button
               onClick={() => onSideChoice('left')}
-              className="flex-1 py-4 rounded-xl border-2 border-rose-400/30 bg-gradient-to-br from-rose-500/[0.05] to-rose-500/[0.02] 
-                         text-rose-300/70 text-sm font-serif hover:border-rose-400/50 hover:from-rose-500/[0.1] hover:to-rose-500/[0.05] 
+              className="flex-1 py-4.5 rounded-xl border-2 border-rose-400/30 bg-gradient-to-br from-rose-500/[0.06] to-rose-500/[0.02] 
+                         text-rose-300/70 text-sm hover:border-rose-400/55 hover:from-rose-500/[0.12] hover:to-rose-500/[0.06] 
                          transition-all duration-300"
             >
               <span className="flex items-center justify-center gap-2">
                 <Heart className="w-4 h-4" fill="rgba(244,63,94,0.3)" />
-                Keep Left ({Math.round(splitX * 100)}%)
+                I keep the left — {Math.round(splitX * 100)}%
               </span>
             </button>
             <button
               onClick={() => onSideChoice('right')}
-              className="flex-1 py-4 rounded-xl border-2 border-violet-400/30 bg-gradient-to-br from-violet-500/[0.05] to-violet-500/[0.02] 
-                         text-violet-300/70 text-sm font-serif hover:border-violet-400/50 hover:from-violet-500/[0.1] hover:to-violet-500/[0.05] 
+              className="flex-1 py-4.5 rounded-xl border-2 border-violet-400/30 bg-gradient-to-br from-violet-500/[0.06] to-violet-500/[0.02] 
+                         text-violet-300/70 text-sm hover:border-violet-400/55 hover:from-violet-500/[0.12] hover:to-violet-500/[0.06] 
                          transition-all duration-300"
             >
               <span className="flex items-center justify-center gap-2">
                 <Heart className="w-4 h-4" fill="rgba(139,92,246,0.3)" />
-                Keep Right ({100 - Math.round(splitX * 100)}%)
+                I keep the right — {100 - Math.round(splitX * 100)}%
               </span>
             </button>
           </div>
@@ -886,55 +918,71 @@ function CreateStep({
 
       {/* Step 3: Write */}
       {originalImage && sideChoice && (
-        <div className="space-y-5 animate-fade-in">
-          <div className="text-center space-y-2">
-            <p className="text-rose-300/30 text-xs tracking-[0.3em] uppercase">Step 3 of 4</p>
-            <h2 className="text-2xl font-serif font-light text-white/70">Write Your Secret</h2>
+        <div className="space-y-6 animate-fade-in">
+          <div className="text-center space-y-3">
+            <p className="text-rose-300/30 text-[11px] tracking-[0.3em] uppercase">Step 3 of 4</p>
+            <h2 className="text-4xl font-serif font-light text-white/80 leading-tight">
+              <span className="block text-white/70">Write what</span>
+              <span className="block bg-gradient-to-r from-rose-300/75 to-violet-300/75 bg-clip-text text-transparent text-3xl mt-1">
+                they won&apos;t read until that day
+              </span>
+            </h2>
+            <p className="text-white/30 text-sm max-w-sm mx-auto leading-relaxed">
+              Your words will be sealed inside your half of the photo.<br />
+              Neither of you can open them — until the day you chose.
+            </p>
           </div>
 
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
-                <FileKey className="w-3 h-3" /> Your Key (unlocks your half)
+          <div className="space-y-5">
+            {/* Key — more prominence */}
+            <div className="space-y-2">
+              <label className="text-white/40 text-[11px] uppercase tracking-[0.22em] font-light flex items-center justify-center gap-1.5">
+                <FileKey className="w-3.5 h-3.5 text-rose-300/60" /> Your 4-digit key
               </label>
               <input type="password" inputMode="numeric" pattern="[0-9]*" maxLength={4}
                 value={pinA} onChange={(e) => setPinA(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                placeholder="****"
-                className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
-                           tracking-[1em] text-xl font-mono placeholder:tracking-normal placeholder:text-white/10
+                placeholder="••••"
+                className="w-full px-4 py-4 rounded-2xl bg-white/[0.03] border border-white/10 text-white text-center
+                           tracking-[1.3em] text-2xl font-mono placeholder:tracking-normal placeholder:text-white/10
                            focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 transition-all" />
-              <p className="text-white/15 text-[10px] text-center">4 digits — keep this to unlock your half</p>
+              <p className="text-white/18 text-[11px] text-center font-light">Only this key — with the right day — opens your half</p>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-white/30 text-xs uppercase tracking-wider font-light">Your Message to TA</label>
-              <textarea value={msgA} onChange={(e) => setMsgA(e.target.value)}
-                placeholder="Write what you want TA to read on the appointed day..."
-                rows={5} maxLength={2000}
-                className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white placeholder:text-white/10
-                           focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 resize-none transition-all text-sm leading-relaxed" />
-              <div className="text-right text-white/10 text-xs">{msgA.length}/2000</div>
+            {/* Message */}
+            <div className="space-y-2">
+              <label className="text-white/40 text-[11px] uppercase tracking-[0.22em] font-light text-center block">
+                Your words — sealed until that day
+              </label>
+              <div className="relative">
+                <textarea value={msgA} onChange={(e) => setMsgA(e.target.value)}
+                  placeholder="What do you want them to read — on that day, from you..."
+                  rows={6} maxLength={2000}
+                  className="w-full px-4 py-4 rounded-2xl bg-white/[0.03] border border-white/10 text-white placeholder:text-white/10
+                             focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 resize-none transition-all text-sm leading-relaxed" />
+              </div>
+              <div className="text-right text-white/15 text-xs">{msgA.length}/2000</div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
-                <Timer className="w-3 h-3" /> When It Unlocks
+            {/* Date */}
+            <div className="space-y-2">
+              <label className="text-white/40 text-[11px] uppercase tracking-[0.22em] font-light flex items-center justify-center gap-1.5">
+                <Timer className="w-3.5 h-3.5 text-violet-300/60" /> The day it opens
               </label>
               <input type="datetime-local" value={unlockDate} onChange={(e) => setUnlockDate(e.target.value)}
                 min={minUnlockDate}
-                className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-sm
-                           focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 transition-all [color-scheme:dark]" />
+                className="w-full px-4 py-4 rounded-2xl bg-white/[0.03] border border-white/10 text-white text-center text-base
+                           focus:border-violet-400/40 focus:outline-none focus:ring-1 focus:ring-violet-400/20 transition-all [color-scheme:dark]" />
             </div>
           </div>
 
           <button onClick={onCreate} disabled={isProcessing}
-            className="w-full py-4.5 bg-gradient-to-r from-rose-500/95 to-pink-600/95 rounded-2xl text-white font-medium text-sm
-                       transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.01] active:scale-[0.98]
-                       disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px]">
+            className="w-full py-5 bg-gradient-to-r from-rose-500/95 via-pink-500/95 to-violet-500/95 rounded-2xl text-white font-medium text-sm
+                       transition-all duration-300 hover:shadow-[0_0_70px_rgba(244,63,94,0.3)] hover:shadow-[0_0_70px_rgba(139,92,246,0.2)] hover:scale-[1.01] active:scale-[0.98]
+                       disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[60px]">
             {isProcessing ? (
-              <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Preparing QR...</>
+              <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Sealing it into your half...</>
             ) : (
-              <>Generate Invitation QR</>
+              <>Seal &amp; Generate Invitation</>
             )}
           </button>
         </div>
@@ -954,45 +1002,44 @@ function BWelcomeStep({
   const date = new Date(params.u);
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="text-center space-y-4">
+    <div className="space-y-10 animate-fade-in">
+      <div className="text-center space-y-5">
         <div className="flex justify-center">
-          <div className="w-16 h-16 rounded-full bg-violet-500/10 border border-violet-400/20 flex items-center justify-center">
-            <Heart className="w-8 h-8 text-violet-300/70" strokeWidth={1.5} fill="rgba(139,92,246,0.2)" />
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500/15 to-rose-500/10 border border-violet-400/25 flex items-center justify-center">
+            <Heart className="w-10 h-10 text-violet-300/70" strokeWidth={1.3} fill="rgba(139,92,246,0.25)" />
           </div>
         </div>
-        <h2 className="text-3xl font-serif font-light">
-          <span className="bg-gradient-to-r from-violet-300/80 to-rose-300/70 bg-clip-text text-transparent">
-            Someone Left You a Letter
+        <h2 className="text-4xl sm:text-5xl font-serif font-light leading-tight">
+          <span className="block text-white/70">A letter,</span>
+          <span className="block bg-gradient-to-r from-violet-300/80 via-pink-300/70 to-rose-300/70 bg-clip-text text-transparent text-3xl sm:text-4xl mt-2">
+            meant for your future
           </span>
         </h2>
-        <p className="text-white/25 text-sm">A time capsule — sealed until the appointed moment</p>
+        <p className="text-white/30 text-sm max-w-sm mx-auto leading-relaxed">
+          Someone wrote to you — in a way that only you can read, only on the day they chose.
+        </p>
       </div>
 
-      <div className="glass-romantic rounded-2xl p-6 border border-white/[0.05] space-y-3 text-center">
-        <p className="text-white/50 text-sm leading-relaxed">
-          TA has prepared a photo and written you a message. It will be readable on the unlock date.
-        </p>
-        <p className="text-white/35 text-sm leading-relaxed">
-          To complete the capsule, please upload <span className="text-white/50">the same original photo</span>,
-          write a reply to TA, and you&apos;ll get your half to keep.
+      <div className="glass-romantic rounded-2xl p-6 sm:p-7 border border-white/[0.05] space-y-4 text-center">
+        <p className="text-white/45 text-sm leading-relaxed">
+          To complete the capsule, upload <span className="text-white/70">the same original photo</span> and write your reply. Then take your half — to open together on that day.
         </p>
       </div>
 
       <div className="text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-romantic">
-          <Timer className="w-3.5 h-3.5 text-amber-300/40" />
-          <span className="text-white/40 text-xs">
+        <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/[0.03] border border-white/10">
+          <Timer className="w-4 h-4 text-amber-300/60" />
+          <span className="text-white/45 text-sm font-light">
             Unlocks {date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
           </span>
         </div>
       </div>
 
       <button onClick={onContinue}
-        className="w-full py-4.5 bg-gradient-to-r from-violet-500/95 to-rose-500/95 rounded-2xl text-white font-medium text-base
-                   transition-all duration-300 hover:shadow-[0_0_60px_rgba(139,92,246,0.3)] hover:scale-[1.02] active:scale-[0.97]
-                   flex items-center justify-center gap-2 min-h-[56px]">
-        <Heart className="w-5 h-5" /> Continue
+        className="w-full py-5 bg-gradient-to-r from-violet-500 via-pink-500 to-rose-500 rounded-2xl text-white font-medium text-base
+                   transition-all duration-300 hover:shadow-[0_0_70px_rgba(139,92,246,0.3)] hover:shadow-[0_0_70px_rgba(244,63,94,0.25)] hover:scale-[1.02] active:scale-[0.97]
+                   flex items-center justify-center gap-2.5 min-h-[60px]">
+        <Heart className="w-5 h-5" /> Write your reply
       </button>
     </div>
   );
@@ -1020,10 +1067,15 @@ function BWriteStep({
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="text-center space-y-2">
-        <p className="text-violet-300/30 text-xs tracking-[0.3em] uppercase">Your Reply</p>
-        <h2 className="text-2xl font-serif font-light text-white/70">Complete the Capsule</h2>
-        <p className="text-white/25 text-xs">Upload the same original photo, write to TA, and get your half</p>
+      <div className="text-center space-y-3">
+        <p className="text-violet-300/30 text-[11px] tracking-[0.3em] uppercase">Your turn</p>
+        <h2 className="text-3xl font-serif font-light leading-tight text-white/80">
+          <span className="block text-white/70">Write what</span>
+          <span className="block bg-gradient-to-r from-violet-300/75 to-rose-300/75 bg-clip-text text-transparent text-2xl mt-1">
+            they&apos;ll read from you
+          </span>
+        </h2>
+        <p className="text-white/25 text-xs max-w-xs mx-auto leading-relaxed">Upload the same original photo, write your words, then take your half.</p>
       </div>
 
       {error && (
@@ -1033,19 +1085,19 @@ function BWriteStep({
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         {/* Upload photo */}
-        <div className="space-y-1.5">
-          <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
-            <ImageIcon className="w-3 h-3" /> The Original Photo
+        <div className="space-y-2">
+          <label className="text-white/40 text-[11px] uppercase tracking-[0.22em] font-light flex items-center justify-center gap-1.5">
+            <ImageIcon className="w-3.5 h-3.5 text-violet-300/60" /> The same photo you both shared
           </label>
           {!bOriginalImage ? (
             <div onClick={() => fileRef.current?.click()}
-              className="flex flex-col items-center justify-center w-full h-40 rounded-xl border-2 border-dashed border-violet-400/20
-                         bg-white/[0.02] cursor-pointer hover:border-violet-400/40 hover:bg-white/[0.04] transition-all">
-              <Upload className="w-8 h-8 text-violet-300/30 mb-2" />
-              <span className="text-white/30 text-sm">Tap to upload the original photo</span>
-              <span className="text-rose-300/40 text-[10px] mt-1">💖 For your privacy, we never save your photos — please upload again when needed</span>
+              className="flex flex-col items-center justify-center w-full py-8 rounded-2xl border-2 border-dashed border-violet-400/20
+                         bg-white/[0.02] cursor-pointer hover:border-violet-400/40 hover:bg-white/[0.035] transition-all">
+              <Upload className="w-8 h-8 text-violet-300/40 mb-3" />
+              <span className="text-white/40 text-sm font-light">Tap to upload the original photo</span>
+              <span className="text-rose-300/40 text-[11px] mt-2 font-light">🔒 Your photo never leaves your device</span>
               <input ref={fileRef} type="file" accept="image/*" className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -1053,54 +1105,59 @@ function BWriteStep({
                 }} />
             </div>
           ) : (
-            <div className="relative rounded-xl overflow-hidden border border-violet-400/20">
-              <img
-                src={URL.createObjectURL(bOriginalImage)}
-                alt="Original photo"
-                className="w-full max-h-48 object-contain bg-black/30"
-              />
-              <button onClick={() => onImageUpload(null as any)}
-                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 flex items-center justify-center
-                           hover:bg-black/70 transition-all text-white/60 hover:text-white text-xs">
-                ✕
-              </button>
+            <div className="space-y-2">
+              <div className="relative rounded-2xl overflow-hidden border border-violet-400/20">
+                <img
+                  src={URL.createObjectURL(bOriginalImage)}
+                  alt="Original photo"
+                  className="w-full max-h-56 object-contain bg-black/30"
+                />
+                <button onClick={() => onImageUpload(null as any)}
+                  className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center
+                             hover:bg-black/70 transition-all text-white/60 hover:text-white text-sm">
+                  ✕
+                </button>
+              </div>
             </div>
           )}
-          <p className="text-white/15 text-[10px] text-center">Must be the exact same photo TA used</p>
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
-            <FileKey className="w-3 h-3" /> Your Key
+        {/* Key */}
+        <div className="space-y-2">
+          <label className="text-white/40 text-[11px] uppercase tracking-[0.22em] font-light flex items-center justify-center gap-1.5">
+            <FileKey className="w-3.5 h-3.5 text-violet-300/60" /> Your 4-digit key
           </label>
           <input type="password" inputMode="numeric" pattern="[0-9]*" maxLength={4}
             value={pinB} onChange={(e) => setPinB(e.target.value.replace(/\D/g, '').slice(0, 4))}
-            placeholder="****"
-            className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
-                       tracking-[1em] text-xl font-mono placeholder:tracking-normal placeholder:text-white/10
+            placeholder="••••"
+            className="w-full px-4 py-4 rounded-2xl bg-white/[0.03] border border-white/10 text-white text-center
+                       tracking-[1.3em] text-2xl font-mono placeholder:tracking-normal placeholder:text-white/10
                        focus:border-violet-400/40 focus:outline-none focus:ring-1 focus:ring-violet-400/20 transition-all" />
-          <p className="text-white/15 text-[10px] text-center">4 digits — keep this to unlock your half</p>
+          <p className="text-white/18 text-[11px] text-center font-light">The key for your half — keep it safe</p>
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-white/30 text-xs uppercase tracking-wider font-light">Your Message to TA</label>
+        {/* Message */}
+        <div className="space-y-2">
+          <label className="text-white/40 text-[11px] uppercase tracking-[0.22em] font-light text-center block">
+            Your words — sealed until that day
+          </label>
           <textarea value={msgB} onChange={(e) => setMsgB(e.target.value)}
-            placeholder="What do you want to say to TA on that day..."
+            placeholder="Write what you want them to read on that day..."
             rows={6} maxLength={2000}
-            className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white placeholder:text-white/10
+            className="w-full px-4 py-4 rounded-2xl bg-white/[0.03] border border-white/10 text-white placeholder:text-white/10
                        focus:border-violet-400/40 focus:outline-none focus:ring-1 focus:ring-violet-400/20 resize-none transition-all text-sm leading-relaxed" />
-          <div className="text-right text-white/10 text-xs">{msgB.length}/2000</div>
+          <div className="text-right text-white/15 text-xs">{msgB.length}/2000</div>
         </div>
       </div>
 
       <button onClick={onSeal} disabled={isProcessing}
-        className="w-full py-4.5 bg-gradient-to-r from-violet-500/95 to-rose-500/95 rounded-2xl text-white font-medium text-base
-                   transition-all duration-300 hover:shadow-[0_0_60px_rgba(139,92,246,0.3)] hover:scale-[1.02] active:scale-[0.97]
-                   disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px]">
+        className="w-full py-5 bg-gradient-to-r from-violet-500 via-pink-500 to-rose-500 rounded-2xl text-white font-medium text-base
+                   transition-all duration-300 hover:shadow-[0_0_70px_rgba(139,92,246,0.3)] hover:shadow-[0_0_70px_rgba(244,63,94,0.25)] hover:scale-[1.02] active:scale-[0.97]
+                   disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 min-h-[60px]">
         {isProcessing ? (
-          <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Sealing &amp; Downloading...</>
+          <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Sealing your half...</>
         ) : (
-          <><Download className="w-5 h-5" />Seal &amp; Download My Half</>
+          <><Download className="w-5 h-5" /> Seal &amp; Take My Half</>
         )}
       </button>
     </div>
@@ -1115,42 +1172,46 @@ function BDoneStep({
   onDone: () => void;
 }) {
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="text-center space-y-4">
+    <div className="space-y-10 animate-fade-in">
+      <div className="text-center space-y-5">
         <div className="flex justify-center">
-          <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center">
-            <Check className="w-7 h-7 text-emerald-400" />
+          <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center">
+            <Check className="w-8 h-8 text-emerald-400" />
           </div>
         </div>
-        <h2 className="text-2xl font-serif font-light text-white/80">Your Half Is Saved</h2>
-        <p className="text-white/30 text-sm">
-          Your half (<span className="text-white/60">timevault-couple-B.png</span>) has been downloaded.<br />
-          Now send this QR back to TA so they can get their half.
+        <h2 className="text-4xl font-serif font-light leading-tight text-white/80">
+          <span className="block text-white/70">Your half is</span>
+          <span className="block bg-gradient-to-r from-rose-300/75 to-violet-300/75 bg-clip-text text-transparent text-3xl mt-1">
+            sealed and saved
+          </span>
+        </h2>
+        <p className="text-white/30 text-sm max-w-sm mx-auto leading-relaxed">
+          Your half has been downloaded to your device. Now share this code back to them — so they can seal their half, too.
         </p>
       </div>
 
-      <div className="glass-romantic rounded-2xl p-5 border border-white/[0.05] space-y-3">
-        <p className="text-xs text-white/30 text-center uppercase tracking-widest">Send This Back to TA</p>
-        <div className="flex flex-col items-center gap-3">
+      <div className="glass-romantic rounded-2xl p-5 sm:p-6 border border-white/[0.05] space-y-4">
+        <p className="text-xs text-white/40 text-center uppercase tracking-[0.3em]">Send this back</p>
+        <div className="flex flex-col items-center gap-4">
           <div className="p-4 rounded-xl border border-violet-400/15 bg-white/[0.02]">
-            <img src={mergeQR} alt="Merge QR" className="w-44 h-44 rounded-lg" />
+            <img src={mergeQR} alt="Merge QR" className="w-48 h-48 rounded-lg" />
           </div>
           <button onClick={onCopy}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/[0.08] text-white/30 text-sm
-                       hover:bg-white/[0.03] hover:border-white/15 hover:text-white/50 transition-all">
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Copied!' : 'Copy Link for TA'}
+            className="flex items-center gap-2.5 px-6 py-2.5 rounded-xl border border-white/[0.08] text-white/40 text-sm
+                       hover:bg-white/[0.03] hover:border-white/15 hover:text-white/60 transition-all">
+            {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+            {copied ? 'Copied — share it' : 'Copy link'}
           </button>
         </div>
       </div>
 
-      <p className="text-center text-white/15 text-xs italic font-serif">
-        &ldquo;Some words need time to become more than words.&rdquo;
+      <p className="text-center text-white/20 text-sm italic font-serif max-w-sm mx-auto leading-relaxed">
+        &ldquo;Two halves, one photo. On that day — your words finally meet.&rdquo;
       </p>
 
       <button onClick={onDone}
         className="w-full py-3 text-white/30 text-sm hover:text-white/60 transition-all">
-        ← Return home
+        ← Done
       </button>
     </div>
   );
@@ -1183,24 +1244,27 @@ function MergeStep({
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="text-center space-y-4">
+      <div className="text-center space-y-5">
         <div className="flex justify-center">
-          <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center">
-            <Check className="w-7 h-7 text-emerald-400" />
+          <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center">
+            <Check className="w-8 h-8 text-emerald-400" />
           </div>
         </div>
-        <h2 className="text-2xl font-serif font-light text-white/80">
-          TA Wrote Back
+        <h2 className="text-4xl font-serif font-light leading-tight text-white/80">
+          <span className="block text-white/70">They wrote back</span>
+          <span className="block bg-gradient-to-r from-rose-300/75 to-violet-300/75 bg-clip-text text-transparent text-3xl mt-1">
+            now seal your half
+          </span>
         </h2>
-        <p className="text-white/30 text-sm">
-          TA replied and shared the split parameters. Re-upload the same original photo to get your sealed half.
+        <p className="text-white/28 text-sm max-w-xs mx-auto leading-relaxed">
+          Upload the same original photo one more time — to seal your half with the words they added.
         </p>
       </div>
 
       <div className="text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/10">
-          <Timer className="w-3.5 h-3.5 text-amber-300/60" />
-          <span className="text-white/40 text-xs">
+        <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/[0.03] border border-white/10">
+          <Timer className="w-4 h-4 text-amber-300/60" />
+          <span className="text-white/45 text-sm font-light">
             Unlocks {date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
           </span>
         </div>
@@ -1225,14 +1289,14 @@ function MergeStep({
         />
         {!preview ? (
           <button onClick={() => fileRef.current?.click()}
-            className="w-full p-6 rounded-2xl border-2 border-dashed border-white/15
-                       bg-white/[0.02] hover:bg-white/[0.03] hover:border-white/25
+            className="w-full p-6 sm:p-8 rounded-2xl border-2 border-dashed border-white/15
+                       bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/25
                        transition-all text-center space-y-3">
             <div className="flex justify-center">
-              <ImageIcon className="w-8 h-8 text-white/40" strokeWidth={1.3} />
+              <ImageIcon className="w-9 h-9 text-white/40" strokeWidth={1.3} />
             </div>
-            <div className="text-white/40 text-sm">Upload the same original photo</div>
-            <div className="text-white/20 text-xs">We cut it with the same split ratio</div>
+            <div className="text-white/45 text-sm font-light">Upload the same original photo</div>
+            <div className="text-white/20 text-xs">It will be split with the same ratio</div>
           </button>
         ) : (
           <div className="space-y-3">
@@ -1241,7 +1305,7 @@ function MergeStep({
             </div>
             <button onClick={() => fileRef.current?.click()}
               className="w-full py-2 text-white/30 text-xs hover:text-white/60 transition-all">
-              ← Pick a different photo
+              ← Use a different photo
             </button>
           </div>
         )}
@@ -1250,25 +1314,25 @@ function MergeStep({
       <button
         onClick={() => image && onMerge(image)}
         disabled={!image || isProcessing}
-        className="w-full py-4.5 bg-gradient-to-r from-rose-500/95 to-pink-600/95 rounded-2xl text-white font-medium text-base
-                   transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.02] active:scale-[0.97]
-                   disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[56px]">
+        className="w-full py-5 bg-gradient-to-r from-rose-500 via-pink-500 to-violet-500 rounded-2xl text-white font-medium text-base
+                   transition-all duration-300 hover:shadow-[0_0_70px_rgba(244,63,94,0.3)] hover:shadow-[0_0_70px_rgba(139,92,246,0.25)] hover:scale-[1.02] active:scale-[0.97]
+                   disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 min-h-[60px]">
         {isProcessing ? (
-          <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Preparing download...</>
+          <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Sealing your half...</>
         ) : (
-          <><Download className="w-5 h-5" /> Seal &amp; Download My Half</>
+          <><Download className="w-5 h-5" /> Seal &amp; Take My Half</>
         )}
       </button>
 
-      <div className="glass-romantic rounded-2xl p-5 border border-white/[0.05] text-center space-y-2">
-        <p className="text-white/45 text-sm">
-          On the unlock date, upload <span className="text-white/70 font-medium">timevault-couple-A.png</span> and type your PIN to read both messages.
+      <div className="glass-romantic rounded-2xl p-5 sm:p-6 border border-white/[0.05] text-center space-y-2">
+        <p className="text-white/40 text-sm leading-relaxed">
+          On the unlock date, upload your half and type your key — to finally read each other&apos;s words.
         </p>
       </div>
 
       <button onClick={onDone}
         className="w-full py-3 text-white/30 text-sm hover:text-white/60 transition-all">
-        ← Return home
+        ← Done
       </button>
     </div>
   );
@@ -1288,36 +1352,39 @@ function UnlockStep({
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="text-center space-y-3">
-        <h2 className="text-3xl font-serif font-light">
-          <span className="bg-gradient-to-r from-rose-300/80 to-violet-300/70 bg-clip-text text-transparent">
-            Unlock the Capsule
+      <div className="text-center space-y-4">
+        <h2 className="text-4xl sm:text-5xl font-serif font-light leading-tight">
+          <span className="block text-white/70">The day is here</span>
+          <span className="block bg-gradient-to-r from-rose-300/80 via-pink-300/70 to-violet-300/80 bg-clip-text text-transparent text-3xl sm:text-4xl mt-2">
+            Open what&apos;s yours
           </span>
         </h2>
-        <p className="text-white/25 text-sm">Upload your half and enter your key to read TA&apos;s words</p>
+        <p className="text-white/30 text-sm max-w-sm mx-auto leading-relaxed">
+          Upload your half and type your key — to finally read what they wrote to you.
+        </p>
       </div>
 
       {/* Role selector */}
       <div className="flex gap-3">
         <button
           onClick={() => setUnlockRole('A')}
-          className={`flex-1 py-3 rounded-xl text-sm font-serif transition-all ${
+          className={`flex-1 py-3.5 rounded-xl text-sm font-light transition-all ${
             unlockRole === 'A'
               ? 'bg-rose-500/15 border-2 border-rose-400/40 text-rose-300/80'
-              : 'bg-white/[0.03] border border-white/10 text-white/30 hover:bg-white/[0.05]'
+              : 'bg-white/[0.03] border border-white/10 text-white/35 hover:bg-white/[0.05]'
           }`}
         >
-          I&apos;m Person A
+          Person A — my key
         </button>
         <button
           onClick={() => setUnlockRole('B')}
-          className={`flex-1 py-3 rounded-xl text-sm font-serif transition-all ${
+          className={`flex-1 py-3.5 rounded-xl text-sm font-light transition-all ${
             unlockRole === 'B'
               ? 'bg-violet-500/15 border-2 border-violet-400/40 text-violet-300/80'
-              : 'bg-white/[0.03] border border-white/10 text-white/30 hover:bg-white/[0.05]'
+              : 'bg-white/[0.03] border border-white/10 text-white/35 hover:bg-white/[0.05]'
           }`}
         >
-          I&apos;m Person B
+          Person B — my key
         </button>
       </div>
 
@@ -1328,19 +1395,19 @@ function UnlockStep({
         className="border-2 border-dashed border-white/[0.08] rounded-2xl p-10 text-center cursor-pointer
                    hover:border-rose-400/30 hover:bg-white/[0.01] transition-all duration-300 group">
         {unlockImage ? (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center mx-auto">
               <Check className="w-6 h-6 text-emerald-400" />
             </div>
-            <p className="text-white/50 text-sm">{unlockImage.name}</p>
+            <p className="text-white/55 text-sm font-light">Your half — {unlockImage.name}</p>
           </div>
         ) : (
           <>
             <div className="w-12 h-12 rounded-full bg-rose-500/[0.06] flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-all">
               <Upload className="w-6 h-6 text-rose-400/50" />
             </div>
-            <p className="text-white/40 text-sm font-light">Drop your half here</p>
-            <p className="text-white/20 text-[10px] mt-1">🔒 We never store your photo — please upload again</p>
+            <p className="text-white/45 text-sm font-light">Drop your half here</p>
+            <p className="text-white/20 text-[11px] mt-1 font-light">🔒 Your photo never leaves your device</p>
           </>
         )}
       </div>
@@ -1348,15 +1415,15 @@ function UnlockStep({
         onChange={(e) => e.target.files?.[0] && onImageChange(e.target.files[0])} />
 
       {/* PIN */}
-      <div className="space-y-1.5">
-        <label className="text-white/30 text-xs uppercase tracking-wider font-light flex items-center gap-1">
-          <FileKey className="w-3 h-3" /> Your Key
+      <div className="space-y-2">
+        <label className="text-white/40 text-[11px] uppercase tracking-[0.22em] font-light text-center block">
+          Your 4-digit key
         </label>
         <input type="password" inputMode="numeric" pattern="[0-9]*" maxLength={4}
           value={unlockPin} onChange={(e) => setUnlockPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-          placeholder="****"
-          className="w-full px-4 py-4 rounded-xl bg-white/[0.03] border border-white/10 text-white text-center
-                     tracking-[1em] text-2xl font-mono placeholder:tracking-normal placeholder:text-white/10
+          placeholder="••••"
+          className="w-full px-4 py-4 rounded-2xl bg-white/[0.03] border border-white/10 text-white text-center
+                     tracking-[1.3em] text-2xl font-mono placeholder:tracking-normal placeholder:text-white/10
                      focus:border-rose-400/40 focus:outline-none focus:ring-1 focus:ring-rose-400/20 transition-all" />
       </div>
 
@@ -1368,10 +1435,10 @@ function UnlockStep({
       )}
 
       <button onClick={onUnlock}
-        className="w-full py-4.5 bg-gradient-to-r from-rose-500/95 to-pink-600/95 rounded-2xl text-white font-medium text-base
-                   transition-all duration-300 hover:shadow-[0_0_60px_rgba(244,63,94,0.3)] hover:scale-[1.02] active:scale-[0.97]
-                   flex items-center justify-center gap-2 min-h-[56px]">
-        <Lock className="w-5 h-5" /> Unlock &amp; Read
+        className="w-full py-5 bg-gradient-to-r from-rose-500 via-pink-500 to-violet-500 rounded-2xl text-white font-medium text-base
+                   transition-all duration-300 hover:shadow-[0_0_70px_rgba(244,63,94,0.3)] hover:shadow-[0_0_70px_rgba(139,92,246,0.25)] hover:scale-[1.02] active:scale-[0.97]
+                   flex items-center justify-center gap-2.5 min-h-[60px]">
+        <Lock className="w-5 h-5" /> Open &amp; Read
       </button>
     </div>
   );
