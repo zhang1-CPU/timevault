@@ -62,35 +62,9 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   // Scroll to top whenever scene changes
   useScrollToTop([scene]);
 
-  useEffect(() => {
-    const path = window.location.pathname;
-    const search = window.location.search;
-    if (path.startsWith('/couple-b')) {
-      const params = parseInviteURL(search);
-      if (params) { setBParams(params); setScene('b-welcome'); return; }
-    }
-    if (path.startsWith('/couple-a')) {
-      const params = parseMergeURL(search);
-      if (params) { setMergeParams(params); setScene('merge'); return; }
-    }
-    if (path.startsWith('/couple-unlock')) {
-      setScene('unlock'); return;
-    }
-    // Check if there's an active session
-    const activeId = getActiveSessionId();
-    if (activeId) {
-      const sess = loadSession(activeId);
-      if (sess) {
-        setSession(sess);
-        void sess;
-        setScene('create');
-        return;
-      }
-    }
-    setScene('landing');
-  }, []);
-
   // ─── Session & A's data ────────────────────────────────────
+  // Note: using dummy initial value '' and ignoring it via [, setX] pattern
+  // to avoid "different typescript-eslint/no-unused-vars" false positives.
   const [, setSession] = useState<CoupleSession | null>(null);
   const [bParams, setBParams] = useState<Awaited<ReturnType<typeof parseInviteURL>>>(null);
   const [mergeParams, setMergeParams] = useState<Awaited<ReturnType<typeof parseMergeURL>>>(null);
@@ -157,11 +131,40 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   }, [clearAllTimers, revokeAllUrls]);
 
   // ─── Shared helpers ─────────────────────────────────────────
+  // eslint-disable-next-line react-hooks/purity -- Date.now() in useMemo with empty deps is stable
   const mountTime = useMemo(() => Date.now(), []);
   const minUnlockDate = useMemo(
     () => new Date(mountTime + 60000).toISOString().slice(0, 16),
     [mountTime]
   );
+
+  useEffect(() => {
+    const path = window.location.pathname;
+    const search = window.location.search;
+    if (path.startsWith('/couple-b')) {
+      const params = parseInviteURL(search);
+      if (params) { setBParams(params); setScene('b-welcome'); return; }
+    }
+    if (path.startsWith('/couple-a')) {
+      const params = parseMergeURL(search);
+      if (params) { setMergeParams(params); setScene('merge'); return; }
+    }
+    if (path.startsWith('/couple-unlock')) {
+      setScene('unlock'); return;
+    }
+    // Check if there's an active session
+    const activeId = getActiveSessionId();
+    if (activeId) {
+      const sess = loadSession(activeId);
+      if (sess) {
+        setSession(sess);
+        void sess;
+        setScene('create');
+        return;
+      }
+    }
+    setScene('landing');
+  }, []);
 
   const clearError = useCallback(() => setError(''), []);
   const withError = useCallback((msg: string) => {
@@ -1109,7 +1112,7 @@ function BWriteStep({
   isProcessing: boolean;
   error: string;
   bOriginalImage: File | null;
-  onImageUpload: (file: File) => void;
+  onImageUpload: (file: File | null) => void;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -1160,7 +1163,7 @@ function BWriteStep({
                   alt="Original photo"
                   className="w-full max-h-56 object-contain bg-black/30"
                 />
-                <button onClick={() => onImageUpload(null as any)}
+                <button onClick={() => onImageUpload(null)}
                   className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center
                              hover:bg-black/70 transition-all text-white/60 hover:text-white text-sm">
                   ✕

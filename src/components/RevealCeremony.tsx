@@ -299,8 +299,8 @@ export function RevealCeremony({
                         key={p.key}
                         className="ceremony-particle"
                         style={{
-                          ['--tx' as any]: `${p.tx}px`,
-                          ['--ty' as any]: `${p.ty}px`,
+                          ['--tx' as string]: `${p.tx}px`,
+                          ['--ty' as string]: `${p.ty}px`,
                           background: p.color,
                           boxShadow: `0 0 14px 3px ${p.color}`,
                           animationDelay: `${p.delay}s`,
@@ -346,7 +346,8 @@ export function RevealCeremony({
 
             {/* 开场白 */}
             <div className="text-center mb-10 space-y-4">
-              {preamble.map((line, idx) => (
+              {/* eslint-disable-next-line react-hooks/refs -- preambleRef is initialized at creation, not reassigned */}
+              {(preamble as string[]).map((line, idx) => (
                 <p
                   key={idx}
                   className="preamble-line text-stone-700 font-display text-sm sm:text-base italic leading-relaxed"

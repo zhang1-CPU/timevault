@@ -38,7 +38,7 @@ export default function AdminPage() {
       }
       if (!res.ok) throw new Error('服务器返回错误');
       const raw = (await res.json()) as Stats | { stats: Stats; started_at?: string; note?: string };
-      const data: Stats = (raw as any).stats ? (raw as any).stats : raw;
+      const data: Stats = 'stats' in raw ? raw.stats : raw;
       setStats(data);
       setLastRefresh(new Date());
     } catch {

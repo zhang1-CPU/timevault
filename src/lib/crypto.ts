@@ -156,7 +156,7 @@ export async function revealMessage(
   // Attempting to feed JSON through decryptWithPin would fail with an
   // unhelpful "atob" error — intercept early and give the user clear
   // instructions.
-  let maybeCouple: any = null;
+  let maybeCouple: { role?: string } | null = null;
   try {
     maybeCouple = JSON.parse(pinEncrypted);
   } catch {

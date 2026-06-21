@@ -9,9 +9,16 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
+// Type declaration for the splash screen hide function injected by index.html
+declare global {
+  interface Window {
+    __tvHideSplash?: () => void;
+  }
+}
+
 // Hide splash screen as soon as React is mounted and first paint has happened.
 // Small delay ensures the rendered UI is actually visible before we fade out.
-if (typeof (window as any).__tvHideSplash === 'function') {
-  window.setTimeout(() => (window as any).__tvHideSplash(), 120);
+if (typeof window.__tvHideSplash === 'function') {
+  window.setTimeout(() => window.__tvHideSplash?.(), 120);
 }
 
