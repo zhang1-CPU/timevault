@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
 import { Heart, Shield, Clock, Sparkles, Lock } from 'lucide-react';
+import { usePageMeta } from '@/lib/usePageMeta';
 import type { Page } from '../App';
 
 const VALUES = [
@@ -26,19 +26,10 @@ const VALUES = [
 ];
 
 export function AboutPage({ navigate }: { navigate: (to: Page) => void }) {
-  useEffect(() => {
-    document.title = 'About — TimeVault';
-
-    const metaDesc = document.createElement('meta');
-    metaDesc.name = 'description';
-    metaDesc.content =
-      'TimeVault is a free, privacy-first web app that lets you hide encrypted messages inside photos. Built on AES-256-GCM, drand time-lock encryption, and LSB steganography. Zero storage. Complete privacy.';
-    document.head.appendChild(metaDesc);
-
-    return () => {
-      document.head.removeChild(metaDesc);
-    };
-  }, []);
+  usePageMeta(
+    'About — TimeVault',
+    'TimeVault is a free, privacy-first web app that lets you hide encrypted messages inside photos. Built on AES-256-GCM, drand time-lock encryption, and LSB steganography. Zero storage. Complete privacy.'
+  );
 
   return (
     <div className="pt-20 sm:pt-24 animate-page-enter">

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Menu, X, Heart } from 'lucide-react';
+import { Menu, X, Heart, Github, Instagram, Twitter } from 'lucide-react';
 import type { Page } from '../App';
 
 const NAV_LINKS: { to: Page; label: string; accent?: boolean; heart?: boolean }[] = [
@@ -14,6 +14,12 @@ const ACTION_LINKS: { to: Page; label: string; accent?: boolean; heart?: boolean
   { to: 'unlock', label: 'Unlock', heart: false },
   { to: 'seal', label: 'Seal a Message', accent: true },
   { to: 'couple', label: 'For Two', heart: true },
+];
+
+const SOCIAL_LINKS: { href: string; label: string; icon: React.ReactNode }[] = [
+  { href: 'https://github.com/zhang1-CPU/timevault', label: 'GitHub', icon: <Github className="w-4 h-4" /> },
+  { href: 'https://instagram.com/timevault', label: 'Instagram', icon: <Instagram className="w-4 h-4" /> },
+  { href: 'https://x.com/timevault', label: 'X / Twitter', icon: <Twitter className="w-4 h-4" /> },
 ];
 
 export function NavBar({ page, navigate }: { page: Page; navigate: (to: Page) => void }) {
@@ -76,6 +82,23 @@ export function NavBar({ page, navigate }: { page: Page; navigate: (to: Page) =>
                   <span className="absolute bottom-0 left-3 right-3 h-px bg-gradient-to-r from-transparent via-rose-300/40 to-transparent" />
                 )}
               </button>
+            ))}
+          </div>
+
+          {/* Desktop social links */}
+          <div className="hidden md:flex items-center gap-3 pl-2 border-l border-white/[0.08] ml-2">
+            {SOCIAL_LINKS.map(({ href, label, icon }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                title={label}
+                className="text-white/25 hover:text-rose-200/70 transition-colors duration-300 flex items-center justify-center rounded-lg hover:bg-white/[0.02]"
+              >
+                {icon}
+              </a>
             ))}
           </div>
 

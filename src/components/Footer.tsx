@@ -1,11 +1,8 @@
-import { ExternalLink, Heart, ChevronRight } from 'lucide-react';
+import { Heart, ChevronRight, Github, Instagram, Twitter } from 'lucide-react';
 import type { Page } from '../App';
 import { getStats } from '@/lib/analytics';
 
 export function Footer({ navigate }: { navigate: (to: Page) => void }) {
-  // Counters are inlined in the JS bundle — the `update-stats` GitHub
-  // workflow rewrites src/lib/analytics.ts on every event, and the
-  // Pages deploy picks up the new numbers automatically. No backend.
   const stats = getStats();
   const fmt = (n: number) => n.toLocaleString();
 
@@ -22,34 +19,38 @@ export function Footer({ navigate }: { navigate: (to: Page) => void }) {
                    style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.18) 0%, rgba(168,85,247,0.15) 100%)' }}>
                 <Heart className="w-4 h-4 text-rose-200/60" fill="currentColor" />
               </div>
-              <h3 className="text-lg font-serif font-light gradient-text">
-                TimeVault
-              </h3>
+              <h3 className="text-lg font-serif font-light gradient-text">TimeVault</h3>
             </div>
-            {/* 官方 Tagline — 全站统一 */}
             <p className="text-white/40 text-sm font-serif italic mb-3">
               Write a letter to tomorrow.
             </p>
-            <p className="text-white/25 text-sm leading-relaxed font-light max-w-xs">
+            <p className="text-white/25 text-sm leading-relaxed font-light max-w-xs mb-5">
               Seal a secret inside any photo. Time-locked cryptography. Your photo is the vault. Zero storage. Complete privacy.
             </p>
-            <div className="flex items-center gap-3 mt-4">
-              <div className="flex items-center gap-1.5 text-white/20 text-xs font-light">
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-400/60" />
-                AES-256 Encryption
-              </div>
+            {/* Social links */}
+            <div className="flex items-center gap-4">
+              <a href="https://github.com/zhang1-CPU/timevault" target="_blank" rel="noopener noreferrer" aria-label="GitHub"
+                className="text-white/20 hover:text-rose-200/70 transition-colors duration-300">
+                <Github className="w-4 h-4" />
+              </a>
+              <a href="https://instagram.com/timevault" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
+                className="text-white/20 hover:text-rose-200/70 transition-colors duration-300">
+                <Instagram className="w-4 h-4" />
+              </a>
+              <a href="https://x.com/timevault" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X"
+                className="text-white/20 hover:text-rose-200/70 transition-colors duration-300">
+                <Twitter className="w-4 h-4" />
+              </a>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-white/25 text-[10px] uppercase tracking-[0.3em] mb-4 font-light font-serif">
-              Explore
-            </h4>
+            <h4 className="text-white/25 text-[10px] uppercase tracking-[0.3em] mb-4 font-light font-serif">Explore</h4>
             <ul className="space-y-2.5">
               <FooterLink navigate={navigate} to="home" label="Home" />
               <FooterLink navigate={navigate} to="how-it-works" label="How It Works" />
-              <FooterLink navigate={navigate} to="stories" label="Stories" />
+              <FooterLink navigate={navigate} to="stories" label="Stories & Use Cases" />
               <FooterLink navigate={navigate} to="faq" label="FAQ" />
               <FooterLink navigate={navigate} to="about" label="About" />
             </ul>
@@ -57,26 +58,20 @@ export function Footer({ navigate }: { navigate: (to: Page) => void }) {
 
           {/* Legal + Actions + Live Stats */}
           <div>
-            <h4 className="text-white/25 text-[10px] uppercase tracking-[0.3em] mb-4 font-light font-serif">
-              Legal
-            </h4>
+            <h4 className="text-white/25 text-[10px] uppercase tracking-[0.3em] mb-4 font-light font-serif">Legal</h4>
             <ul className="space-y-2.5">
               <FooterLink navigate={navigate} to="privacy" label="Privacy Policy" />
               <FooterLink navigate={navigate} to="terms" label="Terms of Service" />
               <FooterLink navigate={navigate} to="contact" label="Contact" />
             </ul>
-            <h4 className="text-white/25 text-[10px] uppercase tracking-[0.3em] mb-4 font-light font-serif mt-6">
-              Actions
-            </h4>
+            <h4 className="text-white/25 text-[10px] uppercase tracking-[0.3em] mb-4 font-light font-serif mt-6">Actions</h4>
             <ul className="space-y-2.5">
               <FooterLink navigate={navigate} to="seal" label="Seal a Message" />
               <FooterLink navigate={navigate} to="unlock" label="Unlock a Photo" />
               <FooterLink navigate={navigate} to="couple" label="Couple Mode" />
             </ul>
 
-            <h4 className="text-white/25 text-[10px] uppercase tracking-[0.3em] mb-3 font-light font-serif mt-6">
-              Community
-            </h4>
+            <h4 className="text-white/25 text-[10px] uppercase tracking-[0.3em] mb-3 font-light font-serif mt-6">Community</h4>
             <div className="rounded-xl border border-white/[0.05] bg-white/[0.015] px-3 py-3 text-white/30 text-[11px] space-y-1.5 font-light">
               <div className="flex items-center justify-between">
                 <span className="text-emerald-300/50">Solo sealed</span>
@@ -113,14 +108,12 @@ export function Footer({ navigate }: { navigate: (to: Page) => void }) {
   );
 }
 
-// Uses button-style navigation with hash-route so there are no external dependency surprises.
-function FooterLink({ navigate, to, label }: { navigate?: (to: Page) => void; to?: Page; href?: string; label: string }) {
+function FooterLink({ navigate, to, label }: { navigate?: (to: Page) => void; to?: Page; label: string }) {
   return (
     <li>
       <button
         onClick={() => navigate && to && navigate(to)}
-        className="text-white/15 text-xs hover:text-white/40 transition-colors duration-300 flex items-center gap-1.5 font-light leading-relaxed bg-transparent border-none p-0 cursor-pointer group"
-      >
+        className="text-white/15 text-xs hover:text-white/40 transition-colors duration-300 flex items-center gap-1.5 font-light leading-relaxed bg-transparent border-none p-0 cursor-pointer group">
         <span>{label}</span>
         <ChevronRight className="w-2.5 h-2.5 opacity-0 -translate-x-1 group-hover:opacity-50 group-hover:translate-x-0 transition-all duration-300 flex-shrink-0" />
       </button>
@@ -128,5 +121,4 @@ function FooterLink({ navigate, to, label }: { navigate?: (to: Page) => void; to
   );
 }
 
-// Re-export ExternalLink-aware helper for future use if needed.
-export { ExternalLink };
+export { ChevronRight };

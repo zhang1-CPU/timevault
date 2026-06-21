@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
-import { Heart, Gift, Star, Users, Calendar, BookOpen, Plane, Leaf, Sparkles, Moon, Globe } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Heart, Gift, Star, Users, Calendar, Plane, Leaf, Moon, Sparkles, MessageSquare } from 'lucide-react';
 import { ScrollReveal } from '../components/ScrollReveal';
+import { usePageMeta } from '@/lib/usePageMeta';
 import type { Page } from '../App';
 
 const STORIES = [
@@ -103,15 +104,12 @@ const STORIES = [
 ];
 
 export function StoriesPage({ navigate }: { navigate: (to: Page) => void }) {
+  usePageMeta(
+    'Stories & Use Cases — TimeVault',
+    'Ideas and inspiration for what to seal inside a photo — anniversary letters, birthday traditions, travel memories, farewell notes, wedding vows, grief letters, and more.'
+  );
+
   useEffect(() => {
-    document.title = 'Stories & Use Cases — TimeVault';
-
-    const metaDesc = document.createElement('meta');
-    metaDesc.name = 'description';
-    metaDesc.content =
-      'Ideas and inspiration for what to seal inside a photo — anniversary letters, birthday traditions, travel memories, farewell notes, wedding vows, grief letters, and more.';
-    document.head.appendChild(metaDesc);
-
     const jsonLd = document.createElement('script');
     jsonLd.type = 'application/ld+json';
     jsonLd.text = JSON.stringify({
@@ -128,10 +126,12 @@ export function StoriesPage({ navigate }: { navigate: (to: Page) => void }) {
       },
     });
     document.head.appendChild(jsonLd);
-
     return () => {
-      document.head.removeChild(metaDesc);
-      document.head.removeChild(jsonLd);
+      try {
+        document.head.removeChild(jsonLd);
+      } catch {
+        // ignore
+      }
     };
   }, []);
 

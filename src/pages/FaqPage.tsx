@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { ScrollReveal } from '../components/ScrollReveal';
+import { usePageMeta } from '@/lib/usePageMeta';
 import type { Page } from '../App';
 
 type QA = { q: string; a: string };
@@ -91,9 +92,12 @@ const FAQS: QA[] = [
 export function FaqPage({ navigate }: { navigate: (to: Page) => void }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
-  useEffect(() => {
-    document.title = 'Frequently Asked Questions — TimeVault';
+  usePageMeta(
+    'Frequently Asked Questions — TimeVault',
+    'Answers to the most common questions about TimeVault — time-lock encryption, steganography, data privacy, the couple mode, and more.'
+  );
 
+  useEffect(() => {
     const jsonLd = document.createElement('script');
     jsonLd.type = 'application/ld+json';
     jsonLd.text = JSON.stringify({
@@ -110,15 +114,12 @@ export function FaqPage({ navigate }: { navigate: (to: Page) => void }) {
     });
     document.head.appendChild(jsonLd);
 
-    const metaDesc = document.createElement('meta');
-    metaDesc.name = 'description';
-    metaDesc.content =
-      'Answers to the most common questions about TimeVault — time-lock encryption, steganography, data privacy, the couple mode, and more.';
-    document.head.appendChild(metaDesc);
-
     return () => {
-      document.head.removeChild(jsonLd);
-      document.head.removeChild(metaDesc);
+      try {
+        document.head.removeChild(jsonLd);
+      } catch {
+        // ignore
+      }
     };
   }, []);
 

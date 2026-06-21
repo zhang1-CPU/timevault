@@ -1,20 +1,11 @@
-import { useEffect } from 'react';
+import { usePageMeta } from '@/lib/usePageMeta';
 import type { Page } from '../App';
 
 export function TermsPage({ navigate }: { navigate: (to: Page) => void }) {
-  useEffect(() => {
-    document.title = 'Terms of Service — TimeVault';
-    let meta = document.querySelector('meta[name="description"]');
-    if (!meta) {
-      meta = document.createElement('meta');
-      meta.setAttribute('name', 'description');
-      document.head.appendChild(meta);
-    }
-    meta.setAttribute(
-      'content',
-      'Terms of Service for TimeVault — a free, browser-side privacy tool. Your use of this service is subject to these terms.'
-    );
-  }, []);
+  usePageMeta(
+    'Terms of Service — TimeVault',
+    'Terms of Service for TimeVault — a free, browser-side privacy tool. Your use of this service is subject to these terms.'
+  );
 
   return (
     <div className="pt-20 sm:pt-24 animate-page-enter">

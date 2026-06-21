@@ -40,6 +40,17 @@ export default defineConfig({
     jsx: 'automatic',
     jsxImportSource: 'react',
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          icons: ['lucide-react'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 2500,
+  },
   server: {
     port: 3000,
     strictPort: false,

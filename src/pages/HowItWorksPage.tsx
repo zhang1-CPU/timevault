@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
 import { Shield, Lock, Clock, Image, Eye, Zap, Users, Smartphone, ArrowRight, Sparkles } from 'lucide-react';
 import { ScrollReveal } from '../components/ScrollReveal';
+import { usePageMeta } from '@/lib/usePageMeta';
 import type { Page } from '../App';
 
 const TECH_STEPS = [
@@ -85,19 +85,10 @@ const TERMS = [
 ];
 
 export function HowItWorksPage({ navigate }: { navigate: (to: Page) => void }) {
-  useEffect(() => {
-    document.title = 'How It Works — TimeVault';
-
-    const metaDesc = document.createElement('meta');
-    metaDesc.name = 'description';
-    metaDesc.content =
-      'A detailed walkthrough of TimeVault — how we combine AES-256-GCM, drand time-lock encryption, and LSB steganography to create a zero-storage photo-based time capsule.';
-    document.head.appendChild(metaDesc);
-
-    return () => {
-      document.head.removeChild(metaDesc);
-    };
-  }, []);
+  usePageMeta(
+    'How It Works — TimeVault',
+    'A detailed walkthrough of TimeVault — how we combine AES-256-GCM, drand time-lock encryption, and LSB steganography to create a zero-storage photo-based time capsule.'
+  );
 
   return (
     <div className="pt-20 sm:pt-24 animate-page-enter">
