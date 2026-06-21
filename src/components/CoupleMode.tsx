@@ -1142,7 +1142,7 @@ function BWriteStep({
                          bg-white/[0.02] cursor-pointer hover:border-violet-400/40 hover:bg-white/[0.035] transition-all">
               <Upload className="w-8 h-8 text-violet-300/40 mb-3" />
               <span className="text-white/40 text-sm font-light">Tap to upload the original photo</span>
-              <span className="text-rose-300/40 text-[11px] mt-2 font-light">🔒 Your photo never leaves your device</span>
+              <span className="text-rose-300/40 text-[11px] mt-2 font-light">🔒 For your privacy, we don't store any of your information. Please re-upload when needed.</span>
               <input ref={fileRef} type="file" accept="image/*" className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
