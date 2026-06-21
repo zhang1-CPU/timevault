@@ -22,7 +22,7 @@ import { CoupleCeremony } from './CoupleCeremony';
 import {
   Upload, Check, Timer, FileKey,
   AlertCircle, Download, Copy, Heart, Sparkles, Lock,
-  Image as ImageIcon, Scissors,
+  Image as ImageIcon, Scissors, AlertTriangle,
 } from 'lucide-react';
 import { downloadBlob, useScrollToTop } from '@/lib/download-utils';
 
@@ -1238,6 +1238,20 @@ function BDoneStep({
         </p>
       </div>
 
+      {/* Prominent watermark reminder */}
+      <div className="bg-amber-500/10 border border-amber-400/30 rounded-2xl p-4 text-center space-y-2">
+        <div className="flex items-center justify-center gap-2 text-amber-300 font-medium">
+          <AlertTriangle className="w-5 h-5" />
+          <span>⚠️ IMPORTANT — Save This Image as Evidence</span>
+        </div>
+        <p className="text-amber-200/80 text-sm font-medium">
+          The <span className="text-white font-semibold">watermark in the bottom-right corner</span> is your only decryption proof.
+        </p>
+        <p className="text-amber-200/60 text-xs">
+          Lost? No recovery possible. This image = your key.
+        </p>
+      </div>
+
       <div className="glass-romantic rounded-2xl p-5 sm:p-6 border border-white/[0.05] space-y-4">
         <p className="text-xs text-white/40 text-center uppercase tracking-[0.3em]">Send this back</p>
         <div className="flex flex-col items-center gap-4">
@@ -1371,6 +1385,20 @@ function MergeStep({
           <><Download className="w-5 h-5" /> Seal &amp; Take My Half</>
         )}
       </button>
+
+      {/* Prominent watermark reminder */}
+      <div className="bg-amber-500/10 border border-amber-400/30 rounded-2xl p-4 text-center space-y-2">
+        <div className="flex items-center justify-center gap-2 text-amber-300 font-medium">
+          <AlertTriangle className="w-5 h-5" />
+          <span>⚠️ IMPORTANT — Save This Image as Evidence</span>
+        </div>
+        <p className="text-amber-200/80 text-sm font-medium">
+          The <span className="text-white font-semibold">watermark in the bottom-right corner</span> is your only decryption proof.
+        </p>
+        <p className="text-amber-200/60 text-xs">
+          Lost? No recovery possible. This image = your key.
+        </p>
+      </div>
 
       <div className="glass-romantic rounded-2xl p-5 sm:p-6 border border-white/[0.05] text-center space-y-2">
         <p className="text-white/40 text-sm leading-relaxed">

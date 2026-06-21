@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { sealMessage } from '@/lib/crypto';
 import { ReminderSection } from './ReminderSection';
-import { ArrowLeft, Upload, Lock, Download, Sparkles, Image, FileKey, Calendar } from 'lucide-react';
+import { ArrowLeft, Upload, Lock, Download, Sparkles, Image, FileKey, Calendar, AlertTriangle } from 'lucide-react';
 import { useScrollToTop, downloadBlob } from '@/lib/download-utils';
 
 interface EncryptPanelProps {
@@ -483,6 +483,20 @@ export function EncryptPanel({ onBack }: EncryptPanelProps) {
                   <li>Return after <strong className="text-white/50">{unlockDate ? new Date(unlockDate).toLocaleDateString() : ''}</strong> to unlock</li>
                   <li>We store nothing — losing the photo or PIN means losing the message forever</li>
                 </ul>
+              </div>
+
+              {/* Prominent watermark reminder */}
+              <div className="bg-amber-500/10 border border-amber-400/30 rounded-2xl p-4 text-center space-y-2">
+                <div className="flex items-center justify-center gap-2 text-amber-300 font-medium">
+                  <AlertTriangle className="w-5 h-5" />
+                  <span>⚠️ IMPORTANT — Save This Image as Evidence</span>
+                </div>
+                <p className="text-amber-200/80 text-sm font-medium">
+                  The <span className="text-white font-semibold">watermark in the bottom-right corner</span> is your only decryption proof.
+                </p>
+                <p className="text-amber-200/60 text-xs">
+                  Lost? No recovery possible. This image = your key.
+                </p>
               </div>
 
               <button
