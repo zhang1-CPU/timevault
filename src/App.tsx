@@ -56,13 +56,23 @@ function usePageRoute() {
     const url = to === 'home' ? '/' : `/${to}`;
     window.history.pushState({}, '', url);
     setPage(to);
-    window.scrollTo(0, 0);
+    // Use setTimeout to ensure scroll happens after React render completes
+    setTimeout(() => {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      window.scrollTo(0, 0);
+    }, 50);
   }, []);
 
   useEffect(() => {
     const handler = () => {
       setPage(parsePath());
-      window.scrollTo(0, 0);
+      // Use setTimeout to ensure scroll happens after React render completes
+      setTimeout(() => {
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        window.scrollTo(0, 0);
+      }, 50);
     };
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);
