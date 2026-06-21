@@ -1,12 +1,11 @@
 name = "timevault"
 compatibility_date = "2026-06-21"
 
-[build]
-command = "npm run build"
-publish = "dist"
-
-[pages]
-build_output_dir = "dist"
-
 [vars]
 ADMIN_SECRET = "changeme"
+
+[[resources]]
+type = "kv-namespace"
+binding = "STATS"
+id = "STATS"
+preview_id = "STATS"
