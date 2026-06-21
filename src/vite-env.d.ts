@@ -124,7 +124,6 @@ declare module 'lucide-react' {
   export const Phone: LucideComponent;
   export const MessageSquare: LucideComponent;
   export const MessageCircle: LucideComponent;
-  export const BookOpen: LucideComponent;
   export const Book: LucideComponent;
   export const BookMarked: LucideComponent;
   export const Bookmark: LucideComponent;

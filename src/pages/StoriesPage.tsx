@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Heart, Gift, Star, Users, Calendar, BookOpen, Plane, Leaf, Sparkles, Moon, Globe } from 'lucide-react';
+import { Heart, Gift, Star, Users, Calendar, Book, Plane, Leaf, Sparkles, Moon, Globe } from 'lucide-react';
 import { ScrollReveal } from '../components/ScrollReveal';
 import type { Page } from '../App';
 
@@ -13,7 +13,7 @@ const STORIES = [
     example: '"I can\'t wait to grow old with you. See you in 2029. — Alex"',
   },
   {
-    icon: <BookOpen className="w-7 h-7" fill="currentColor" />,
+    icon: <Book className="w-7 h-7" fill="currentColor" />,
     color: '#c9a8e8',
     tag: 'For Yourself',
     title: 'A Letter to Future You',
