@@ -8,26 +8,28 @@ compatibility_date = "2026-06-21"
 directory = "./dist"
 
 # ──────────────────────────────────────────────
-# KV 命名空间绑定：analytics 接口通过 env.ANALYTICS_KV 读写它
+# ⚠️ 统计功能（KV 存储）默认关闭，所以部署不会失败。
+#    如果你想开启统计功能，请按以下步骤操作：
 #
-# 操作步骤（只做一次）：
-#   1. 在 Cloudflare 里创建一个 KV namespace
-#        浏览器 → Workers & Pages → KV → Create namespace
-#        名字填 ANALYTICS_KV → 点 Add
-#        创建后就能看到 Namespace ID（一长串 hex）
-#   2. 把那串 Namespace ID 填到下面的 id = "..."
+#   1. 打开 https://dash.cloudflare.com/ → Workers & Pages → KV
+#   2. 点 Create namespace → 名字填 ANALYTICS_KV → 点 Add
+#   3. 复制那个 Namespace ID（一串乱码，32 位）
+#   4. 把下面三行的注释去掉（删除每行开头的 #），把 XXX 换成你复制的那串 ID
 #
-#  ⚠️  namespace id 是你自己账户里的值，不是 "ANALYTICS_KV" 这串字
+#        # [[kv_namespaces]]
+#        # binding = "ANALYTICS_KV"
+#        # id = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+#
+#   5. git push，等它重新部署即可
 # ──────────────────────────────────────────────
-[[kv_namespaces]]
-binding = "ANALYTICS_KV"
-id = "FILL_IN_YOUR_KV_NAMESPACE_ID_HERE"
+# [[kv_namespaces]]
+# binding = "ANALYTICS_KV"
+# id = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
 # ──────────────────────────────────────────────
 # 管理员密码（访问 /admin 时输入的密码）
-# ⚠️ 生产环境：请在 Cloudflare 后台（Settings → Variables and secrets → Secrets）
+# ⚠️ 建议在 Cloudflare 后台（Settings → Variables and secrets → Secrets）
 #    添加 ADMIN_SECRET，那里填的值会覆盖这里的默认值。
-#    git 仓库里留着的默认值 "changeme" 是占位用的。
 # ──────────────────────────────────────────────
 [vars]
 ADMIN_SECRET = "changeme"

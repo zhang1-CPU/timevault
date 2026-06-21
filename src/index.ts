@@ -115,7 +115,7 @@ function json(data: unknown, status = 200): Response {
 // ── Types ───────────────────────────────────────────────────────
 
 interface Env {
-  ANALYTICS_KV: KVNamespace;
-  ADMIN_SECRET: string;
+  ANALYTICS_KV?: KVNamespace;
+  ADMIN_SECRET?: string;
   ASSETS?: { fetch: typeof fetch };
 }
