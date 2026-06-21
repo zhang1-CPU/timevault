@@ -1,5 +1,15 @@
 import { useEffect } from 'react';
 
+function scrollToTopNow() {
+  try {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+  } catch {
+    window.scrollTo(0, 0);
+  }
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+}
+
 /**
  * Scroll the page back to top whenever any of the provided dependencies change.
  * Used to ensure step progression in Seal/Unlock/Couple flows always starts
@@ -7,16 +17,16 @@ import { useEffect } from 'react';
  */
 export function useScrollToTop(deps: ReadonlyArray<unknown> = []) {
   useEffect(() => {
-    const t = window.setTimeout(() => {
-      try {
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
-        window.scrollTo(0, 0);
-      } catch {
-        window.scrollTo(0, 0);
-      }
-    }, 50);
-    return () => window.clearTimeout(t);
+    const t0 = window.setTimeout(scrollToTopNow, 0);
+    const t1 = window.setTimeout(scrollToTopNow, 50);
+    const t2 = window.setTimeout(scrollToTopNow, 200);
+    const t3 = window.setTimeout(scrollToTopNow, 400);
+    return () => {
+      window.clearTimeout(t0);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.clearTimeout(t3);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }

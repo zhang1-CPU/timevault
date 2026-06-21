@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useLayoutEffect } from 'react';
 import { Layout } from './layouts/Layout';
 import { HomePage } from './pages/HomePage';
 import { SealPage } from './pages/SealPage';
@@ -40,14 +40,24 @@ const ROUTE_MAP: Record<string, Page> = {
 };
 
 const parsePath = (): Page => {
-  // Parse both the pathname and any search query for couple-* deep links
-  // (e.g. /couple-b?sid=… works for QR code sharable URLs).
   const search = window.location.search;
   const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
   if (path.startsWith('couple-') || search.includes('couple-')) return 'couple';
   if (path === '') return 'home';
   return ROUTE_MAP[path] ?? 'home';
 };
+
+// Force-scroll the window to absolute top — called multiple times to beat
+// mobile browsers restoring the previous scroll position.
+function scrollToTopNow() {
+  try {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+  } catch {
+    window.scrollTo(0, 0);
+  }
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+}
 
 function usePageRoute() {
   const [page, setPage] = useState<Page>(() => parsePath());
@@ -56,23 +66,30 @@ function usePageRoute() {
     const url = to === 'home' ? '/' : `/${to}`;
     window.history.pushState({}, '', url);
     setPage(to);
-    // Use setTimeout to ensure scroll happens after React render completes
-    setTimeout(() => {
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-      window.scrollTo(0, 0);
-    }, 50);
   }, []);
+
+  // Scroll to top whenever the page changes — use useLayoutEffect for DOM-integrated
+  // reset, plus fall-back timers to beat any delayed browser scroll-restoration.
+  useLayoutEffect(() => {
+    scrollToTopNow();
+  }, [page]);
+
+  useEffect(() => {
+    const t1 = window.setTimeout(scrollToTopNow, 0);
+    const t2 = window.setTimeout(scrollToTopNow, 50);
+    const t3 = window.setTimeout(scrollToTopNow, 200);
+    const t4 = window.setTimeout(scrollToTopNow, 400);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.clearTimeout(t3);
+      window.clearTimeout(t4);
+    };
+  }, [page]);
 
   useEffect(() => {
     const handler = () => {
       setPage(parsePath());
-      // Use setTimeout to ensure scroll happens after React render completes
-      setTimeout(() => {
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
-        window.scrollTo(0, 0);
-      }, 50);
     };
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);

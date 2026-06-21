@@ -24,7 +24,7 @@ import {
   AlertCircle, Download, Copy, Heart, Sparkles, Lock,
   Image as ImageIcon, Scissors,
 } from 'lucide-react';
-import { downloadBlob } from '@/lib/download-utils';
+import { downloadBlob, useScrollToTop } from '@/lib/download-utils';
 
 // ═══════════════════════════════════════════════════════════════
 //  Types
@@ -58,6 +58,9 @@ interface CoupleModeProps {
 export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
   // ─── Search-parameter routing ───────────────────────────────
   const [scene, setScene] = useState<Scene>('landing');
+
+  // Scroll to top whenever scene changes
+  useScrollToTop([scene]);
 
   useEffect(() => {
     const path = window.location.pathname;
