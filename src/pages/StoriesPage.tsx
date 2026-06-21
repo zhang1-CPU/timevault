@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Heart, Gift, Star, Users, Calendar, Plane, Leaf, Moon, Sparkles, MessageSquare } from 'lucide-react';
+import { Heart, Gift, Star, Users, Calendar, Plane, Leaf, Moon, Sparkles, MessageSquare, BookOpen, Globe } from 'lucide-react';
 import { ScrollReveal } from '../components/ScrollReveal';
 import { usePageMeta } from '@/lib/usePageMeta';
 import type { Page } from '../App';
