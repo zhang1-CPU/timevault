@@ -1,22 +1,10 @@
 /**
  * Cloudflare Worker 入口
- * 1. 对 /_analytics/* 路由：处理统计上报和查询（零配置内存计数器）
+ * 1. 对 /_analytics/* 路由：处理统计上报和查询（数据存 Cloudflare KV，持久化）
  * 2. 对其他所有路由：serve dist/ 目录下的静态文件（SPA 回退到 index.html）
- *
- * 说明：采用内存计数器，无需配置 KV/任何外部存储。
- *      - 每次 Worker 冷启动或重新部署，计数从 0 开始
- *      - 多实例场景下各实例独立计数（近似值，对"看各功能大概用了多少次"完全够用）
- *      - 如后续需要精确持久化统计，可切换为 KV/D1 方案
  */
 
-// 内存计数器：Worker 生命周期内持续累加
-const counters: Record<string, number> = {
-  'solo': 0,
-  'couple-a': 0,
-  'couple-b': 0,
-  'unlock': 0,
-};
-const STARTED_AT = new Date().toISOString();
+const VALID_MODES = ['solo', 'couple-a', 'couple-b', 'unlock'] as const;
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -53,12 +41,17 @@ async function onRequestPost(request: Request, env: Env): Promise<Response> {
     const body = (await request.json()) as { mode?: string };
     const { mode } = body;
 
-    const validModes = ['solo', 'couple-a', 'couple-b', 'unlock'];
-    if (!mode || !validModes.includes(mode)) {
+    if (!mode || !(VALID_MODES as readonly string[]).includes(mode)) {
       return json({ error: 'Invalid mode' }, 400);
     }
 
-    counters[mode] = (counters[mode] || 0) + 1;
+    const kv = env.ANALYTICS_KV;
+    if (!kv) return new Response(null, { status: 204 }); // KV 未绑定时静默
+
+    const key = `stats:${mode}`;
+    const current = Number((await kv.get(key)) || '0') || 0;
+    await kv.put(key, String(current + 1));
+
     return new Response(null, { status: 204 });
   } catch {
     return new Response(null, { status: 204 });
@@ -72,20 +65,23 @@ async function onRequestGet(request: Request, env: Env): Promise<Response> {
     return json({ error: 'Unauthorized' }, 401);
   }
 
-  const modes = ['solo', 'couple-a', 'couple-b', 'unlock'];
+  const kv = env.ANALYTICS_KV;
   const stats: Record<string, number> = {};
-  for (const mode of modes) {
-    stats[mode] = counters[mode] || 0;
+
+  if (kv) {
+    for (const mode of VALID_MODES) {
+      stats[mode] = Number((await kv.get(`stats:${mode}`)) || '0') || 0;
+    }
+    return json({ stats, persistent: true }, 200);
   }
 
-  return json({
-    stats,
-    started_at: STARTED_AT,
-    note: '内存计数：每次部署后从 0 开始',
-  }, 200);
+  // KV 未绑定时给前端一个可读的提示（不会 5xx）
+  for (const mode of VALID_MODES) stats[mode] = 0;
+  return json({ stats, persistent: false, note: 'KV 未绑定，数据未持久化' }, 200);
 }
 
-// 给 API 响应加禁用缓存头（防止 Cloudflare CDN 把 API 响应缓存成 HTML）
+// ── 缓存控制 ───────────────────────────────────────────────────
+
 function applyNoCache(res: Response): Response {
   res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
   res.headers.set('Pragma', 'no-cache');
@@ -96,12 +92,9 @@ function applyNoCache(res: Response): Response {
 // ── Static file serving ─────────────────────────────────────────
 
 async function serveStatic(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-  // 使用 Cloudflare Workers 的 assets binding（wrangler.toml 里 assets = { directory = "./dist" }）
-  // 当配置了 assets 时，env.ASSETS 会自动提供静态文件服务
   const assetBinding = (env as any).ASSETS as { fetch: typeof fetch } | undefined;
 
   if (assetBinding) {
-    // SPA fallback：如果请求的是 HTML 路由（非文件），回退到 index.html
     const url = new URL(request.url);
     const isFile = url.pathname.includes('.') && !url.pathname.endsWith('/');
     if (!isFile) {
@@ -112,7 +105,6 @@ async function serveStatic(request: Request, env: Env, ctx: ExecutionContext): P
     return assetBinding.fetch(request);
   }
 
-  // Fallback：如果没有 ASSETS binding，返回简单提示
   return new Response('ASSETS not configured', { status: 500 });
 }
 
@@ -128,6 +120,7 @@ function json(data: unknown, status = 200): Response {
 // ── Types ───────────────────────────────────────────────────────
 
 interface Env {
+  ANALYTICS_KV?: KVNamespace;
   ADMIN_SECRET?: string;
   ASSETS?: { fetch: typeof fetch };
 }
