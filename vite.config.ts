@@ -3,6 +3,8 @@ process.env.BROWSERSLIST_IGNORE_OLD_DATA = "1";
 import path from "path";
 import { defineConfig, type Plugin } from "vite";
 
+import { cloudflare } from "@cloudflare/vite-plugin";
+
 const JSX_EXT = /\.(jsx|tsx)$/;
 
 function esbuildReact(): Plugin {
@@ -35,7 +37,7 @@ function esbuildReact(): Plugin {
 // https://vite.dev/config/
 export default defineConfig({
   base: './',
-  plugins: [esbuildReact()],
+  plugins: [esbuildReact(), cloudflare()],
   esbuild: {
     jsx: 'automatic',
     jsxImportSource: 'react',
