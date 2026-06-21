@@ -2,7 +2,7 @@
   "version": 1,
   "include": [
     {
-      "path": "/_analytics/*",
+      "path": "/analytics/*",
       "headers": {
         "Cache-Control": "no-store"
       }

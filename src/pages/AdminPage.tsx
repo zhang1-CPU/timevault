@@ -28,7 +28,7 @@ export default function AdminPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/_analytics/stats', {
+      const res = await fetch('/analytics/stats', {
         headers: { 'X-Admin-Secret': password },
       });
       if (res.status === 401) {
