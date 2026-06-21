@@ -1,14 +1,17 @@
 name = "timevault"
+main = "src/index.ts"
 compatibility_date = "2026-06-21"
 
-# 静态资源目录：vite build 会产出 dist/
-pages_assets = "dist"
+# 静态资源目录：vite build 产出 dist/
+# Worker 入口 (src/index.ts) 会 serve 这个目录下的文件
+[assets]
+directory = "./dist"
 
 # ──────────────────────────────────────────────
-# KV 命名空间绑定：functions/_analytics.js 会通过 env.ANALYTICS_KV 读写它
+# KV 命名空间绑定：analytics 接口通过 env.ANALYTICS_KV 读写它
 #
 # 操作步骤（只做一次）：
-#   1. 先在 Cloudflare 里创建一个 KV namespace
+#   1. 在 Cloudflare 里创建一个 KV namespace
 #        浏览器 → Workers & Pages → KV → Create namespace
 #        名字填 ANALYTICS_KV → 点 Add
 #        创建后就能看到 Namespace ID（一长串 hex）
@@ -24,7 +27,7 @@ id = "FILL_IN_YOUR_KV_NAMESPACE_ID_HERE"
 # 管理员密码（访问 /admin 时输入的密码）
 # ⚠️ 生产环境：请在 Cloudflare 后台（Settings → Variables and secrets → Secrets）
 #    添加 ADMIN_SECRET，那里填的值会覆盖这里的默认值。
-#    git 仓库里留着的默认值 "changeme" 是占位用的，不算真密码。
+#    git 仓库里留着的默认值 "changeme" 是占位用的。
 # ──────────────────────────────────────────────
 [vars]
 ADMIN_SECRET = "changeme"
