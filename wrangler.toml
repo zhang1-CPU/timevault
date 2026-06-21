@@ -1,11 +1,12 @@
 name = "timevault"
 compatibility_date = "2026-06-21"
 
-# 静态资源目录：vite build 产出 dist/
 [build]
 command = "npm run build"
 publish = "dist"
 
-# 管理员密码
+[pages]
+build_output_dir = "dist"
+
 [vars]
 ADMIN_SECRET = "changeme"
