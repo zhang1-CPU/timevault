@@ -1,5 +1,12 @@
 {
   "version": 1,
-  "include": ["/_analytics/*"],
+  "include": [
+    {
+      "path": "/_analytics/*",
+      "headers": {
+        "Cache-Control": "no-store"
+      }
+    }
+  ],
   "exclude": []
 }
