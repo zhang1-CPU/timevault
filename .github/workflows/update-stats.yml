@@ -1,0 +1,55 @@
+name: Update Analytics Stats
+
+on:
+  repository_dispatch:
+    types: [update-stats]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update stats.json
+        run: |
+          set -e
+          FILE="public/stats.json"
+          if [ ! -f "$FILE" ]; then
+            echo '{"singleDownloads":0,"coupleADownloads":0,"coupleBDownloads":0,"decryptCount":0,"updatedAt":""}' > "$FILE"
+          fi
+          node <<'EOF'
+            const fs = require('fs');
+            const path = 'public/stats.json';
+            const data = JSON.parse(fs.readFileSync(path, 'utf8'));
+            const event = process.argv[2];
+            // Map of counter key to increment value (from workflow input)
+            // Uses environment variables from repo dispatch client_payload
+            const payload = JSON.parse(process.env.INCREMENT || '{}');
+            if (payload.singleDownloads) data.singleDownloads = (data.singleDownloads || 0) + Number(payload.singleDownloads);
+            if (payload.coupleADownloads) data.coupleADownloads = (data.coupleADownloads || 0) + Number(payload.coupleADownloads);
+            if (payload.coupleBDownloads) data.coupleBDownloads = (data.coupleBDownloads || 0) + Number(payload.coupleBDownloads);
+            if (payload.decryptCount) data.decryptCount = (data.decryptCount || 0) + Number(payload.decryptCount);
+            data.updatedAt = new Date().toISOString();
+            fs.writeFileSync(path, JSON.stringify(data, null, 2));
+            console.log('Updated:', JSON.stringify(data, null, 2));
+          EOF
+        env:
+          INCREMENT: ${{ toJson(github.event.client_payload) }}
+
+      - name: Commit and push
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet public/stats.json; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git add public/stats.json
+          git commit -m "chore(analytics): update stats counters [skip ci]"
+          git push

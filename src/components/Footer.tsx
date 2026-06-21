@@ -1,7 +1,26 @@
+import { useEffect, useState } from 'react';
 import { ExternalLink, Heart, ChevronRight } from 'lucide-react';
 import type { Page } from '../App';
+import { getStats } from '@/lib/analytics';
 
 export function Footer({ navigate }: { navigate: (to: Page) => void }) {
+  const [stats, setStats] = useState<{
+    singleDownloads: number;
+    coupleADownloads: number;
+    coupleBDownloads: number;
+    decryptCount: number;
+  } | null>(null);
+
+  useEffect(() => {
+    getStats()
+      .then(setStats)
+      .catch(() => {
+        /* ignore */
+      });
+  }, []);
+
+  const fmt = (n: number) => n.toLocaleString();
+
   return (
     <footer className="border-t border-white/[0.03] py-16 sm:py-20 px-6 relative">
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[150px] rounded-full bg-gradient-to-t from-rose-500/[0.02] to-transparent blur-3xl pointer-events-none" />
@@ -48,7 +67,7 @@ export function Footer({ navigate }: { navigate: (to: Page) => void }) {
             </ul>
           </div>
 
-          {/* Legal + Actions */}
+          {/* Legal + Actions + Live Stats */}
           <div>
             <h4 className="text-white/25 text-[10px] uppercase tracking-[0.3em] mb-4 font-light font-serif">
               Legal
@@ -66,6 +85,29 @@ export function Footer({ navigate }: { navigate: (to: Page) => void }) {
               <FooterLink navigate={navigate} to="unlock" label="Unlock a Photo" />
               <FooterLink navigate={navigate} to="couple" label="Couple Mode" />
             </ul>
+
+            <h4 className="text-white/25 text-[10px] uppercase tracking-[0.3em] mb-3 font-light font-serif mt-6">
+              Community
+            </h4>
+            <div className="rounded-xl border border-white/[0.05] bg-white/[0.015] px-3 py-3 text-white/30 text-[11px] space-y-1.5 font-light">
+              <div className="flex items-center justify-between">
+                <span className="text-emerald-300/50">Solo sealed</span>
+                <span className="tabular-nums text-white/40">{stats ? fmt(stats.singleDownloads) : '—'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-rose-300/50">Couple A</span>
+                <span className="tabular-nums text-white/40">{stats ? fmt(stats.coupleADownloads) : '—'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-violet-300/50">Couple B</span>
+                <span className="tabular-nums text-white/40">{stats ? fmt(stats.coupleBDownloads) : '—'}</span>
+              </div>
+              <div className="h-px bg-white/[0.05] my-1.5" />
+              <div className="flex items-center justify-between">
+                <span className="text-amber-300/50">Messages opened</span>
+                <span className="tabular-nums text-white/40">{stats ? fmt(stats.decryptCount) : '—'}</span>
+              </div>
+            </div>
           </div>
         </div>
 
