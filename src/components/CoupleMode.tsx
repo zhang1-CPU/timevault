@@ -644,18 +644,20 @@ function LandingStep({ onStart }: { onStart: () => void }) {
         </div>
 
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-rose-500/15 to-violet-500/10 border border-rose-400/20">
-          <span className="text-rose-300/60 text-[11px] tracking-[0.25em] uppercase">For Two Hearts</span>
+          <span className="text-rose-300/60 text-[11px] tracking-[0.25em] uppercase">A Time Capsule for Two Hearts</span>
         </div>
 
         <h1 className="text-4xl sm:text-6xl font-serif font-light leading-[1.15]">
-          <span className="block text-white/70">One photo.</span>
-          <span className="block bg-gradient-to-r from-rose-300/85 via-pink-300/75 to-violet-300/80 bg-clip-text text-transparent">Two halves.</span>
-          <span className="block text-white/50 text-3xl sm:text-4xl mt-3">Sealed by time.</span>
+          <span className="block text-white/70">Write it today.</span>
+          <span className="block bg-gradient-to-r from-rose-300/85 via-pink-300/75 to-violet-300/80 bg-clip-text text-transparent">
+            Seal it.
+          </span>
+          <span className="block text-white/50 text-3xl sm:text-4xl mt-3">Open it years from now.</span>
         </h1>
 
-        <p className="text-white/35 text-sm sm:text-base leading-relaxed max-w-md mx-auto font-light">
-          Cut a photo in two. Each of you writes a secret across the cut.<br />
-          Until the day you chose, neither half knows the other's words.
+        <p className="text-white/35 text-sm sm:text-base leading-relaxed max-w-lg mx-auto font-light">
+          One photo. Cut in two. Each of you writes what you want them to read — not today, but on the date you choose.
+          Months or years from now, you come back. Two halves reunited. The words you hid finally meet.
         </p>
       </div>
 
@@ -667,9 +669,9 @@ function LandingStep({ onStart }: { onStart: () => void }) {
 
         <div className="space-y-4">
           {[
-            { icon: '✂️', label: 'You — Cut', desc: 'Upload a photo you both love. Draw a line. Write your secret. Take your half. A QR is born for them.' },
-            { icon: '💌', label: 'Them — Reply', desc: 'They scan the QR, upload the same photo, write their reply back. Now two halves exist, but neither can read the other.' },
-            { icon: '🕯️', label: 'That Day — Reveal', desc: 'Only on the date you chose — with your half and your key — can you finally read each other\'s words.' },
+            { icon: '✂️', label: 'Today — Cut & Seal', desc: 'Upload a photo you both love. Draw a line. Each of you writes your secret across the cut. Take your half.' },
+            { icon: '🗓️', label: 'Through Time — Keep Your Half', desc: 'Months pass. Years pass. You keep your half somewhere safe. It waits — your future appointment with this moment.' },
+            { icon: '🕯️', label: 'That Day — Return & Reveal', desc: 'On the chosen date, you each come back. Upload your half. Type your key. Only then — at last — the words meet.' },
           ].map((item, i) => (
             <div key={i} className="flex gap-4 items-start">
               <div className="flex-shrink-0 flex flex-col items-center">
@@ -687,12 +689,54 @@ function LandingStep({ onStart }: { onStart: () => void }) {
         </div>
       </div>
 
+      {/* What makes this different — the promise / commitment block */}
+      <div className="glass-romantic rounded-2xl p-6 sm:p-7 border border-white/[0.06] space-y-5">
+        <div className="text-center">
+          <h3 className="font-serif text-white/50 text-sm tracking-[0.3em] uppercase">Your Promise to Each Other</h3>
+        </div>
+
+        <div className="grid gap-4">
+          <div className="flex items-start gap-3">
+            <div className="text-xl flex-shrink-0">🕰️</div>
+            <div>
+              <p className="text-white/60 text-sm font-medium mb-1">A love that lasts — in writing</p>
+              <p className="text-white/25 text-xs leading-relaxed font-light">
+                Words you write today. Words you keep for the person you love. Words that only arrive when the time is right.
+                It's not just a message — it's proof that your love keeps its promises.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <div className="text-xl flex-shrink-0">🔒</div>
+            <div>
+              <p className="text-white/60 text-sm font-medium mb-1">Sealed until that day — nobody opens it early</p>
+              <p className="text-white/25 text-xs leading-relaxed font-light">
+                Not us. Not them. Not even you. The words are encrypted inside your half of the photo and locked to the date you choose.
+                Mathematics keeps the promise. Time is the only key.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <div className="text-xl flex-shrink-0">∞</div>
+            <div>
+              <p className="text-white/60 text-sm font-medium mb-1">We will always be here — for as long as you need us</p>
+              <p className="text-white/25 text-xs leading-relaxed font-light">
+                Your love isn't a project with an expiry date, and neither is this site. We run permanently — no subscriptions, no trials, no shutdown plans.
+                This site will stay online to honor your appointment with the future. Whenever your day finally comes — you come back, and we will be here.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Mysterious promise — short and poetic */}
       <div className="text-center space-y-3 px-4">
         <div className="inline-block">
           <p className="text-white/25 text-sm italic font-serif leading-relaxed">
-            &ldquo;Time is not something to race through.<br />
-            Some words are worth waiting for.&rdquo;
+            &ldquo;In a world of instant messages, write something<br />
+            that takes time to arrive. True love waits.&rdquo;
           </p>
         </div>
       </div>
@@ -706,13 +750,13 @@ function LandingStep({ onStart }: { onStart: () => void }) {
       >
         <span className="absolute inset-0 bg-white/0 group-hover:bg-white/[0.04] transition-all duration-500" />
         <Sparkles className="w-5 h-5 relative z-10" />
-        <span className="relative z-10">Begin Your Time Capsule for Two</span>
+        <span className="relative z-10">Seal a Message for Your Future Together</span>
         <span className="relative z-10 text-white/50 group-hover:translate-x-0.5 transition-transform">→</span>
       </button>
 
       {/* Tiny hint — builds intrigue */}
       <p className="text-center text-white/15 text-[11px] font-light tracking-wide">
-        No servers. No storage. Your words live only inside your half of the photo.
+        Free · No account · Your words live only inside your half of the photo · Forever here, whenever you come back
       </p>
     </div>
   );
