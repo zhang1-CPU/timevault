@@ -424,7 +424,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         unlock,
         aSide,
       );
-      await downloadBlob(sealedA, 'timevault-couple-A.png');
+      await downloadBlob(sealedA, 'timevault-couple-A.png', 'couple-a');
 
       // 3) Update session
       if (sess) {

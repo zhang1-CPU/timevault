@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { revealMessage, checkImageStatus, revealCoupleMessage, type LockStatus } from '@/lib/crypto';
 import { ArrowLeft, Upload, Unlock, Clock, AlertCircle, Image, FileKey, Heart } from 'lucide-react';
 import { RevealCeremony } from './RevealCeremony';
-import { useScrollToTop } from '@/lib/download-utils';
+import { useScrollToTop, trackEvent } from '@/lib/download-utils';
 
 interface DecryptPanelProps {
   onBack: () => void;
@@ -28,21 +28,22 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
     };
   }, [preview]);
 
+  // Track unlock event once when successfully revealed
+  const unlockTracked = useRef(false);
+  useEffect(() => {
+    if (step === 'revealed' && !unlockTracked.current) {
+      unlockTracked.current = true;
+      trackEvent('unlock');
+    }
+  }, [step]);
+
   // Countdown timer
   useEffect(() => {
     if (step !== 'locked' || !status) return;
-
     const updateCountdown = () => {
-      if (status.remainingSeconds <= 0) {
-        setStep('pin');
-        return;
-      }
+      if (status.remainingSeconds <= 0) { setStep('pin'); return; }
       const remaining = status.remainingSeconds - Math.floor((Date.now() - (status.checkTimeMs || Date.now())) / 1000);
-      if (remaining <= 0) {
-        setStep('pin');
-        return;
-      }
-
+      if (remaining <= 0) { setStep('pin'); return; }
       const days = Math.floor(remaining / 86400);
       const hours = Math.floor((remaining % 86400) / 3600);
       const mins = Math.floor((remaining % 3600) / 60);
@@ -54,7 +55,6 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
       parts.push(`${String(secs).padStart(2, '0')}s`);
       setCountdown(parts.join(' '));
     };
-
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);

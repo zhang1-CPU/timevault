@@ -500,7 +500,7 @@ export function EncryptPanel({ onBack }: EncryptPanelProps) {
               </div>
 
               <button
-                onClick={() => resultBlob && downloadBlob(resultBlob, downloadFilename)}
+                onClick={() => resultBlob && downloadBlob(resultBlob, downloadFilename, 'solo')}
                 className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl text-white
                            font-medium text-sm sm:text-base transition-all duration-300
                            hover:shadow-[0_0_60px_rgba(16,185,129,0.3)] hover:scale-[1.02] active:scale-[0.97]

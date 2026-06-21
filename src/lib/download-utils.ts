@@ -32,6 +32,21 @@ export function useScrollToTop(deps: ReadonlyArray<unknown> = []) {
 }
 
 /**
+ * Send an anonymous usage event to Cloudflare Analytics Engine.
+ * This is fire-and-forget, non-blocking, and never affects user experience.
+ */
+export function trackEvent(mode: string) {
+  try {
+    const payload = JSON.stringify({ mode });
+    // Use sendBeacon for reliability even as the page unloads
+    const blob = new Blob([payload], { type: 'application/json' });
+    navigator.sendBeacon('/_analytics', blob);
+  } catch {
+    // Silently ignore — never block the download
+  }
+}
+
+/**
  * Cross-browser/mobile-safe download for images and files.
  *
  * Desktop: click-based <a download="filename"> — reliable across Chrome/FF/Safari
@@ -41,10 +56,15 @@ export function useScrollToTop(deps: ReadonlyArray<unknown> = []) {
  *   callbacks because it's not a "direct user gesture" — by calling it from the
  *   original click handler (which is what `a.click()` effectively is), we stay
  *   inside the gesture window.
+ *
+ * @param blob     - The file blob to download
+ * @param filename - The filename shown to the user
+ * @param mode     - Analytics event type: 'solo' | 'couple-a' | 'couple-b' | 'unlock'
  */
 export async function downloadBlob(
   blob: Blob,
   filename: string,
+  mode?: string,
 ): Promise<void> {
   const url = URL.createObjectURL(blob);
   let openedWindow: Window | null = null;
@@ -62,7 +82,6 @@ export async function downloadBlob(
     // 100ms can race on slow Android WebView; 1000ms is reliably safe.
     await new Promise<void>((r) => window.setTimeout(r, 1000));
     document.body.removeChild(a);
-    return;
   } catch {
     // Fallback: mobile / older browsers — open the blob URL in a new tab
     try {
@@ -86,5 +105,10 @@ export async function downloadBlob(
     window.setTimeout(() => {
       try { URL.revokeObjectURL(url); } catch { /* no-op */ }
     }, 5000);
+  }
+
+  // Track the event AFTER successful download, non-blocking
+  if (mode) {
+    trackEvent(mode);
   }
 }

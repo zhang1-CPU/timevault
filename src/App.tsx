@@ -11,6 +11,7 @@ import { AboutPage } from './pages/AboutPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { TermsPage } from './pages/TermsPage';
 import { ContactPage } from './pages/ContactPage';
+import AdminPage from './pages/AdminPage';
 
 export type Page =
   | 'home'
@@ -23,7 +24,8 @@ export type Page =
   | 'about'
   | 'privacy'
   | 'terms'
-  | 'contact';
+  | 'contact'
+  | 'admin';
 
 // Centralized routing table — used for both initial parse and hash-change events.
 const ROUTE_MAP: Record<string, Page> = {
@@ -37,6 +39,7 @@ const ROUTE_MAP: Record<string, Page> = {
   privacy: 'privacy',
   terms: 'terms',
   contact: 'contact',
+  admin: 'admin',
 };
 
 const parsePath = (): Page => {
@@ -100,6 +103,11 @@ function usePageRoute() {
 
 export default function App() {
   const { page, navigate } = usePageRoute();
+
+  // Admin page has its own layout — no wrapper needed
+  if (page === 'admin') {
+    return <AdminPage />;
+  }
 
   return (
     <Layout page={page} navigate={navigate}>
