@@ -1,4 +1,20 @@
 User-agent: *
 Allow: /
+Allow: /seal
+Allow: /unlock
+Allow: /couple
+Allow: /how-it-works
+Allow: /stories
+Allow: /faq
+Allow: /about
+Allow: /privacy
+Allow: /terms
+Allow: /contact
+
+Disallow: /assets/
+Disallow: /logo.png
+Disallow: /logo.svg
 
 Sitemap: https://timevault.online/sitemap.xml
+
+Host: https://timevault.online/
