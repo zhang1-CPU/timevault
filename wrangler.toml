@@ -1,24 +1,11 @@
 name = "timevault"
-main = "src/index.ts"
 compatibility_date = "2026-06-21"
-compatibility_flags = ["durable_objects"]
 
 # 静态资源目录：vite build 产出 dist/
-[assets]
-directory = "./dist"
+[build]
+command = "npm run build"
+publish = "dist"
 
-# Durable Object（持久化计数器）：部署时自动创建并持久化，
-# 你不需要去 Cloudflare dashboard 做任何手动操作。
-[[durable_objects.bindings]]
-name = "STATS_STORE"
-class_name = "StatsStore"
-
-[[migrations]]
-tag = "v1"
-new_classes = ["StatsStore"]
-
-# 管理员密码（访问 /admin 时输入的密码）
-# 建议在 Cloudflare 后台（Settings → Variables and secrets → Secrets）
-# 添加 ADMIN_SECRET，那里填的值会覆盖这里的默认值。
+# 管理员密码
 [vars]
 ADMIN_SECRET = "changeme"
