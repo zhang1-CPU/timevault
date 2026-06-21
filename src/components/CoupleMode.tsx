@@ -886,7 +886,7 @@ function CreateStep({
             <p className="text-white/25 text-sm">or click to browse</p>
             <p className="text-white/10 text-xs mt-4">PNG · JPG · WebP — up to 20MB</p>
             <p className="text-rose-300/40 text-[11px] mt-3">
-              💖 Your photo never leaves your device — it is split and sealed entirely in your browser
+              🔒 For your privacy, we don't store any of your information. Please re-upload when needed.
             </p>
           </div>
 
@@ -1452,7 +1452,7 @@ function UnlockStep({
               <Upload className="w-6 h-6 text-rose-400/50" />
             </div>
             <p className="text-white/45 text-sm font-light">Drop your half here</p>
-            <p className="text-white/20 text-[11px] mt-1 font-light">🔒 Your photo never leaves your device</p>
+            <p className="text-white/20 text-[11px] mt-1 font-light">🔒 For your privacy, we don't store any of your information. Please re-upload when needed.</p>
           </>
         )}
       </div>

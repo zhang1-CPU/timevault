@@ -7,11 +7,16 @@ import { useEffect } from 'react';
  */
 export function useScrollToTop(deps: ReadonlyArray<unknown> = []) {
   useEffect(() => {
-    try {
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
-    } catch {
-      window.scrollTo(0, 0);
-    }
+    const t = window.setTimeout(() => {
+      try {
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        window.scrollTo(0, 0);
+      } catch {
+        window.scrollTo(0, 0);
+      }
+    }, 50);
+    return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
