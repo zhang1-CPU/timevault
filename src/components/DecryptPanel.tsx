@@ -3,6 +3,7 @@ import { revealMessage, checkImageStatus, revealCoupleMessage, type LockStatus }
 import { ArrowLeft, Upload, Unlock, Clock, AlertCircle, Image, FileKey, Heart } from 'lucide-react';
 import { RevealCeremony } from './RevealCeremony';
 import { useScrollToTop } from '@/lib/download-utils';
+import { trackEvent } from '@/lib/analytics';
 
 interface DecryptPanelProps {
   onBack: () => void;
@@ -127,6 +128,7 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
       setMessage(result.message);
       setSealedAt(result.sealedAt);
       setStep('revealed');
+      void trackEvent('decrypt');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Decryption failed';
       if (msg.includes('LOCKED') || msg.includes('time')) {
@@ -158,6 +160,7 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
       setMessage(result.theirMessage);
       setSealedAt(result.sealedAt);
       setStep('revealed');
+      void trackEvent('decrypt');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Decryption failed';
       if (msg.includes('LOCKED') || msg.includes('time')) {

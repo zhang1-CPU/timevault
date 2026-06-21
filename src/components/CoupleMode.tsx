@@ -25,6 +25,7 @@ import {
   Image as ImageIcon, Scissors,
 } from 'lucide-react';
 import { downloadBlob } from '@/lib/download-utils';
+import { trackEvent } from '@/lib/analytics';
 
 // ═══════════════════════════════════════════════════════════════
 //  Types
@@ -347,6 +348,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         bSide,
       );
       await downloadBlob(sealedB, 'timevault-couple-B.png');
+      void trackEvent('coupleBDownload');
 
       // 3) Merge QR: B sends text metadata back to A (no image data in QR)
       const mergeUrl = generateMergeURL({
@@ -421,6 +423,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         aSide,
       );
       await downloadBlob(sealedA, 'timevault-couple-A.png');
+      void trackEvent('coupleADownload');
 
       // 3) Update session
       if (sess) {
