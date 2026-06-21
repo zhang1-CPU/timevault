@@ -4,6 +4,23 @@ on:
   repository_dispatch:
     types: [update-stats]
   workflow_dispatch:
+    inputs:
+      singleDownloads:
+        description: 'Solo sealed +1'
+        required: false
+        default: 0
+      coupleADownloads:
+        description: 'Couple A downloads +1'
+        required: false
+        default: 0
+      coupleBDownloads:
+        description: 'Couple B downloads +1'
+        required: false
+        default: 0
+      decryptCount:
+        description: 'Messages opened +1'
+        required: false
+        default: 0
 
 permissions:
   contents: write
@@ -15,41 +32,97 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Update stats.json
+      - name: Compute increments and update analytics.ts
         run: |
           set -e
-          FILE="public/stats.json"
-          if [ ! -f "$FILE" ]; then
-            echo '{"singleDownloads":0,"coupleADownloads":0,"coupleBDownloads":0,"decryptCount":0,"updatedAt":""}' > "$FILE"
-          fi
+          # Map repo-dispatch payload fields → counter keys. For manual
+          # workflow_dispatch, fall back to workflow inputs.
           node <<'EOF'
             const fs = require('fs');
-            const path = 'public/stats.json';
-            const data = JSON.parse(fs.readFileSync(path, 'utf8'));
-            const event = process.argv[2];
-            // Map of counter key to increment value (from workflow input)
-            // Uses environment variables from repo dispatch client_payload
-            const payload = JSON.parse(process.env.INCREMENT || '{}');
-            if (payload.singleDownloads) data.singleDownloads = (data.singleDownloads || 0) + Number(payload.singleDownloads);
-            if (payload.coupleADownloads) data.coupleADownloads = (data.coupleADownloads || 0) + Number(payload.coupleADownloads);
-            if (payload.coupleBDownloads) data.coupleBDownloads = (data.coupleBDownloads || 0) + Number(payload.coupleBDownloads);
-            if (payload.decryptCount) data.decryptCount = (data.decryptCount || 0) + Number(payload.decryptCount);
-            data.updatedAt = new Date().toISOString();
-            fs.writeFileSync(path, JSON.stringify(data, null, 2));
-            console.log('Updated:', JSON.stringify(data, null, 2));
+            const path = 'src/lib/analytics.ts';
+
+            // Determine which counters to increment by 1.
+            const payload = process.env.DISPATCH_PAYLOAD
+              ? JSON.parse(process.env.DISPATCH_PAYLOAD)
+              : {};
+            const manual = {
+              singleDownloads: Number(process.env.IN_SINGLE || 0),
+              coupleADownloads: Number(process.env.IN_COUPLEA || 0),
+              coupleBDownloads: Number(process.env.IN_COUPLEB || 0),
+              decryptCount: Number(process.env.IN_DECRYPT || 0),
+            };
+
+            const keys = ['singleDownloads', 'coupleADownloads', 'coupleBDownloads', 'decryptCount'];
+            const deltas = {};
+            let anyFromPayload = false;
+            keys.forEach(k => {
+              let v = Number(payload[k]) || 0;
+              if (v > 0) anyFromPayload = true;
+              deltas[k] = v;
+            });
+            // If repo dispatch payload had no matching field, fall back to
+            // "any known key present = +1" behaviour.
+            if (!anyFromPayload) {
+              // Sometimes the browser dispatches with a single key.
+              Object.keys(payload).forEach(k => {
+                if (deltas[k] !== undefined) deltas[k] += Number(payload[k]) || 1;
+              });
+            }
+            // Fall back to manual inputs if nothing at all.
+            let hasAny = Object.values(deltas).some(v => v > 0);
+            if (!hasAny) {
+              keys.forEach(k => deltas[k] = manual[k] || 0);
+            }
+
+            console.log('Deltas:', deltas);
+
+            let content = fs.readFileSync(path, 'utf8');
+            const keyToConst = {
+              singleDownloads:    'STATS_SINGLE_DOWNLOADS',
+              coupleADownloads:   'STATS_COUPLE_A_DOWNLOADS',
+              coupleBDownloads:   'STATS_COUPLE_B_DOWNLOADS',
+              decryptCount:       'STATS_DECRYPT_COUNT',
+            };
+            const constName = keyToConst;
+
+            // 1) Update `// <key>: <number>` comment markers.
+            keys.forEach(k => {
+              if (!deltas[k]) return;
+              const re = new RegExp(`(//\\s*${k}:\\s*)(\\d+)`);
+              const m = content.match(re);
+              const cur = m ? Number(m[2]) : 0;
+              content = content.replace(re, `// ${k}: ${cur + deltas[k]}`);
+            });
+
+            // 2) Update `const STATS_* = <number>;` inlined values.
+            keys.forEach(k => {
+              if (!deltas[k]) return;
+              const cname = constName[k];
+              const re = new RegExp(`(const\\s+${cname}\\s*=\\s*)(\\d+)`);
+              const m = content.match(re);
+              const cur = m ? Number(m[2]) : 0;
+              content = content.replace(re, `const ${cname} = ${cur + deltas[k]}`);
+            });
+
+            fs.writeFileSync(path, content);
+            console.log('Updated', path);
           EOF
-        env:
-          INCREMENT: ${{ toJson(github.event.client_payload) }}
 
       - name: Commit and push
         run: |
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet public/stats.json; then
+          if git diff --quiet src/lib/analytics.ts; then
             echo "No changes to commit"
             exit 0
           fi
-          git add public/stats.json
-          git commit -m "chore(analytics): update stats counters [skip ci]"
+          git add src/lib/analytics.ts
+          git commit -m "chore(analytics): bump counters"
           git push
+    env:
+      DISPATCH_PAYLOAD: ${{ toJson(github.event.client_payload) }}
+      IN_SINGLE: ${{ github.event.inputs.singleDownloads }}
+      IN_COUPLEA: ${{ github.event.inputs.coupleADownloads }}
+      IN_COUPLEB: ${{ github.event.inputs.coupleBDownloads }}
+      IN_DECRYPT: ${{ github.event.inputs.decryptCount }}

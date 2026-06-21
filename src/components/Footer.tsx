@@ -1,24 +1,12 @@
-import { useEffect, useState } from 'react';
 import { ExternalLink, Heart, ChevronRight } from 'lucide-react';
 import type { Page } from '../App';
 import { getStats } from '@/lib/analytics';
 
 export function Footer({ navigate }: { navigate: (to: Page) => void }) {
-  const [stats, setStats] = useState<{
-    singleDownloads: number;
-    coupleADownloads: number;
-    coupleBDownloads: number;
-    decryptCount: number;
-  } | null>(null);
-
-  useEffect(() => {
-    getStats()
-      .then(setStats)
-      .catch(() => {
-        /* ignore */
-      });
-  }, []);
-
+  // Counters are inlined in the JS bundle — the `update-stats` GitHub
+  // workflow rewrites src/lib/analytics.ts on every event, and the
+  // Pages deploy picks up the new numbers automatically. No backend.
+  const stats = getStats();
   const fmt = (n: number) => n.toLocaleString();
 
   return (
