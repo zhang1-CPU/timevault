@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Primary Meta Tags -->
-    <title>TimeVault — Write a letter to tomorrow.</title>
-    <meta name="title" content="TimeVault — Write a letter to tomorrow." />
-    <meta name="description" content="Seal a secret inside any photo. Choose the moment it opens. Time-locked with cryptography. Zero storage. Your photo is the vault." />
-    <meta name="keywords" content="time lock, time capsule, love letter, secret message, photo encryption, anniversary gift, future message, couple app, privacy, steganography" />
+    <title>TimeVault — Seal a message, choose when it opens. A time capsule for two hearts.</title>
+    <meta name="title" content="TimeVault — Seal a message, choose when it opens. A time capsule for two hearts." />
+    <meta name="description" content="Write a secret message. Hide it inside any photo. Pick a future date. On that day — and only that day — it opens. End-to-end encrypted. Zero servers. Your photo holds the key." />
+    <meta name="keywords" content="time capsule, time-lock, love letter, secret message, photo encryption, anniversary gift, future message, couple app, privacy, password steganography, drand, AES" />
     <meta name="author" content="TimeVault" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="language" content="English" />
-    <meta name="revisit-after" content="7 days" />
+    <meta name="theme-color" content="#1a0f2b" />
+    <meta name="msapplication-TileColor" content="#1a0f2b" />
 
     <!-- Canonical -->
     <link rel="canonical" href="https://timevault.online/" />
@@ -20,66 +21,117 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://timevault.online/" />
-    <meta property="og:title" content="TimeVault — Write a letter to tomorrow." />
-    <meta property="og:description" content="Seal a secret inside any photo. Time-locked. Private. Beautiful. We store nothing. Your photo is the vault." />
-    <meta property="og:image" content="./og-image.svg" />
-    <meta property="og:image:secure_url" content="./og-image.svg" />
+    <meta property="og:site_name" content="TimeVault" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="TimeVault — Seal a message, choose when it opens. A time capsule for two hearts." />
+    <meta property="og:description" content="Write a secret message. Hide it inside any photo. Pick a future date. On that day — and only that day — it opens." />
+    <meta property="og:image" content="https://timevault.online/og-image.svg" />
+    <meta property="og:image:secure_url" content="https://timevault.online/og-image.svg" />
     <meta property="og:image:type" content="image/svg+xml" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="TimeVault hourglass logo on romantic starry night — Write a letter to tomorrow." />
-    <meta property="og:site_name" content="TimeVault" />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:image:alt" content="TimeVault — write a letter to tomorrow and seal it in a photo until the chosen day." />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://timevault.online/" />
-    <meta name="twitter:title" content="TimeVault — Write a letter to tomorrow." />
-    <meta name="twitter:description" content="Seal a secret inside any photo. Time-locked. Private. Beautiful." />
-    <meta name="twitter:image" content="./og-image.svg" />
-    <meta name="twitter:image:alt" content="TimeVault hourglass logo with gradient brand text on dark starry background" />
+    <meta name="twitter:title" content="TimeVault — Seal a message, choose when it opens." />
+    <meta name="twitter:description" content="Write a secret message. Hide it in a photo. Pick a future date. Until then — not even you can open it." />
+    <meta name="twitter:image" content="https://timevault.online/og-image.svg" />
+    <meta name="twitter:image:alt" content="TimeVault — romantic starry night hourglass with gradient brand text." />
 
     <!-- PWA & Icons -->
-    <link rel="manifest" href="./manifest.json" />
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <link rel="icon" type="image/png" href="./logo.png" />
-    <link rel="apple-touch-icon" href="./favicon.svg" />
-    <link rel="image_src" href="./logo.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="image_src" href="/logo.svg" />
 
-    <!-- Theme color (matches romantic violet theme) -->
-    <meta name="theme-color" content="#1a0f2b" />
-    <meta name="msapplication-TileColor" content="#1a0f2b" />
-
-    <!-- Google Analytics (GA4) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WVF3FQ7LWP"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-WVF3FQ7LWP');
-    </script>
-
-    <!-- JSON-LD Structured Data: WebSite -->
+    <!-- JSON-LD Structured Data: WebSite + Organization + Product -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "TimeVault",
+      "alternateName": "TimeVault Online",
       "url": "https://timevault.online/",
-      "description": "Write a letter to tomorrow. Seal a secret inside any photo. Time-locked. Private. Beautiful.",
-      "inLanguage": "en"
+      "description": "Seal a message inside any photo and choose a future day when it can be opened. Time-locked messages for couples and meaningful future moments.",
+      "inLanguage": "en",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://timevault.online/{route}",
+        "query-input": "required name=route"
+      }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "TimeVault",
+      "url": "https://timevault.online/",
+      "logo": "https://timevault.online/logo.svg",
+      "description": "Free time-capsule service. End-to-end encrypted. Zero data collection.",
+      "sameAs": [
+        "https://timevault.online/"
+      ]
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "TimeVault Time Capsule",
+      "description": "Seal a secret message inside a photo and time-lock it with cryptography. Opens only on the day you choose.",
+      "url": "https://timevault.online/",
+      "brand": { "@type": "Organization", "name": "TimeVault" },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is my message really hidden inside the photo?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. The encrypted message is embedded into the image file itself using steganography. Nothing is sent to any server."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I open it before the chosen day?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Time-lock cryptography mathematically prevents decryption until the publicly-verifiable beacon rotates on your chosen date."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it really free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Completely free. No accounts, no subscriptions, no ads, no tracking. Your words live in your photo."
+          }
+        }
+      ]
     }
     </script>
   </head>
   <body>
     <div id="root"></div>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         Splash screen — shown before React hydrates.
-         Zero JS, zero dependency, pure CSS.
-         Visible from the moment HTML paints (≈50ms on fast networks,
-         faster on 4G) and disappears as soon as React is ready.
-         ═══════════════════════════════════════════════════════════════ -->
     <div id="tv-splash" aria-hidden="true"
       style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(139,92,246,0.18) 0%,rgba(26,15,43,0.98) 55%,#0d0718 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 400ms ease-out;opacity:1;">
       <style>
@@ -94,7 +146,7 @@
         <circle cx="32" cy="32" r="3.5" fill="currentColor" fill-opacity="0.9"/>
       </svg>
       <div style="margin-top:28px;color:rgba(233,213,255,0.85);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:17px;font-weight:300;letter-spacing:0.08em;animation:tvFadeUp 600ms ease-out 200ms both;">TimeVault</div>
-      <div style="margin-top:10px;color:rgba(200,180,230,0.35);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:12px;letter-spacing:0.12em;animation:tvFadeUp 700ms ease-out 450ms both;">loading your letter…</div>
+      <div style="margin-top:10px;color:rgba(200,180,230,0.35);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:12px;letter-spacing:0.12em;animation:tvFadeUp 700ms ease-out 450ms both;">sealing your words…</div>
     </div>
     <script>
       window.__tvHideSplash = function () {
@@ -105,10 +157,9 @@
           if (el && el.parentNode) el.parentNode.removeChild(el);
         }, 450);
       };
-      // Safety: always hide after 5 seconds even if something goes wrong
       setTimeout(window.__tvHideSplash, 5000);
     </script>
 
-    <script type="module" crossorigin src="./src/main.tsx"></script>
+    <script type="module" crossorigin src="/src/main.tsx"></script>
   </body>
 </html>

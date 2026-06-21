@@ -56,20 +56,21 @@ interface CoupleModeProps {
 }
 
 export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
-  // ─── Hash routing ──────────────────────────────────────────
+  // ─── Search-parameter routing ───────────────────────────────
   const [scene, setScene] = useState<Scene>('landing');
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.startsWith('#couple-b')) {
-      const params = parseInviteURL(hash);
+    const path = window.location.pathname;
+    const search = window.location.search;
+    if (path.startsWith('/couple-b')) {
+      const params = parseInviteURL(search);
       if (params) { setBParams(params); setScene('b-welcome'); return; }
     }
-    if (hash.startsWith('#couple-a')) {
-      const params = parseMergeURL(hash);
+    if (path.startsWith('/couple-a')) {
+      const params = parseMergeURL(search);
       if (params) { setMergeParams(params); setScene('merge'); return; }
     }
-    if (hash.startsWith('#couple-unlock')) {
+    if (path.startsWith('/couple-unlock')) {
       setScene('unlock'); return;
     }
     // Check if there's an active session
@@ -488,7 +489,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
       <CoupleHeader
         onBack={() => {
           if (scene === 'landing') onBack();
-          else if (scene === 'b-welcome') { window.location.hash = ''; setScene('landing'); }
+          else if (scene === 'b-welcome') { window.history.pushState({}, '', '/couple'); setScene('landing'); }
           else if (scene === 'b-done') setScene('b-write');
           else if (scene === 'merge') setScene('landing');
           else if (scene === 'unlock') setScene('landing');

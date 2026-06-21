@@ -39,28 +39,33 @@ const ROUTE_MAP: Record<string, Page> = {
   contact: 'contact',
 };
 
-const parseHash = (): Page => {
-  const hash = window.location.hash.replace('#', '').replace('/', '');
-  if (hash.startsWith('couple-')) return 'couple';
-  return ROUTE_MAP[hash] ?? 'home';
+const parsePath = (): Page => {
+  // Parse both the pathname and any search query for couple-* deep links
+  // (e.g. /couple-b?sid=… works for QR code sharable URLs).
+  const search = window.location.search;
+  const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
+  if (path.startsWith('couple-') || search.includes('couple-')) return 'couple';
+  if (path === '') return 'home';
+  return ROUTE_MAP[path] ?? 'home';
 };
 
 function usePageRoute() {
-  const [page, setPage] = useState<Page>(() => parseHash());
+  const [page, setPage] = useState<Page>(() => parsePath());
 
   const navigate = useCallback((to: Page) => {
-    window.location.hash = to === 'home' ? '' : `/${to}`;
+    const url = to === 'home' ? '/' : `/${to}`;
+    window.history.pushState({}, '', url);
     setPage(to);
     window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {
     const handler = () => {
-      setPage(parseHash());
+      setPage(parsePath());
       window.scrollTo(0, 0);
     };
-    window.addEventListener('hashchange', handler);
-    return () => window.removeEventListener('hashchange', handler);
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
   }, []);
 
   return { page, navigate };

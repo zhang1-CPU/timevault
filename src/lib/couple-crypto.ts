@@ -137,8 +137,8 @@ export function generateSessionId(): string {
 //   s = session id, t = unlock time, p = pin, m = message,
 //   x = split ratio, d = side (which half person A keeps)
 
-function buildBase(): string {
-  return `${window.location.origin}${window.location.pathname}`;
+function buildOrigin(): string {
+  return window.location.origin;
 }
 
 export function generateInviteURL(params: InviteParams): string {
@@ -149,7 +149,7 @@ export function generateInviteURL(params: InviteParams): string {
   p.set('m', params.msg_a);
   p.set('x', params.split_x);
   p.set('d', params.a_side);
-  return `${buildBase()}#couple-b?${p.toString()}`;
+  return `${buildOrigin()}/couple-b?${p.toString()}`;
 }
 
 export function generateMergeURL(params: MergeParams): string {
@@ -160,16 +160,14 @@ export function generateMergeURL(params: MergeParams): string {
   p.set('m', params.msg_b);
   p.set('x', params.split_x);
   p.set('d', params.a_side);
-  return `${buildBase()}#couple-a?${p.toString()}`;
+  return `${buildOrigin()}/couple-a?${p.toString()}`;
 }
 
 // ─── URL Parsing ─────────────────────────────────────────────
 
-export function parseInviteURL(hash: string): InviteParams | null {
+export function parseInviteURL(search: string): InviteParams | null {
   try {
-    const raw = hash.startsWith('#') ? hash.slice(1) : hash;
-    const paramStr = raw.split('?')[1] || '';
-    const params = new URLSearchParams(paramStr);
+    const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
     const sid = params.get('s');
     const u = params.get('t');
     const pin_a = params.get('p');
@@ -183,11 +181,9 @@ export function parseInviteURL(hash: string): InviteParams | null {
   }
 }
 
-export function parseMergeURL(hash: string): MergeParams | null {
+export function parseMergeURL(search: string): MergeParams | null {
   try {
-    const raw = hash.startsWith('#') ? hash.slice(1) : hash;
-    const paramStr = raw.split('?')[1] || '';
-    const params = new URLSearchParams(paramStr);
+    const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
     const sid = params.get('s');
     const u = params.get('t');
     const pin_b = params.get('p');

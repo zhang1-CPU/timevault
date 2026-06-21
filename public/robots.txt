@@ -1,21 +1,4 @@
 User-agent: *
 Allow: /
-Crawl-delay: 1
 
-# Specific friendly crawlers
-User-agent: Googlebot
-Allow: /
-Crawl-delay: 1
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: DuckDuckBot
-Allow: /
-
-# Block excessive crawling of utility-only files
-User-agent: *
-Disallow: /node_modules/
-
-# Full sitemap reference
 Sitemap: https://timevault.online/sitemap.xml
