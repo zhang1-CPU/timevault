@@ -1,35 +1,24 @@
 name = "timevault"
 main = "src/index.ts"
 compatibility_date = "2026-06-21"
+compatibility_flags = ["durable_objects"]
 
 # 静态资源目录：vite build 产出 dist/
-# Worker 入口 (src/index.ts) 会 serve 这个目录下的文件
 [assets]
 directory = "./dist"
 
-# ──────────────────────────────────────────────
-# ⚠️ 统计功能（KV 存储）默认关闭，所以部署不会失败。
-#    如果你想开启统计功能，请按以下步骤操作：
-#
-#   1. 打开 https://dash.cloudflare.com/ → Workers & Pages → KV
-#   2. 点 Create namespace → 名字填 ANALYTICS_KV → 点 Add
-#   3. 复制那个 Namespace ID（一串乱码，32 位）
-#   4. 把下面三行的注释去掉（删除每行开头的 #），把 XXX 换成你复制的那串 ID
-#
-#        # [[kv_namespaces]]
-#        # binding = "ANALYTICS_KV"
-#        # id = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-#
-#   5. git push，等它重新部署即可
-# ──────────────────────────────────────────────
-# [[kv_namespaces]]
-# binding = "ANALYTICS_KV"
-# id = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+# Durable Object（持久化计数器）：部署时自动创建并持久化，
+# 你不需要去 Cloudflare dashboard 做任何手动操作。
+[[durable_objects.bindings]]
+name = "STATS_STORE"
+class_name = "StatsStore"
 
-# ──────────────────────────────────────────────
+[[migrations]]
+tag = "v1"
+new_classes = ["StatsStore"]
+
 # 管理员密码（访问 /admin 时输入的密码）
-# ⚠️ 建议在 Cloudflare 后台（Settings → Variables and secrets → Secrets）
-#    添加 ADMIN_SECRET，那里填的值会覆盖这里的默认值。
-# ──────────────────────────────────────────────
+# 建议在 Cloudflare 后台（Settings → Variables and secrets → Secrets）
+# 添加 ADMIN_SECRET，那里填的值会覆盖这里的默认值。
 [vars]
 ADMIN_SECRET = "changeme"
