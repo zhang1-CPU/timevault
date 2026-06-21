@@ -1,6 +1,0 @@
-# 让 Cloudflare Pages 对所有路径返回 index.html（SPA 路由由前端处理）
-# 这样用户直接访问 /admin /seal /unlock 等路径都能正常打开
-/*           /index.html    200
-
-# _analytics 不走上面的回退（pages functions 会自动处理）
-/_analytics/*    /_analytics/:splat    200
