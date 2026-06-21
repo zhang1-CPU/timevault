@@ -38,14 +38,14 @@ async function handleAnalytics(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
 
   if (request.method === 'POST' && url.pathname === '/_analytics') {
-    return onRequestPost(request, env);
+    return applyNoCache(await onRequestPost(request, env));
   }
 
   if (request.method === 'GET' && url.pathname === '/_analytics/stats') {
-    return onRequestGet(request, env);
+    return applyNoCache(await onRequestGet(request, env));
   }
 
-  return new Response('Not Found', { status: 404 });
+  return applyNoCache(new Response('Not Found', { status: 404 }));
 }
 
 async function onRequestPost(request: Request, env: Env): Promise<Response> {
@@ -83,6 +83,14 @@ async function onRequestGet(request: Request, env: Env): Promise<Response> {
     started_at: STARTED_AT,
     note: '内存计数：每次部署后从 0 开始',
   }, 200);
+}
+
+// 给 API 响应加禁用缓存头（防止 Cloudflare CDN 把 API 响应缓存成 HTML）
+function applyNoCache(res: Response): Response {
+  res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  res.headers.set('Pragma', 'no-cache');
+  res.headers.set('Expires', '0');
+  return res;
 }
 
 // ── Static file serving ─────────────────────────────────────────
