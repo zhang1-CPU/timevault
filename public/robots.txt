@@ -1,21 +1,69 @@
-User-agent: *
-Allow: /
-Crawl-delay: 1
-
-# Specific friendly crawlers
 User-agent: Googlebot
 Allow: /
 Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 1
 
 User-agent: DuckDuckBot
 Allow: /
+Crawl-delay: 2
 
-# Block excessive crawling of utility-only files
+User-agent: Yandex
+Allow: /
+Crawl-delay: 2
+
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 2
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 2
+
+# Allow social media linkbots so shares render properly
+User-agent: Twitterbot
+Allow: /
+
+User-agent: Facebot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Discordbot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: TelegramBot
+Allow: /
+
+# Let Google's AI search features surface the site.
+User-agent: Google-Extended
+Allow: /
+
+# GitHub / Pages utility crawlers
+User-agent: GitHub-Camo
+Allow: /
+
+User-agent: PagespeedInsights
+Allow: /
+
+# WebPageTest etc — for Lighthouse audits
+User-agent: WPT
+Allow: /
+
+# Everything else — allowed by default.
 User-agent: *
+Allow: /
+Crawl-delay: 1
+
+# Non-public / utility paths that shouldn't be indexed.
 Disallow: /node_modules/
+Disallow: /.well-known/
 
 # Full sitemap reference
 Sitemap: https://timevault.online/sitemap.xml

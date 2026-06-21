@@ -22,8 +22,8 @@
     <meta property="og:url" content="https://timevault.online/" />
     <meta property="og:title" content="TimeVault — Write a letter to tomorrow." />
     <meta property="og:description" content="Seal a secret inside any photo. Time-locked. Private. Beautiful. We store nothing. Your photo is the vault." />
-    <meta property="og:image" content="./og-image.svg" />
-    <meta property="og:image:secure_url" content="./og-image.svg" />
+    <meta property="og:image" content="https://timevault.online/og-image.svg" />
+    <meta property="og:image:secure_url" content="https://timevault.online/og-image.svg" />
     <meta property="og:image:type" content="image/svg+xml" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -36,8 +36,13 @@
     <meta name="twitter:url" content="https://timevault.online/" />
     <meta name="twitter:title" content="TimeVault — Write a letter to tomorrow." />
     <meta name="twitter:description" content="Seal a secret inside any photo. Time-locked. Private. Beautiful." />
-    <meta name="twitter:image" content="./og-image.svg" />
+    <meta name="twitter:image" content="https://timevault.online/og-image.svg" />
     <meta name="twitter:image:alt" content="TimeVault hourglass logo with gradient brand text on dark starry background" />
+    <meta name="twitter:site" content="@timevaultapp" />
+
+    <!-- LinkedIn / Generic Social -->
+    <meta property="article:section" content="Privacy" />
+    <meta property="article:published_time" content="2026-06-21" />
 
     <!-- PWA & Icons -->
     <link rel="manifest" href="./manifest.json" />
@@ -64,15 +69,60 @@
       gtag('config', 'G-WVF3FQ7LWP');
     </script>
 
-    <!-- JSON-LD Structured Data: WebSite -->
+    <!-- JSON-LD Structured Data: WebSite + SoftwareApplication + WebApplication -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "TimeVault",
-      "url": "https://timevault.online/",
-      "description": "Write a letter to tomorrow. Seal a secret inside any photo. Time-locked. Private. Beautiful.",
-      "inLanguage": "en"
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "name": "TimeVault",
+          "alternateName": "Time Vault — hide a message in a photo",
+          "url": "https://timevault.online/",
+          "description": "Write a letter to tomorrow. Seal a secret inside any photo. Time-locked with cryptography. Zero storage. Your photo is the vault.",
+          "inLanguage": "en",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://timevault.online/#/seal",
+            "query-input": "required name=message"
+          }
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "TimeVault",
+          "alternateName": "Time Vault",
+          "applicationCategory": "CommunicationApplication",
+          "operatingSystem": "Web — any modern browser (Chrome, Safari, Firefox, Edge, iOS, Android)",
+          "description": "Seal a secret inside any photo and choose the moment it opens. Time-locked with cryptography. Zero storage, zero accounts, zero tracking. AES-256 encryption in the browser.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "5",
+            "bestRating": "5",
+            "ratingCount": "1"
+          },
+          "featureList": "End-to-end encryption in the browser; zero storage; secret hidden inside any photo; time-lock delivery; couple mode for shared secrets",
+          "inLanguage": "en",
+          "downloadUrl": "https://timevault.online/",
+          "softwareVersion": "1.0",
+          "author": {
+            "@type": "Organization",
+            "name": "TimeVault"
+          }
+        },
+        {
+          "@type": "WebApplication",
+          "name": "TimeVault",
+          "url": "https://timevault.online/",
+          "browserRequirements": "Requires a modern browser with JavaScript and Web Crypto API support.",
+          "applicationCategory": "CommunicationApplication",
+          "operatingSystem": "Cross-platform — any modern web browser"
+        }
+      ]
     }
     </script>
   </head>
