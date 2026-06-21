@@ -1,8 +1,22 @@
 /**
  * Cloudflare Worker 入口
- * 1. 对 /_analytics/* 路由：处理统计上报和查询
+ * 1. 对 /_analytics/* 路由：处理统计上报和查询（零配置内存计数器）
  * 2. 对其他所有路由：serve dist/ 目录下的静态文件（SPA 回退到 index.html）
+ *
+ * 说明：采用内存计数器，无需配置 KV/任何外部存储。
+ *      - 每次 Worker 冷启动或重新部署，计数从 0 开始
+ *      - 多实例场景下各实例独立计数（近似值，对"看各功能大概用了多少次"完全够用）
+ *      - 如后续需要精确持久化统计，可切换为 KV/D1 方案
  */
+
+// 内存计数器：Worker 生命周期内持续累加
+const counters: Record<string, number> = {
+  'solo': 0,
+  'couple-a': 0,
+  'couple-b': 0,
+  'unlock': 0,
+};
+const STARTED_AT = new Date().toISOString();
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -44,15 +58,7 @@ async function onRequestPost(request: Request, env: Env): Promise<Response> {
       return json({ error: 'Invalid mode' }, 400);
     }
 
-    const statsKV = env.ANALYTICS_KV;
-    if (!statsKV) {
-      return new Response(null, { status: 204 });
-    }
-
-    const key = `stats:${mode}`;
-    const current = (await statsKV.get(key, 'text')) || '0';
-    await statsKV.put(key, String(Number(current) + 1));
-
+    counters[mode] = (counters[mode] || 0) + 1;
     return new Response(null, { status: 204 });
   } catch {
     return new Response(null, { status: 204 });
@@ -66,18 +72,17 @@ async function onRequestGet(request: Request, env: Env): Promise<Response> {
     return json({ error: 'Unauthorized' }, 401);
   }
 
-  const statsKV = env.ANALYTICS_KV;
-  if (!statsKV) {
-    return json({ error: 'KV not configured' }, 503);
-  }
-
   const modes = ['solo', 'couple-a', 'couple-b', 'unlock'];
   const stats: Record<string, number> = {};
   for (const mode of modes) {
-    stats[mode] = Number((await statsKV.get(`stats:${mode}`, 'text')) || '0');
+    stats[mode] = counters[mode] || 0;
   }
 
-  return json(stats, 200);
+  return json({
+    stats,
+    started_at: STARTED_AT,
+    note: '内存计数：每次部署后从 0 开始',
+  }, 200);
 }
 
 // ── Static file serving ─────────────────────────────────────────
@@ -115,7 +120,6 @@ function json(data: unknown, status = 200): Response {
 // ── Types ───────────────────────────────────────────────────────
 
 interface Env {
-  ANALYTICS_KV?: KVNamespace;
   ADMIN_SECRET?: string;
   ASSETS?: { fetch: typeof fetch };
 }
