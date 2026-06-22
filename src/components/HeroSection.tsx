@@ -122,102 +122,88 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
                 />
 
                 <g clipPath="url(#glassClip)">
-                  {/* ─── 顶部沙子：少量，贴合沙漏上半部分轮廓 ─── */}
-                  {/* 使用动态动画让沙子缓慢下降，但保持"看起来差不多"的量 */}
+                  {/* ─── 顶部沙子：薄薄一层，从顶壁向漏颈汇聚的漏斗形（很少） ─── */}
+                  {/* 物理规律：沙子贴着玻璃壁，从上方边缘向漏斗颈汇聚 */}
                   <g>
                     <animateTransform attributeName="transform" type="translate"
-                      values="0,0; 0,0.8; 0,0" dur="8s" repeatCount="indefinite" />
-                    {/* 顶部沙子 - 自然的弧形表面，量少 */}
+                      values="0,0; 0,0.5; 0,0" dur="10s" repeatCount="indefinite" />
+                    {/* 顶部沙子 - 紧贴上半边玻璃壁形成的薄层，向中心漏颈汇聚 */}
                     <path
                       d="M 20 17
                          L 80 17
-                         Q 78 23 72 32
-                         Q 65 42 58 50
-                         Q 54 54 52 56
-                         Q 50 54 48 50
-                         Q 42 42 35 32
-                         Q 28 23 20 17 Z"
-                      fill="url(#hSandGrad)"
-                      opacity="0.92"
-                    />
-                    {/* 沙子向漏颈汇聚的细流 */}
-                    <path
-                      d="M 48 52 Q 49 55 50 58 Q 51 55 52 52 Z"
-                      fill="url(#hSandGrad)"
-                      opacity="0.85"
-                    />
-                  </g>
-
-                  {/* ─── 底部沙子：大量堆积，圆润饱满 ─── */}
-                  {/* 沙子从漏颈落下，在底部堆积成形 */}
-                  <g>
-                    <animateTransform attributeName="transform" type="translate"
-                      values="0,0; 0,-0.6; 0,0" dur="8s" repeatCount="indefinite" />
-                    {/* 底部沙堆 - 从漏颈向下扩散，形成自然的圆锥形 */}
-                    <path
-                      d="M 50 58
-                         Q 46 62 38 70
-                         Q 30 78 24 88
-                         Q 20 96 19 103
-                         L 81 103
-                         Q 80 96 76 88
-                         Q 70 78 62 70
-                         Q 54 62 50 58 Z"
+                         Q 76 22 70 30
+                         Q 62 40 56 50
+                         Q 53 55 51 57
+                         Q 50 58 50 60
+                         Q 50 58 49 57
+                         Q 47 55 44 50
+                         Q 38 40 30 30
+                         Q 24 22 20 17 Z"
                       fill="url(#hSandGrad)"
                       opacity="0.95"
                     />
-                    {/* 沙堆顶部微微起伏，模拟自然堆积 */}
-                    <ellipse cx="50" cy="72" rx="18" ry="4" fill="url(#hSandGrad)" opacity="0.6">
-                      <animate attributeName="rx" values="18;20;18" dur="6s" repeatCount="indefinite" />
-                    </ellipse>
-                  </g>
-
-                  {/* ─── 流沙：中间细流，持续下落 ─── */}
-                  {/* 从漏颈到沙堆顶的连续沙流 */}
-                  <g opacity="0.9">
-                    {/* 主沙流 - 柔和的流沙效果 */}
+                    {/* 沙子向漏颈汇聚的下尖 */}
                     <path
-                      d="M 49.5 56 Q 49.8 65 50 72 Q 50.2 65 50.5 56 Z"
+                      d="M 49 56 Q 50 58 51 56 Q 50 60 50 60 Q 50 58 49 56 Z"
                       fill="url(#hSandGrad)"
-                    >
-                      <animate attributeName="d"
-                        values="M 49.5 56 Q 49.8 65 50 72 Q 50.2 65 50.5 56 Z;
-                                M 49.3 56 Q 49.6 65 50 72 Q 50.4 65 50.7 56 Z;
-                                M 49.5 56 Q 49.8 65 50 72 Q 50.2 65 50.5 56 Z"
-                        dur="1.5s" repeatCount="indefinite" />
-                    </path>
-                    {/* 沙流光点脉动 - 浪漫金色闪烁 */}
-                    <circle cx="50" cy="64" r="1.8" fill="#ffd700" opacity="0.8">
-                      <animate attributeName="cy" values="58;78" dur="0.8s" repeatCount="indefinite" />
-                      <animate attributeName="opacity" values="0.9;0.2;0.9" dur="0.8s" repeatCount="indefinite" />
-                      <animate attributeName="r" values="1.2;2.2;1.2" dur="0.8s" repeatCount="indefinite" />
-                    </circle>
-                    {/* 第二颗流光，稍微错开 */}
-                    <circle cx="50" cy="66" r="1.2" fill="#ffe4b5" opacity="0.6">
-                      <animate attributeName="cy" values="60;80" dur="1s" begin="0.3s" repeatCount="indefinite" />
-                      <animate attributeName="opacity" values="0.7;0.1;0.7" dur="1s" begin="0.3s" repeatCount="indefinite" />
+                      opacity="0.9"
+                    />
+                  </g>
+
+                  {/* ─── 底部沙子：饱满圆锥沙堆（比上半多） ─── */}
+                  {/* 物理规律：沙子从漏颈落下堆积成圆锥形，中间高两侧低 */}
+                  <g>
+                    <animateTransform attributeName="transform" type="translate"
+                      values="0,0; 0,-0.4; 0,0" dur="10s" repeatCount="indefinite" />
+                    {/* 底部沙堆 - 圆锥状，中央高，向两侧玻璃壁滑落 */}
+                    <path
+                      d="M 50 58
+                         Q 50 58 51 59
+                         Q 56 62 64 68
+                         Q 72 75 78 84
+                         Q 82 92 82 100
+                         Q 82 102 81 103
+                         L 19 103
+                         Q 18 102 18 100
+                         Q 18 92 22 84
+                         Q 28 75 36 68
+                         Q 44 62 49 59
+                         Q 50 58 50 58 Z"
+                      fill="url(#hSandGrad)"
+                      opacity="0.95"
+                    />
+                    {/* 沙堆顶部高光，让堆积感更自然 */}
+                    <path
+                      d="M 50 58 Q 58 63 64 70 Q 56 64 50 62 Q 44 64 36 70 Q 42 63 50 58 Z"
+                      fill="url(#hSandGrad)"
+                      opacity="0.7"
+                    />
+                  </g>
+
+                  {/* ─── 流沙：从漏颈到沙堆顶的细流 ─── */}
+                  <g opacity="0.85">
+                    <path
+                      d="M 49.7 58 Q 49.8 62 50 65 Q 50.2 62 50.3 58 Z"
+                      fill="url(#hSandGrad)"
+                    />
+                    {/* 流光沙粒 */}
+                    <circle cx="50" cy="62" r="1.3" fill="#ffd700" opacity="0.7">
+                      <animate attributeName="cy" values="58;72" dur="0.9s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="0.9;0.2;0.9" dur="0.9s" repeatCount="indefinite" />
                     </circle>
                   </g>
 
-                  {/* ─── 散落沙粒：浪漫闪烁效果 ─── */}
+                  {/* ─── 散落沙粒：浪漫金色闪烁 ─── */}
                   {[0, 1, 2, 3, 4].map((i) => (
-                    <g key={i}>
-                      {/* 沙粒从漏颈下落 */}
-                      <circle cx="50" cy="62" r="0.8" fill="#ffd700">
-                        <animate attributeName="cy" values={`${58 + i * 2};${85}`} dur={`${1.2 + i * 0.2}s`}
-                          begin={`${i * 0.18}s`} repeatCount="indefinite" />
-                        <animate attributeName="opacity" values="0;1;1;0" dur={`${1.2 + i * 0.2}s`}
-                          begin={`${i * 0.18}s`} repeatCount="indefinite" />
-                      </circle>
-                      {/* 底部散落的沙粒闪烁 */}
-                      <circle cx={35 + i * 7} cy={90 + (i % 3) * 3} r="0.6" fill="#ffb347">
-                        <animate attributeName="opacity" values="0.2;0.8;0.2" dur={`${2 + i * 0.3}s`}
-                          begin={`${i * 0.4}s`} repeatCount="indefinite" />
-                      </circle>
-                    </g>
+                    <circle key={i} cx="50" cy="62" r="0.7" fill="#ffd700">
+                      <animate attributeName="cy" values="58;75" dur={`${1.0 + i * 0.15}s`}
+                        begin={`${i * 0.2}s`} repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="0;1;1;0" dur={`${1.0 + i * 0.15}s`}
+                        begin={`${i * 0.2}s`} repeatCount="indefinite" />
+                    </circle>
                   ))}
 
-                  {/* ─── 沙漏玻璃光泽效果 ─── */}
+                  {/* ─── 沙漏玻璃光泽 ─── */}
                   <path
                     d="M 22 20 Q 30 18 38 22 Q 28 35 24 55 Q 22 70 26 90"
                     stroke="rgba(255,255,255,0.12)"
