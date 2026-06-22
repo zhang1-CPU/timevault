@@ -6,6 +6,7 @@ Allow: /couple
 Allow: /how-it-works
 Allow: /stories
 Allow: /faq
+Allow: /blog
 Allow: /about
 Allow: /privacy
 Allow: /terms

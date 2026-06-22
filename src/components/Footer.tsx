@@ -44,6 +44,7 @@ export function Footer({ navigate }: { navigate: (to: Page) => void }) {
               <FooterLink navigate={navigate} to="how-it-works" label="How It Works" />
               <FooterLink navigate={navigate} to="stories" label="Stories" />
               <FooterLink navigate={navigate} to="faq" label="FAQ" />
+              <FooterLink navigate={navigate} to="blog" label="Blog" />
               <FooterLink navigate={navigate} to="about" label="About" />
             </ul>
           </div>
