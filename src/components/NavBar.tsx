@@ -8,6 +8,7 @@ const NAV_LINKS: { to: Page; label: string; accent?: boolean; heart?: boolean }[
   { to: 'stories', label: 'Stories' },
   { to: 'faq', label: 'FAQ' },
   { to: 'blog', label: 'Blog' },
+  { to: 'messages', label: 'Messages' },
   { to: 'about', label: 'About' },
 ];
 

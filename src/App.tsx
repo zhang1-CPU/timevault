@@ -13,6 +13,7 @@ import { PrivacyPage } from './pages/PrivacyPage';
 import { TermsPage } from './pages/TermsPage';
 import { ContactPage } from './pages/ContactPage';
 import { BlogPage } from './pages/BlogPage';
+import { MessagePage } from './pages/MessagePage';
 import AdminPage from './pages/AdminPage';
 
 export type Page =
@@ -28,6 +29,7 @@ export type Page =
   | 'terms'
   | 'contact'
   | 'blog'
+  | 'messages'
   | 'admin';
 
 // Centralized routing table — used for both initial parse and hash-change events.
@@ -43,6 +45,7 @@ const ROUTE_MAP: Record<string, Page> = {
   terms: 'terms',
   contact: 'contact',
   blog: 'blog',
+  messages: 'messages',
   admin: 'admin',
 };
 
@@ -127,6 +130,7 @@ export default function App() {
       {page === 'terms' && <TermsPage navigate={navigate} />}
       {page === 'contact' && <ContactPage navigate={navigate} />}
       {page === 'blog' && <BlogPage navigate={navigate} />}
+      {page === 'messages' && <MessagePage navigate={navigate} />}
     </Layout>
   );
 }
