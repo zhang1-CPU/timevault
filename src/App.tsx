@@ -1,3 +1,4 @@
+// TimeVault App — SPA with pathname + hash routing support
 import { useState, useCallback, useEffect, useLayoutEffect } from 'react';
 import { Layout } from './layouts/Layout';
 import { HomePage } from './pages/HomePage';
