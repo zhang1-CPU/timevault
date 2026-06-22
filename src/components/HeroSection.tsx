@@ -62,7 +62,7 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
                 animation: 'logo-breathe 5s ease-in-out infinite',
               }}
             >
-              {/* The hourglass SVG — refined shape, CSS animated */}
+              {/* The hourglass SVG — romantic flowing sand */}
               <svg viewBox="0 0 100 120" className="w-16 h-20 sm:w-20 sm:h-24 md:w-22 md:h-28" fill="none" aria-hidden="true">
                 <defs>
                   <linearGradient id="hGlassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -72,39 +72,40 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
                   </linearGradient>
 
                   <linearGradient id="hSandGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#ffd700" stopOpacity="0.95" />
-                    <stop offset="40%" stopColor="#ff9f6b" stopOpacity="0.9" />
+                    <stop offset="0%" stopColor="#ffd700" stopOpacity="0.98" />
+                    <stop offset="30%" stopColor="#ffb6c1" stopOpacity="0.95" />
+                    <stop offset="60%" stopColor="#ff9f6b" stopOpacity="0.92" />
                     <stop offset="100%" stopColor="#ec4899" stopOpacity="0.9" />
                   </linearGradient>
 
                   <linearGradient id="hGlassShine" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
-                    <stop offset="30%" stopColor="#ffffff" stopOpacity="0.15" />
+                    <stop offset="30%" stopColor="#ffffff" stopOpacity="0.18" />
                     <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
                   </linearGradient>
 
                   <radialGradient id="hGlow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#ec4899" stopOpacity="0.35" />
+                    <stop offset="0%" stopColor="#ec4899" stopOpacity="0.4" />
                     <stop offset="100%" stopColor="#ec4899" stopOpacity="0" />
                   </radialGradient>
 
-                  {/* clipPath: 严格裁剪在玻璃内部，沙子永远不会溢出 */}
+                  <radialGradient id="sandTopShine" cx="30%" cy="20%" r="60%">
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.4" />
+                    <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                  </radialGradient>
+
                   <clipPath id="glassClip">
                     <path d="M 17 17 L 83 17 Q 80 28 68 45 Q 56 54 54 58 Q 52 60 54 62 Q 58 66 68 75 Q 82 92 83 103 L 17 103 Q 18 92 32 75 Q 44 66 46 62 Q 48 60 46 58 Q 42 54 32 45 Q 18 28 17 17 Z" />
                   </clipPath>
                 </defs>
 
-                {/* Ambient glow circle */}
                 <circle cx="50" cy="60" r="48" fill="url(#hGlow)">
                   <animate attributeName="r" values="46;52;46" dur="4s" repeatCount="indefinite" />
                 </circle>
 
-                {/* Top cap */}
                 <rect x="14" y="10" width="72" height="5" rx="1.5" fill="url(#hGlassGrad)" opacity="0.95" />
-                {/* Bottom cap */}
                 <rect x="14" y="105" width="72" height="5" rx="1.5" fill="url(#hGlassGrad)" opacity="0.95" />
 
-                {/* Glass outline — elegant curved hourglass */}
                 <path
                   d="M 16 15
                      L 84 15
@@ -126,81 +127,156 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
                   opacity="0.9"
                 />
 
-                {/* 所有沙子被 clipPath 裁剪，永远不会溢出玻璃 */}
                 <g clipPath="url(#glassClip)">
-                  {/* Top sand pile — 持续缩小，沙子一直往下流 */}
+                  {/* Top sand - flowing down along the glass curve */}
                   <path
-                    d="M 22 18 L 78 18 Q 64 38 54 55 Q 50 58 46 55 Q 36 38 22 18 Z"
+                    d="M 18 17 Q 30 35 46 55 Q 50 58 54 55 Q 70 35 82 17 L 82 17 Q 78 22 68 35 Q 56 48 54 55 Q 50 58 46 55 Q 32 35 18 22 Z"
                     fill="url(#hSandGrad)"
                   >
                     <animate
                       attributeName="d"
-                      values="M 22 18 L 78 18 Q 64 38 54 55 Q 50 58 46 55 Q 36 38 22 18 Z;M 28 28 L 72 28 Q 60 40 54 55 Q 52 58 48 55 Q 40 40 28 28 Z"
-                      dur="12s"
+                      values="
+                        M 18 17 Q 30 35 46 55 Q 50 58 54 55 Q 70 35 82 17 L 82 17 Q 78 22 68 35 Q 56 48 54 55 Q 50 58 46 55 Q 32 35 18 22 Z;
+                        M 26 28 Q 36 42 48 55 Q 50 57 52 55 Q 64 42 74 28 L 74 28 Q 72 32 64 42 Q 54 52 52 55 Q 50 57 48 55 Q 36 42 26 32 Z;
+                        M 32 38 Q 40 48 50 55 Q 50 56 50 55 Q 60 48 68 38 L 68 38 Q 66 40 60 48 Q 52 53 50 55 Q 50 56 50 55 Q 40 48 32 40 Z;
+                        M 18 17 Q 30 35 46 55 Q 50 58 54 55 Q 70 35 82 17 L 82 17 Q 78 22 68 35 Q 56 48 54 55 Q 50 58 46 55 Q 32 35 18 22 Z"
+                      dur="15s"
                       repeatCount="indefinite"
                     />
                   </path>
 
-                  {/* Bottom sand pile — 持续堆积 */}
+                  {/* Top sand surface shine */}
                   <path
-                    d="M 30 90 Q 50 84 70 90 L 80 102 L 20 102 Z"
+                    d="M 20 18 Q 35 30 50 45 Q 50 48 50 45 Q 65 30 80 18"
+                    fill="url(#sandTopShine)"
+                    opacity="0.5"
+                  >
+                    <animate
+                      attributeName="d"
+                      values="
+                        M 20 18 Q 35 30 50 45 Q 50 48 50 45 Q 65 30 80 18;
+                        M 28 28 Q 40 38 50 47 Q 50 49 50 47 Q 60 38 72 28;
+                        M 34 38 Q 44 45 50 50 Q 50 51 50 50 Q 56 45 66 38;
+                        M 20 18 Q 35 30 50 45 Q 50 48 50 45 Q 65 30 80 18"
+                      dur="15s"
+                      repeatCount="indefinite"
+                    />
+                  </path>
+
+                  {/* Bottom sand - accumulating naturally */}
+                  <path
+                    d="M 20 102 L 22 90 Q 35 78 50 72 Q 65 78 78 90 L 80 102 Z"
                     fill="url(#hSandGrad)"
+                    opacity="0.92"
+                  >
+                    <animate
+                      attributeName="d"
+                      values="
+                        M 20 102 L 22 90 Q 35 78 50 72 Q 65 78 78 90 L 80 102 Z;
+                        M 18 102 L 20 82 Q 32 68 50 62 Q 68 68 80 82 L 82 102 Z;
+                        M 17 102 L 18 74 Q 28 58 50 52 Q 72 58 82 74 L 83 102 Z;
+                        M 20 102 L 22 90 Q 35 78 50 72 Q 65 78 78 90 L 80 102 Z"
+                      dur="15s"
+                      repeatCount="indefinite"
+                    />
+                  </path>
+
+                  {/* Bottom sand surface highlight */}
+                  <ellipse cx="50" cy="70" rx="18" ry="8" fill="url(#sandTopShine)" opacity="0.3">
+                    <animate
+                      attributeName="rx"
+                      values="18;28;35;18"
+                      dur="15s"
+                      repeatCount="indefinite"
+                    />
+                    <animate
+                      attributeName="cy"
+                      values="70;62;52;70"
+                      dur="15s"
+                      repeatCount="indefinite"
+                    />
+                  </ellipse>
+
+                  {/* Sand stream through the neck - realistic flow */}
+                  <path
+                    d="M 49.5 57 Q 50 70 49.5 83"
+                    stroke="url(#hSandGrad)"
+                    strokeWidth="1.5"
+                    fill="none"
                     opacity="0.9"
                   >
-                    <animate
-                      attributeName="d"
-                      values="M 30 90 Q 50 84 70 90 L 80 102 L 20 102 Z;M 22 78 Q 50 70 78 78 L 84 102 L 16 102 Z"
-                      dur="12s"
-                      repeatCount="indefinite"
-                    />
+                    <animate attributeName="stroke-width" values="1.2;1.8;1.2" dur="0.8s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.7;1;0.7" dur="0.6s" repeatCount="indefinite" />
                   </path>
 
-                  {/* Narrow neck sand stream — 细小的流沙柱 */}
-                  <rect x="49.4" y="58" width="1.2" height="28" fill="url(#hSandGrad)" opacity="0.85">
-                    <animate attributeName="opacity" values="0.6;1;0.6" dur="1s" repeatCount="indefinite" />
-                  </rect>
-
-                  {/* Falling sand grains — 金沙持续下坠 */}
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <circle key={i} cx="50" cy={62 + i * 2} r="0.8" fill="#ffd700">
+                  {/* Falling sand particles */}
+                  {[0, 1, 2, 3, 4, 5].map((i) => (
+                    <circle key={i} cx="50" cy={60 + i * 3} r="1" fill="#ffd700">
                       <animate
                         attributeName="cy"
-                        values={`${60};${82}`}
-                        dur={`${1.0 + i * 0.18}s`}
-                        begin={`${i * 0.2}s`}
+                        values={`${58 + i * 2};${85 + i}`}
+                        dur={`${1.2 + i * 0.15}s`}
+                        begin={`${i * 0.15}s`}
+                        repeatCount="indefinite"
+                      />
+                      <animate
+                        attributeName="cx"
+                        values={`${50};${49};${50.5};${49.5};${50}`}
+                        dur={`${0.8 + i * 0.1}s`}
+                        begin={`${i * 0.15}s`}
                         repeatCount="indefinite"
                       />
                       <animate
                         attributeName="opacity"
-                        values="0;0.95;0"
-                        dur={`${1.0 + i * 0.18}s`}
-                        begin={`${i * 0.2}s`}
+                        values="0;0.95;0.8;0"
+                        dur={`${1.2 + i * 0.15}s`}
+                        begin={`${i * 0.15}s`}
+                        repeatCount="indefinite"
+                      />
+                      <animate
+                        attributeName="r"
+                        values="0.5;1;0.8;0.3"
+                        dur={`${1.2 + i * 0.15}s`}
+                        begin={`${i * 0.15}s`}
                         repeatCount="indefinite"
                       />
                     </circle>
                   ))}
                 </g>
 
-                {/* Sparkle decorations at corners */}
-                <circle cx="20" cy="12.5" r="1.5" fill="#ffb3d0">
+                {/* Romantic sparkle decorations */}
+                <circle cx="22" cy="14" r="1.5" fill="#ffb3d0">
                   <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite" />
+                  <animate attributeName="r" values="1.5;2;1.5" dur="1.5s" repeatCount="indefinite" />
                 </circle>
-                <circle cx="80" cy="12.5" r="1.2" fill="#c8a2ff">
+                <circle cx="78" cy="14" r="1.2" fill="#c8a2ff">
                   <animate attributeName="opacity" values="0.4;1;0.4" dur="1.8s" repeatCount="indefinite" />
+                  <animate attributeName="r" values="1.2;1.8;1.2" dur="1.8s" repeatCount="indefinite" />
                 </circle>
-                <circle cx="80" cy="107.5" r="1.5" fill="#ffd700">
+                <circle cx="78" cy="106" r="1.5" fill="#ffd700">
                   <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />
+                  <animate attributeName="r" values="1.5;2;1.5" dur="2s" repeatCount="indefinite" />
                 </circle>
-                <circle cx="20" cy="107.5" r="1.2" fill="#ec4899">
+                <circle cx="22" cy="106" r="1.2" fill="#ec4899">
                   <animate attributeName="opacity" values="0.4;1;0.4" dur="1.6s" repeatCount="indefinite" />
+                  <animate attributeName="r" values="1.2;1.8;1.2" dur="1.6s" repeatCount="indefinite" />
                 </circle>
 
-                {/* Two extra sparkles on sides */}
                 <circle cx="8" cy="60" r="1.3" fill="#ffd700">
                   <animate attributeName="opacity" values="0;0.9;0" dur="1.2s" repeatCount="indefinite" />
                 </circle>
                 <circle cx="92" cy="60" r="1.1" fill="#ec4899">
                   <animate attributeName="opacity" values="0;0.9;0" dur="1.5s" begin="0.6s" repeatCount="indefinite" />
+                </circle>
+
+                {/* Heart particles floating around */}
+                <circle cx="15" cy="35" r="1" fill="#ff6b9d" opacity="0.6">
+                  <animate attributeName="cy" values="35;40;35" dur="3s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="85" cy="85" r="0.8" fill="#c8a2ff" opacity="0.5">
+                  <animate attributeName="cy" values="85;80;85" dur="2.8s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.3;0.6;0.3" dur="2.8s" repeatCount="indefinite" />
                 </circle>
               </svg>
             </div>
