@@ -17,7 +17,7 @@ export function generateICSReminder(
     return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   };
 
-  const uid = `timevault-${Date.now()}-${Math.random().toString(36).substring(2, 10)}@github.io`;
+  const uid = `timevault-${Date.now()}-${Math.random().toString(36).substring(2, 10)}@timevault.online`;
 
   const defaultDesc = `Your TimeVault sealed message is now unlockable.
 
