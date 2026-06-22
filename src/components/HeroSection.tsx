@@ -122,59 +122,38 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
                 />
 
                 <g clipPath="url(#glassClip)">
-                  {/* Top sand - full opacity, flowing down */}
+                  {/* Top sand - small amount, follows the glass curve naturally, NO triangle */}
                   <path
-                    d="M 18 17 L 82 17 Q 70 36 54 55 Q 50 58 46 55 Q 30 36 18 17 Z"
+                    d="M 19 17 L 81 17 Q 80 22 73 32 Q 64 44 56 52 Q 54 54 53 55 Q 52 56 51 57 Q 50 58 49 57 Q 48 56 47 55 Q 46 54 44 52 Q 36 44 27 32 Q 20 22 19 17 Z"
                     fill="url(#hSandGrad)"
-                  >
-                    <animate
-                      attributeName="d"
-                      values="
-                        M 18 17 L 82 17 Q 70 36 54 55 Q 50 58 46 55 Q 30 36 18 17 Z;
-                        M 26 26 L 74 26 Q 64 42 54 55 Q 52 57 48 55 Q 36 42 26 26 Z;
-                        M 34 36 L 66 36 Q 58 48 54 55 Q 52 56 50 55 Q 42 48 34 36 Z;
-                        M 18 17 L 82 17 Q 70 36 54 55 Q 50 58 46 55 Q 30 36 18 17 Z"
-                      dur="12s"
-                      repeatCount="indefinite"
-                    />
-                  </path>
+                  />
 
-                  {/* Bottom sand - full opacity, moderate accumulation */}
+                  {/* Bottom sand - larger pile, follows the glass curve, NO triangle */}
                   <path
-                    d="M 22 102 L 26 88 Q 40 76 50 72 Q 60 76 74 88 L 78 102 Z"
+                    d="M 19 103 L 19 95 Q 21 86 30 76 Q 40 67 50 64 Q 60 67 70 76 Q 79 86 81 95 L 81 103 Z"
                     fill="url(#hSandGrad)"
-                  >
-                    <animate
-                      attributeName="d"
-                      values="
-                        M 22 102 L 26 88 Q 40 76 50 72 Q 60 76 74 88 L 78 102 Z;
-                        M 20 102 L 24 80 Q 36 68 50 64 Q 64 68 76 80 L 80 102 Z;
-                        M 22 102 L 26 88 Q 40 76 50 72 Q 60 76 74 88 L 78 102 Z"
-                      dur="12s"
-                      repeatCount="indefinite"
-                    />
-                  </path>
+                  />
 
-                  {/* Sand stream */}
-                  <rect x="49.4" y="58" width="1.2" height="24" fill="url(#hSandGrad)">
-                    <animate attributeName="opacity" values="0.8;1;0.8" dur="0.6s" repeatCount="indefinite" />
+                  {/* Sand stream - continuous downward flow */}
+                  <rect x="49.4" y="58" width="1.2" height="22" fill="url(#hSandGrad)">
+                    <animate attributeName="opacity" values="0.85;1;0.85" dur="0.5s" repeatCount="indefinite" />
                   </rect>
 
-                  {/* Falling sand grains */}
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <circle key={i} cx="50" cy={62 + i * 3} r="1" fill="#ffd700">
+                  {/* Falling sand grains - continuous downward */}
+                  {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+                    <circle key={i} cx="50" cy={60 + i * 3} r="1" fill="#ffd700">
                       <animate
                         attributeName="cy"
-                        values={`${60};${82}`}
-                        dur={`${1.0 + i * 0.15}s`}
-                        begin={`${i * 0.2}s`}
+                        values={`${58 + i * 2};${86}`}
+                        dur={`${1.0 + i * 0.12}s`}
+                        begin={`${i * 0.15}s`}
                         repeatCount="indefinite"
                       />
                       <animate
                         attributeName="opacity"
-                        values="0;1;0"
-                        dur={`${1.0 + i * 0.15}s`}
-                        begin={`${i * 0.2}s`}
+                        values="0;1;1;0"
+                        dur={`${1.0 + i * 0.12}s`}
+                        begin={`${i * 0.15}s`}
                         repeatCount="indefinite"
                       />
                     </circle>
