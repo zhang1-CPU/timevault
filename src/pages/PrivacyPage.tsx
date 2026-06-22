@@ -79,7 +79,7 @@ export function PrivacyPage({ navigate }: { navigate: (to: Page) => void }) {
               title="5. Third-Party Services"
               paragraphs={[
                 'We rely on a small number of third-party services to deliver TimeVault. Each is listed here with its purpose and the data it may see:',
-                '• Hosting: this site is served through static hosting (GitHub Pages). These providers may keep standard access logs (IP, user agent, requested URL) for a limited time to protect against abuse. This is a standard feature of web hosting and does not contain the content of your messages.',
+                '• Hosting: this site is served through static hosting (Cloudflare Pages). This provider may keep standard access logs (IP, user agent, requested URL) for a limited time to protect against abuse. This is a standard feature of web hosting and does not contain the content of your messages.',
                 '• drand time-lock beacon: when you encrypt or decrypt a time-locked message, your browser requests a public round value from drand.love. No personal data is sent; the response is public randomness.',
                 '• Optional email reminder: if you choose to leave an email address so that TimeVault can notify you on the unlock date, that email is stored only for this purpose and is deleted on request. Providing an email address is strictly optional.',
                 'Except for the items above, we do not integrate with third-party analytics, advertising networks, or social sharing SDKs.',

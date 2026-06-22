@@ -80,7 +80,7 @@ export function TermsPage({ navigate }: { navigate: (to: Page) => void }) {
                 'The Service relies on third-party infrastructure that is outside our control. In particular:',
                 '• drand distributed randomness beacon (drand.love) — a public, independently-operated network that provides verifiable randomness used by the time-lock feature.',
                 '• Your web browser\'s built-in Web Crypto API, which performs the AES-256-GCM encryption.',
-                '• The static hosting provider (typically Cloudflare Pages or GitHub Pages) who deliver the HTML/CSS/JavaScript to your browser.',
+                '• The static hosting provider (Cloudflare Pages) who deliver the HTML/CSS/JavaScript to your browser.',
                 'We trust these dependencies but cannot make guarantees about them. A failure, outage, or change of behaviour in any third-party service may affect the behaviour of TimeVault.',
               ]}
             />
