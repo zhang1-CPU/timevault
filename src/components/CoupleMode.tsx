@@ -22,7 +22,7 @@ import { CoupleCeremony } from './CoupleCeremony';
 import {
   Upload, Check, Timer, FileKey,
   AlertCircle, Download, Copy, Heart, Sparkles, Lock,
-  Image as ImageIcon, Scissors,
+  Image as ImageIcon, Scissors, Globe,
 } from 'lucide-react';
 import { downloadBlob, useScrollToTop } from '@/lib/download-utils';
 
@@ -900,6 +900,15 @@ function CreateStep({
           <div className="p-6 rounded-2xl border border-rose-400/15 bg-white/[0.02]">
             <img src={inviteQR} alt="Invite QR Code" className="w-64 h-64 rounded-xl" />
           </div>
+          {/* Browser tip */}
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5">
+            <div className="w-7 h-7 rounded-full bg-rose-500/10 flex items-center justify-center flex-shrink-0">
+              <Globe className="w-3.5 h-3.5 text-rose-300/60" />
+            </div>
+            <p className="text-white/40 text-xs leading-relaxed">
+              For the best experience, open this link in your browser — social apps may block downloads
+            </p>
+          </div>
           <button onClick={onCopy}
             className="flex items-center gap-2.5 px-6 py-3 rounded-xl border border-white/[0.08] text-white/40 text-sm
                        hover:bg-white/[0.03] hover:border-white/15 hover:text-white/60 transition-all">
@@ -1375,6 +1384,15 @@ function BDoneStep({
         <div className="flex flex-col items-center gap-4">
           <div className="p-4 rounded-xl border border-violet-400/15 bg-white/[0.02]">
             <img src={mergeQR} alt="Merge QR" className="w-48 h-48 rounded-lg" />
+          </div>
+          {/* Browser tip */}
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5">
+            <div className="w-7 h-7 rounded-full bg-violet-500/10 flex items-center justify-center flex-shrink-0">
+              <Globe className="w-3.5 h-3.5 text-violet-300/60" />
+            </div>
+            <p className="text-white/40 text-xs leading-relaxed">
+              For the best experience, open this link in your browser — social apps may block downloads
+            </p>
           </div>
           <button onClick={onCopy}
             className="flex items-center gap-2.5 px-6 py-2.5 rounded-xl border border-white/[0.08] text-white/40 text-sm
