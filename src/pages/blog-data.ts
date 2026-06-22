@@ -15,6 +15,275 @@ export interface BlogArticle {
 
 export const BLOG_ARTICLES: BlogArticle[] = [
   {
+    slug: 'long-distance-relationship-gifts',
+    title: 'Long Distance Relationship Gifts That Actually Mean Something',
+    subtitle: 'Discover meaningful long distance relationship gifts that bridge the distance. From time capsules to shared memories, these gifts go beyond material things.',
+    category: 'Relationships',
+    categoryColor: '#f472b6',
+    readTime: '9 min read',
+    date: 'June 23, 2026',
+    tags: ['long distance relationship gifts', 'long distance gifts', 'relationship gifts', 'couple gifts', 'time capsule', 'love letters'],
+    content: `
+      <p class="lead">Long distance relationships are hard. Sending another stuffed animal or generic mug feels empty. What your partner really wants is to feel close to you, even when you're miles apart. The best gifts aren't about the price tag — they're about intention, thoughtfulness, and creating shared moments across the distance.</p>
+
+      <h2>Why Traditional Gifts Fall Short for Long-Distance Couples</h2>
+      <p>Flowers wilt. Candy gets eaten. Even nice jewelry sits in a drawer. These gifts don't bridge the distance — they just sit there, a reminder of how far apart you are.</p>
+      <p>What matters is <em>connection</em>. Gifts that create shared experiences, that make your partner feel like you're thinking of them in that exact moment, that build anticipation for when you'll be together again.</p>
+
+      <h2>5 Meaningful Gift Ideas That Bridge the Distance</h2>
+
+      <h3>Idea 1: Open When Letters — But Better</h3>
+      <p>Traditional "Open When" letters are lovely, but they're static. What if your letter could only be opened on a specific date? With <a href="/">TimeVault</a>, you can seal a love letter inside a photo and set it to open on your next anniversary, birthday, or the day you'll be together again.</p>
+
+      <h3>Idea 2: Shared Playlist with a Future Date</h3>
+      <p>Create a playlist of songs that remind you of each other. Add notes to each song about why it matters. Then seal the playlist link inside a TimeVault photo with an unlock date — maybe when you'll see each other next.</p>
+
+      <h3>Idea 3: A Photo Time Capsule Sealed Until You Meet</h3>
+      <p>Choose a photo that captures a special memory — your first date, a trip you took together, or even a candid selfie. Write a letter to your partner telling them what you love about them, seal it in the photo, and set the unlock date for the day you'll be reunited.</p>
+
+      <h3>Idea 4: Countdown Calendar to Next Visit</h3>
+      <p>Create a digital countdown calendar showing how many days until you'll see each other. Pair it with a time-locked message that opens on that exact day — a surprise waiting for them when you're finally together.</p>
+
+      <h3>Idea 5: Voice Message Time Capsule</h3>
+      <p>Record a voice message telling your partner how much you miss them, what you're looking forward to doing together, or just saying "I love you" in your own voice. Convert it to text and seal it in a photo with <a href="/">TimeVault</a>. When they open it, they'll hear your voice as if you're right there.</p>
+
+      <h2>How to Create a Digital Time Capsule for Your Partner</h2>
+      <p>Here's how <a href="/">TimeVault</a> works:</p>
+      <ol>
+        <li>Choose a photo that matters — maybe a picture of you together, or a place that's special to your relationship.</li>
+        <li>Write a heartfelt letter telling your partner how you feel, what you miss, or what you're looking forward to.</li>
+        <li>Set a PIN — only you two need to know it.</li>
+        <li>Choose an unlock date — maybe your next anniversary, birthday, or the day you'll meet again.</li>
+        <li>Download the photo — your letter is now encrypted inside it.</li>
+      </ol>
+      <p>Send the photo to your partner. On the unlock date, they'll enter the PIN and read your message — a moment of connection that transcends distance.</p>
+
+      <h2>When to Set the Opening Date</h2>
+      <ul>
+        <li><strong>Next anniversary:</strong> A perfect way to celebrate even when apart.</li>
+        <li><strong>Your next visit:</strong> Build anticipation for your reunion.</li>
+        <li><strong>Random "just because" date:</strong> Surprise them with a message when they least expect it.</li>
+        <li><strong>Milestone moments:</strong> A promotion, graduation, or big life event.</li>
+      </ul>
+
+      <h2>Frequently Asked Questions</h2>
+
+      <h3>What if I don't have a good photo?</h3>
+      <p>Any photo works! It could be a selfie, a sunset from your last trip, or even a screenshot of a funny text conversation. The important thing is that it has meaning to both of you.</p>
+
+      <h3>How secure is TimeVault?</h3>
+      <p>Your message is encrypted with AES-256-GCM, one of the strongest encryption standards available. Nothing is stored on any server — the encrypted message lives inside your photo file. Only someone with the PIN can unlock it.</p>
+
+      <h3>Can I change the unlock date after creating it?</h3>
+      <p>No, the date is locked into the encryption. This is what makes it special — it's a promise you're making to each other about when you'll share this moment.</p>
+
+      <h2>Distance Doesn't Have to Mean Disconnection</h2>
+      <p>Long distance relationships require creativity and intention. A digital time capsule from <a href="/">TimeVault</a> isn't just a gift — it's a bridge. It says, "I'm thinking of you, and I can't wait to be with you again."</p>
+      <p><a href="/">Create a time capsule for your partner →</a></p>
+    `,
+  },
+  {
+    slug: 'open-when-letters-ideas',
+    title: 'Open When Letters: 30 Ideas for Every Relationship',
+    subtitle: 'Discover 30 heartfelt "Open When" letter ideas for boyfriends, girlfriends, best friends, and long distance relationships. Plus how to make them even more special with TimeVault.',
+    category: 'Relationships',
+    categoryColor: '#f472b6',
+    readTime: '12 min read',
+    date: 'June 23, 2026',
+    tags: ['open when letters ideas', 'open when letters', 'love letters', 'relationship gifts', 'long distance', 'time capsule'],
+    content: `
+      <p class="lead">"Open When" letters are a timeless way to show someone you care. They're personal, thoughtful, and create moments of connection that last long after the letter is read. But coming up with ideas can be tough. Here are 30 ideas for every type of relationship — plus a twist that makes them even more special.</p>
+
+      <h2>Open When Letters for Your Boyfriend/Girlfriend</h2>
+
+      <h3>1. Open When You Miss Me</h3>
+      <p>Write about your favorite memories together and why you can't wait to see them again.</p>
+
+      <h3>2. Open When You're Having a Bad Day</h3>
+      <p>List all the reasons they're amazing and why things will get better.</p>
+
+      <h3>3. Open When You Need a Laugh</h3>
+      <p>Share your funniest memories together or write a silly story.</p>
+
+      <h3>4. Open When You're Celebrating</h3>
+      <p>Celebrate their achievement and remind them how proud you are.</p>
+
+      <h3>5. Open When You're Feeling Insecure</h3>
+      <p>Tell them exactly why you love them and how they make you feel.</p>
+
+      <h3>6. Open When We're Fighting</h3>
+      <p>Remind them why you chose each other and how you'll work through it.</p>
+
+      <h3>7. Open When You're Thinking About the Future</h3>
+      <p>Share your dreams for your future together.</p>
+
+      <h3>8. Open When You Want to Remember Our First Date</h3>
+      <p>Describe your first date in detail — what they wore, what you talked about, how you felt.</p>
+
+      <h3>9. Open When You Need a Hug</h3>
+      <p>Write a letter that feels like a hug — warm, comforting, and full of love.</p>
+
+      <h3>10. Open When You're Ready to Say "I Love You"</h3>
+      <p>Write the most heartfelt "I love you" letter you can.</p>
+
+      <h2>Open When Letters for Your Best Friend</h2>
+
+      <h3>11. Open When You're Feeling Lonely</h3>
+      <p>Remind them they're never alone and how much you value their friendship.</p>
+
+      <h3>12. Open When You've Had a Fight</h3>
+      <p>Apologize if needed and reaffirm your friendship.</p>
+
+      <h3>13. Open When You're Celebrating a Win</h3>
+      <p>Cheer them on and celebrate their success.</p>
+
+      <h3>14. Open When You're Missing Our Adventures</h3>
+      <p>Recount your favorite memories together and plan new ones.</p>
+
+      <h3>15. Open When You Need a Reality Check</h3>
+      <p>Give them tough love when they need it, but always with kindness.</p>
+
+      <h3>16. Open When You're Graduating</h3>
+      <p>Celebrate their achievement and look forward to what's next.</p>
+
+      <h3>17. Open When You're Moving Away</h3>
+      <p>Promise your friendship will survive the distance.</p>
+
+      <h3>18. Open When You're Having a Bad Day at Work</h3>
+      <p>Comfort them and remind them they're capable of anything.</p>
+
+      <h3>19. Open When You Need a Pep Talk</h3>
+      <p>Build them up and remind them how strong they are.</p>
+
+      <h3>20. Open When You're Ready to Laugh Until You Cry</h3>
+      <p>Write down all your funniest inside jokes.</p>
+
+      <h2>Open When Letters for Long Distance</h2>
+
+      <h3>21. Open When You're Missing Our Hugs</h3>
+      <p>Describe what it feels like to hug them and when you'll hug again.</p>
+
+      <h3>22. Open When You're Counting Down to Our Next Visit</h3>
+      <p>List all the things you want to do together when you're reunited.</p>
+
+      <h3>23. Open When You're Having a Bad Day and I'm Not There</h3>
+      <p>Be their comfort from afar — tell them what you'd say if you were there.</p>
+
+      <h3>24. Open When You're Looking at Photos of Us</h3>
+      <p>Write about your favorite photo together and why it matters.</p>
+
+      <h3>25. Open When You're Feeling Hopeless About the Distance</h3>
+      <p>Remind them that distance is temporary but your love is forever.</p>
+
+      <h3>26. Open When You're Celebrating Our Anniversary Apart</h3>
+      <p>Celebrate your love even when you can't be together.</p>
+
+      <h3>27. Open When You're Listening to Our Song</h3>
+      <p>Write about why that song is special and what it makes you think of.</p>
+
+      <h3>28. Open When You're Having a Virtual Date Night</h3>
+      <p>Plan your date night together in writing.</p>
+
+      <h3>29. Open When You're Packing for Our Trip</h3>
+      <p>Get them excited for your upcoming adventure.</p>
+
+      <h3>30. Open When We're Finally Together Again</h3>
+      <p>Save this for the moment you're reunited — tell them how much you missed them.</p>
+
+      <h2>How to Make Them Truly Surprising with TimeVault</h2>
+      <p>Traditional "Open When" letters are great, but they have one problem: your partner might peek! With <a href="/">TimeVault</a>, you can take it to the next level.</p>
+      <p>Instead of giving them an envelope, give them a <em>photo</em> with your letter sealed inside. Set it to open on a specific date — or when you're together again. They literally <em>can't</em> read it until the time is right.</p>
+      <p>Imagine: You send a photo of your first date. Your partner carries it with them, wondering what's inside. On your anniversary, they unlock it and read your heartfelt letter. It's the perfect blend of anticipation and surprise.</p>
+
+      <h2>Frequently Asked Questions</h2>
+
+      <h3>How many letters should I write?</h3>
+      <p>It's up to you! Some people do 5, some do 30. The key is quality over quantity — make each letter meaningful.</p>
+
+      <h3>Should I decorate the envelopes?</h3>
+      <p>Absolutely! Add stickers, doodles, or photos to make each one unique. If you're using TimeVault, choose a photo that matches the letter's theme.</p>
+
+      <h3>Can I use TimeVault for long distance letters?</h3>
+      <p>Perfect for it! You can send the photo digitally, and your partner can unlock it on the exact day you choose — no matter where they are.</p>
+
+      <h2>Ready to Create Something Meaningful?</h2>
+      <p>"Open When" letters are about showing someone you care enough to plan for their future moments. With <a href="/">TimeVault</a>, you can make those moments even more special by adding the magic of time.</p>
+      <p><a href="/">Create your time-locked letter →</a></p>
+    `,
+  },
+  {
+    slug: 'is-timevault-safe',
+    title: 'Is TimeVault Safe? How Zero-Server Storage Actually Works',
+    subtitle: 'Yes, TimeVault is safe. Here\'s a detailed explanation of how zero-server storage, AES-256-GCM encryption, and drand time-lock work together to keep your secrets secure.',
+    category: 'Security',
+    categoryColor: '#60a5fa',
+    readTime: '8 min read',
+    date: 'June 23, 2026',
+    tags: ['is timevault safe', 'data privacy', 'encryption', 'security', 'zero server', 'AES-256', 'drand'],
+    content: `
+      <p class="lead">Let's cut to the chase: <strong>Yes, TimeVault is safe.</strong> Your messages are encrypted with military-grade encryption, stored only on your device, and can only be opened when you choose. Here's exactly how it works — no technical jargon, just plain English.</p>
+
+      <h2>What "Zero Server Storage" Really Means</h2>
+      <p>Most apps store your data on servers. When you send a message, it goes to a company's computer where it can be accessed, hacked, or sold. Not TimeVault.</p>
+      <p>When you create a time capsule:</p>
+      <ol>
+        <li>Your message is encrypted on <em>your device</em></li>
+        <li>The encrypted message is hidden inside your photo using steganography</li>
+        <li>You download the photo to your phone or computer</li>
+        <li><strong>Nothing is sent to any server</strong></li>
+      </ol>
+      <p>Your photo holds the key. Literally. The secret message lives inside the image file itself.</p>
+
+      <h2>AES-GCM Encryption Explained in Plain English</h2>
+      <p>AES-256-GCM is the encryption standard used by governments, banks, and security experts worldwide. Here's what you need to know:</p>
+      <ul>
+        <li><strong>256-bit keys:</strong> That's 2^256 possible combinations — more than the number of atoms in the universe. No computer can brute-force this.</li>
+        <li><strong>Authenticated encryption:</strong> Not only is your message scrambled, but any tampering would be immediately detected.</li>
+        <li><strong>Zero knowledge:</strong> We never see your plaintext message. It's encrypted before it leaves your browser.</li>
+      </ul>
+
+      <h2>What Is drand Beacon and Why It Matters</h2>
+      <p>Time-lock encryption is what makes TimeVault unique. Your message isn't just password-protected — it's <em>time-protected</em>. Here's how it works:</p>
+      <p>drand is a decentralized network that publishes a random number every 30 seconds. These numbers are cryptographically verifiable and cannot be predicted.</p>
+      <p>When you set an unlock date, TimeVault uses the drand beacon from that exact moment as part of the decryption key. Before that time, the key doesn't exist. After that time, anyone with the beacon and your PIN can unlock it.</p>
+      <p>This means <strong>no one can open your message before the chosen date</strong> — not even us, not even you. It's mathematically impossible.</p>
+
+      <h2>What Happens If TimeVault Shuts Down?</h2>
+      <p>This is the best part: <strong>Nothing.</strong> Your time capsule doesn't depend on TimeVault being online.</p>
+      <p>Once you download your photo, you have everything you need. The encrypted message is in the photo. The drand beacons are publicly available forever. As long as you have the photo and the PIN, you can unlock it — even if TimeVault no longer exists.</p>
+
+      <h2>Who Can Read My Message?</h2>
+      <p>Only people with two things:</p>
+      <ol>
+        <li><strong>The photo file:</strong> Contains the encrypted message</li>
+        <li><strong>The 4-digit PIN:</strong> Your secret key</li>
+      </ol>
+      <p>Without both, your message is just random noise. Even if someone steals your photo, they can't read it without the PIN. Even if someone guesses your PIN, they need the photo.</p>
+
+      <h2>Frequently Asked Questions</h2>
+
+      <h3>Can TimeVault read my messages?</h3>
+      <p>No. Your message is encrypted in your browser before anything is processed. We never see the plaintext. The encryption happens locally, on your device.</p>
+
+      <h3>Is my data stored anywhere?</h3>
+      <p>Only on your device. The photo you download contains the encrypted message. We don't store anything on our servers.</p>
+
+      <h3>What if I lose my photo?</h3>
+      <p>If you lose the photo, your message is gone forever. We can't recover it. Store it somewhere safe — cloud storage, external drive, or multiple devices.</p>
+
+      <h3>What if I forget my PIN?</h3>
+      <p>Your PIN is part of the decryption key. Without it, the message can't be decrypted. Write it down somewhere secure.</p>
+
+      <h3>Is TimeVault open source?</h3>
+      <p>The core encryption logic is available for audit. We believe in transparency — anyone can verify how the encryption works.</p>
+
+      <h2>Your Privacy Is Our Priority</h2>
+      <p>TimeVault was built because we believe your personal messages should stay personal. In a world where data is constantly collected and sold, we wanted to create something different: a tool that respects your privacy by design.</p>
+      <p>Every time you create a time capsule, you're not just sending a message — you're taking back control of your data.</p>
+      <p><a href="/">Try TimeVault for yourself →</a></p>
+    `,
+  },
+  {
     slug: 'pet-memorial-time-capsule',
     title: 'Pet Memorial Time Capsule: Keeping Their Memory Alive',
     subtitle: 'Honoring a beloved pet with a digital time capsule. Seal photos and memories inside an image to open when you are ready. A gentle way to remember.',
