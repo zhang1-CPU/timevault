@@ -15,6 +15,74 @@ export interface BlogArticle {
 
 export const BLOG_ARTICLES: BlogArticle[] = [
   {
+    slug: 'pet-memorial-time-capsule',
+    title: 'Pet Memorial Time Capsule: Keeping Their Memory Alive',
+    subtitle: 'Honoring a beloved pet with a digital time capsule. Seal photos and memories inside an image to open when you are ready. A gentle way to remember.',
+    category: 'Pet Memorial',
+    categoryColor: '#6ee7b7',
+    readTime: '7 min read',
+    date: 'June 22, 2026',
+    tags: ['pet memorial ideas', 'pet loss', 'pet memory', 'time capsule', 'pet tribute'],
+    content: `
+      <p class="lead">Losing a pet is losing family. There's no timeline for grief, no "right way" to remember them. A time capsule offers something gentle: a way to honor their memory without pressure to "move on." It lets you capture how you feel now, and save it for when you're ready to revisit it.</p>
+
+      <h2>Why a Time Capsule Helps With Pet Loss</h2>
+      <p>Grief isn't linear. Some days the pain feels fresh; other days, memories bring comfort. A time capsule respects this journey. It lets you say goodbye (or hello again) on your own terms.</p>
+      <p>Pet loss is real grief. Research from the American Society for the Prevention of Cruelty to Animals (ASPCA) confirms that the bond between humans and pets is as strong as any human relationship. A study published in <strong>Anthrozoös</strong> found that pet owners often experience symptoms similar to human bereavement: sadness, guilt, even physical pain.</p>
+      <p>A time capsule gives you space. You don't have to process your feelings all at once. You can seal them away, knowing they'll be there when you're ready to look back.</p>
+
+      <h2>What to Include in Your Pet's Time Capsule</h2>
+      <p>This is your story to tell. Here are some ideas to guide you:</p>
+      <ul>
+        <li><strong>A favorite memory:</strong> That morning they brought you a toy, the way they curled up on your feet, the sound of their purr or wag.</li>
+        <li><strong>What made them unique:</strong> Their silly habits, their favorite spot, the way they greeted you at the door.</li>
+        <li><strong>Thank you:</strong> What did they teach you? What will you carry with you because of them?</li>
+        <li><strong>A promise:</strong> How will you honor their memory going forward?</li>
+      </ul>
+
+      <h2>Choosing the Right Photo</h2>
+      <p>The photo you choose becomes more than an image — it's a vessel for your memories. Pick something that tells a story.</p>
+      <p>Maybe it's the photo from their first day home, all tiny and scared. Or the one where they're mid-snack, tail wagging. Or a quiet moment, just the two of you. The best photo isn't necessarily the "perfect" one — it's the one that makes you smile when you look at it.</p>
+      <p>This photo will hold your words, encrypted and safe. It's a digital urn, a place where their memory stays until you're ready to visit it.</p>
+
+      <h2>Setting the Opening Date: There's No Rush</h2>
+      <p>There's no right time to open a pet memorial time capsule. Choose what feels right for you:</p>
+      <ul>
+        <li><strong>One month later:</strong> A gentle revisit when the sharpest edges have softened.</li>
+        <li><strong>Six months later:</strong> Half a year gives perspective. You may see your grief differently.</li>
+        <li><strong>One year later:</strong> A birthday or "gotcha day" — marking their anniversary with their memory.</li>
+        <li><strong>Whenever you're ready:</strong> The beauty of TimeVault is that you can wait. There's no expiration date on love.</li>
+      </ul>
+
+      <h2>How TimeVault Keeps It Private</h2>
+      <p>Grief is personal. Your words, your memories — they belong to you. That's why TimeVault doesn't store anything on servers.</p>
+      <p>When you create a time capsule:</p>
+      <ol>
+        <li>Your letter is encrypted</li>
+        <li>It's hidden inside your photo</li>
+        <li>You download the photo to keep</li>
+        <li>Nothing is uploaded anywhere</li>
+      </ol>
+      <p>Your pet's memory stays between you and them. No one else can access it unless you share the photo and the PIN.</p>
+      <p><a href="/">Create a memorial time capsule →</a></p>
+
+      <h2>Frequently Asked Questions</h2>
+
+      <h3>Is it weird to make a time capsule for a pet?</h3>
+      <p>Not at all. Pets are family. If you would honor a human loved one with a keepsake, why wouldn't you do the same for them? Your love for your pet is valid, and so is any way you choose to remember them.</p>
+
+      <h3>How long should I wait before opening it?</h3>
+      <p>However long you need. Some people open it after a month, others wait years. There's no timeline for grief. Trust your heart — it will tell you when the time is right.</p>
+
+      <h3>Can I make multiple capsules for different pets?</h3>
+      <p>Absolutely. Each pet leaves a unique paw print on your heart. A separate time capsule lets you honor each one individually, preserving their distinct memory.</p>
+
+      <h2>They Were Family</h2>
+      <p>Your pet wasn't "just a pet." They were your confidant, your cheerleader, your constant. A time capsule isn't about forgetting — it's about remembering. It's about saying, "You mattered. I loved you. I'll never forget you."</p>
+      <p><a href="/">Seal their memory where it's safe →</a></p>
+    `,
+  },
+  {
     slug: 'letter-to-future-self',
     title: 'Letter to My Future Self: What to Write and When to Open It',
     subtitle: 'Learn how to write a powerful letter to your future self. Includes 5 writing prompts and how to seal it with TimeVault until the perfect moment.',
