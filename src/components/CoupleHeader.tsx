@@ -8,7 +8,7 @@ interface CoupleHeaderProps {
 
 export function CoupleHeader({ onBack, title, subtitle }: CoupleHeaderProps) {
   return (
-    <header className="mt-[64px] sm:mt-[70px] px-4 sm:px-6 py-3 sm:py-4 border-b border-white/[0.04] relative z-10 bg-[#0a0612]/80 backdrop-blur-md">
+    <header className="px-4 sm:px-6 py-3 sm:py-4 border-b border-white/[0.04] relative z-10 bg-[#0a0612]/80 backdrop-blur-md">
       <div className="flex items-center justify-between">
         <button
           onClick={onBack}
