@@ -3,6 +3,8 @@
 // Pure side-effect — no state, no re-renders, does not touch any existing component logic.
 import { useEffect } from 'react';
 
+const DEFAULT_OG_IMAGE = 'https://timevault.online/og-image.svg';
+
 interface PageMetaOptions {
   title: string;
   description: string;
@@ -29,11 +31,13 @@ export function usePageMeta({ title, description, canonicalPath, ogImageUrl }: P
     document.title = title;
 
     upsertMeta('description', description);
+    upsertMeta('robots', 'index, follow, max-image-preview:large');
 
     // Canonical
-    const fullCanonical = `https://timevault.online/${
-      canonicalPath ? canonicalPath.replace(/^\/+|\/+$/g, '') + '/' : ''
-    }`;
+    const cleanedPath = canonicalPath ? canonicalPath.replace(/^\/+|\/+$/g, '') : '';
+    const fullCanonical = cleanedPath
+      ? `https://timevault.online/${cleanedPath}/`
+      : 'https://timevault.online/';
     let canonicalLink = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (!canonicalLink) {
       canonicalLink = document.createElement('link');
@@ -48,11 +52,18 @@ export function usePageMeta({ title, description, canonicalPath, ogImageUrl }: P
     upsertMeta('og:url', fullCanonical, true);
     upsertMeta('og:type', 'website', true);
     upsertMeta('og:site_name', 'TimeVault', true);
-    if (ogImageUrl) upsertMeta('og:image', ogImageUrl, true);
+    upsertMeta('og:locale', 'en_US', true);
+    const finalOgImage = ogImageUrl || DEFAULT_OG_IMAGE;
+    upsertMeta('og:image', finalOgImage, true);
+    upsertMeta('og:image:secure_url', finalOgImage, true);
+    upsertMeta('og:image:type', 'image/svg+xml', true);
+    upsertMeta('og:image:width', '1200', true);
+    upsertMeta('og:image:height', '630', true);
 
     // Twitter
     upsertMeta('twitter:card', 'summary_large_image');
     upsertMeta('twitter:title', title);
     upsertMeta('twitter:description', description);
+    upsertMeta('twitter:image', finalOgImage);
   }, [title, description, canonicalPath, ogImageUrl]);
 }
