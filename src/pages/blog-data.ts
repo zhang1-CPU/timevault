@@ -15,6 +15,82 @@ export interface BlogArticle {
 
 export const BLOG_ARTICLES: BlogArticle[] = [
   {
+    slug: 'anniversary-letters-sealed-in-time',
+    title: 'Anniversary Letters Sealed in Time: A Complete Guide',
+    subtitle: 'Discover meaningful anniversary letter ideas and learn how to seal your love letter inside a photo. A gift that waits for the perfect moment.',
+    category: 'Anniversary',
+    categoryColor: '#f5a8bf',
+    readTime: '10 min read',
+    date: 'June 22, 2026',
+    tags: ['anniversary letter ideas', 'love letter', 'anniversary gift', 'relationship', 'romance', 'time capsule'],
+    content: `
+      <p class="lead">An anniversary letter is more than words on paper. It's a snapshot of your love at a specific moment — something flowers and jewelry can never capture. When you seal that letter in time, waiting for a future date to reveal it, you create something that grows more precious with each passing year.</p>
+
+      <h2>Why Anniversary Letters Outlast Flowers and Jewelry</h2>
+      <p>Flowers wilt within days. Jewelry is worn, then taken off, then sometimes forgotten in a drawer. But a letter? A letter can be read again and again, and each reading reveals something new — because <em>you</em> are different each time you read it.</p>
+      <p>Psychologists have found that handwritten letters trigger the release of oxytocin and dopamine — the same chemicals associated with bonding and trust. According to research published in <strong>Psychological Science</strong>, people who write gratitude letters experience lasting increases in well-being that persist for weeks. The recipient feels seen, valued, and loved in a way that digital messages simply cannot replicate.</p>
+      <p>There's also what researchers call the "permanence factor." Digital messages scroll away, get buried under notifications, or disappear entirely. A letter is permanent. It can be held, kept in a special box, read and re-read over years. This permanence gives letters emotional weight — when someone writes you a letter, they're creating something that can last a lifetime.</p>
+      <p>Relationship expert Dr. John Gottman, known for decades of marital research, found that stable relationships are shaped not only by conflict management, but by everyday responsiveness — what he calls "turning toward" a partner's bids for connection. A thoughtful anniversary letter is one such turn toward. It tells your partner that their inner world still matters to you.</p>
+
+      <h2>3 Anniversary Letter Templates You Can Use Tonight</h2>
+      <p>Not sure where to start? Here are three templates with opening and closing lines you can personalize. The key is to replace generic phrases with specific memories — that's what makes a letter unforgettable.</p>
+
+      <h3>Template 1: The "First Date Memory" Letter</h3>
+      <p><strong>Opening:</strong> "Remember that night we stayed at [specific place] until [time], just talking? That's when I knew this was different."</p>
+      <p><strong>Body guidance:</strong> Describe what you noticed about them that night. What they wore. What they said. How you felt. Then connect that moment to today — what's changed, what's stayed the same.</p>
+      <p><strong>Closing:</strong> "I still feel that same pull toward you. Maybe even stronger now that I know all the versions of you I've met since."</p>
+
+      <h3>Template 2: The "Thank You for the Hard Times" Letter</h3>
+      <p><strong>Opening:</strong> "This year wasn't easy. There were moments when I wasn't sure we'd make it here. But we did, and I need to tell you why."</p>
+      <p><strong>Body guidance:</strong> Acknowledge a specific challenge you faced together. What did they do that helped? What did you learn about them — and about yourself — through that difficulty?</p>
+      <p><strong>Closing:</strong> "Thank you for staying. Thank you for choosing us when it would have been easier to walk away. I'm here because you were there."</p>
+
+      <h3>Template 3: The "Promise for the Next Year" Letter</h3>
+      <p><strong>Opening:</strong> "One year from today, I want you to read this and remember what I promised you right now."</p>
+      <p><strong>Body guidance:</strong> Make specific, achievable promises. Not vague "I'll love you forever" — but concrete commitments: "I promise to listen before I react. I promise to ask how you're feeling, even when things are busy."</p>
+      <p><strong>Closing:</strong> "When you open this next year, I hope these promises have become habits. And if they haven't yet, I hope you'll remind me gently."</p>
+
+      <h2>How to Make It Unforgettable: Seal It in a Photo</h2>
+      <p>Writing the letter is step one. Step two is deciding <em>when</em> it gets read. That's where TimeVault transforms an anniversary letter into something truly extraordinary.</p>
+      <p>Here's how it works:</p>
+      <ol>
+        <li><strong>Write your letter.</strong> Use one of the templates above, or write from scratch. 200–600 words is ideal.</li>
+        <li><strong>Choose a photo.</strong> Pick an image that matters — from your first date, your wedding, a candid moment, or a place that holds meaning for both of you.</li>
+        <li><strong>Set a 4-digit PIN.</strong> This becomes the key. Only someone with the PIN can unlock the message.</li>
+        <li><strong>Choose an unlock date.</strong> This is the magic. Set it for your next anniversary, or go further — 5 years, 10 years, even longer.</li>
+        <li><strong>Download the sealed image.</strong> The photo now contains your letter, encrypted and time-locked. Nothing is stored on any server.</li>
+      </ol>
+      <p>The longer you wait, the more powerful the reveal. Imagine opening a letter you wrote 10 years ago — reading words from a version of yourself that no longer exists, but whose hopes and promises still matter.</p>
+      <p><a href="/">Create your anniversary time capsule now →</a></p>
+
+      <h2>When to Open It: Timing Ideas for Maximum Impact</h2>
+      <p>The unlock date is part of the gift. Here are some timing ideas that make the moment even more meaningful:</p>
+      <ul>
+        <li><strong>Next anniversary:</strong> The classic choice. Write today, read exactly one year later.</li>
+        <li><strong>5-year milestone:</strong> Seal it on your 1st anniversary, open it on your 5th. You'll be amazed at how much has changed — and how much hasn't.</li>
+        <li><strong>10-year promise:</strong> For couples who've been together for years, a decade-long time capsule becomes a testament to endurance.</li>
+        <li><strong>Special moments:</strong> The birth of a child, a house purchase, retirement — any future milestone that you want to mark with words from the past.</li>
+      </ul>
+      <p>Some couples use TimeVault's <a href="/couple">Couple Mode</a> — where both partners write letters that get sealed together. On the unlock date, each person reads what the other wrote, creating a moment of mutual revelation.</p>
+
+      <h2>Frequently Asked Questions</h2>
+
+      <h3>How long should an anniversary letter be?</h3>
+      <p>200–600 words is ideal. Short enough to be read in one sitting, long enough to include specific memories and genuine emotion. Quality matters more than quantity — a heartfelt 150-word letter beats a generic 1000-word one.</p>
+
+      <h3>Can I write an anniversary letter if we're not married?</h3>
+      <p>Absolutely. Anniversary letters work for any committed relationship — dating, engaged, long-term partnership. The act of writing and sealing creates meaning regardless of legal status. Many couples use them to mark the day they met, their first date, or the day they moved in together.</p>
+
+      <h3>Is it safe to store my letter digitally?</h3>
+      <p>With TimeVault, your letter isn't "stored" anywhere — it's encrypted <em>inside</em> the photo file itself. The image you download contains your message, locked by your PIN and the unlock date. No server, no database, no cloud. You keep the image; you keep the PIN; you control when it opens.</p>
+
+      <h2>Your Next Anniversary Deserves More</h2>
+      <p>Your next anniversary deserves more than a last-minute gift. It deserves something that captures who you are right now — your hopes, your gratitude, your specific love for this specific person.</p>
+      <p>Write a letter. Seal it in a photo. Let it wait for the perfect moment.</p>
+      <p><a href="/">Create your anniversary time capsule now →</a></p>
+    `,
+  },
+  {
     slug: 'how-to-write-anniversary-letter',
     title: 'How to Write a Time Capsule Letter for Your Anniversary',
     subtitle: 'A step-by-step guide to writing a love letter that your future self — or your partner — will open on your next anniversary.',
