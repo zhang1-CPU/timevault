@@ -3,6 +3,7 @@ import { revealMessage, checkImageStatus, revealCoupleMessage, type LockStatus }
 import { ArrowLeft, Upload, Unlock, Clock, AlertCircle, Image, FileKey, Heart } from 'lucide-react';
 import { RevealCeremony } from './RevealCeremony';
 import { useScrollToTop, trackEvent } from '@/lib/download-utils';
+import { incrementUnlockCount } from '@/lib/usage-counter';
 
 interface DecryptPanelProps {
   onBack: () => void;
@@ -34,6 +35,7 @@ export function DecryptPanel({ onBack }: DecryptPanelProps) {
     if (step === 'revealed' && !unlockTracked.current) {
       unlockTracked.current = true;
       trackEvent('unlock');
+      incrementUnlockCount();
     }
   }, [step]);
 

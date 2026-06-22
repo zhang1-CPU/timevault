@@ -1,4 +1,5 @@
 import { ExternalLink, Heart, ChevronRight } from 'lucide-react';
+import { UsageCounter } from '../lib/usage-counter';
 import type { Page } from '../App';
 
 export function Footer({ navigate }: { navigate: (to: Page) => void }) {
@@ -72,9 +73,12 @@ export function Footer({ navigate }: { navigate: (to: Page) => void }) {
 
         {/* Bottom bar */}
         <div className="border-t border-white/[0.02] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-white/10 text-xs font-light font-serif italic">
-            TimeVault — a quiet promise between you and the future.
-          </p>
+          <div className="flex items-center gap-6">
+            <p className="text-white/10 text-xs font-light font-serif italic">
+              TimeVault — a quiet promise between you and the future.
+            </p>
+            <UsageCounter />
+          </div>
           <p className="text-white/10 text-[10px] font-light tracking-wide">
             Made with care for those who wait.
           </p>

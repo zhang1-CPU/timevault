@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { incrementSealCount, incrementUnlockCount } from './usage-counter';
 
 function scrollToTopNow() {
   try {
@@ -110,5 +111,11 @@ export async function downloadBlob(
   // Track the event AFTER successful download, non-blocking
   if (mode) {
     trackEvent(mode);
+    // Update local stats counter (pure frontend, no backend)
+    if (mode === 'unlock') {
+      incrementUnlockCount();
+    } else {
+      incrementSealCount();
+    }
   }
 }
