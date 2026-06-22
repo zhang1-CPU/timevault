@@ -512,7 +512,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
         }
       />
 
-      <main className="flex-1 flex items-start justify-center px-4 sm:px-6 py-6 sm:py-8">
+      <main className="flex-1 flex items-start justify-center px-4 sm:px-6 pb-6 sm:pb-8">
         <div className="w-full max-w-lg mx-auto">
 
           {error && (
@@ -638,7 +638,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 // ─── Landing ─────────────────────────────────────────────────
 function LandingStep({ onStart }: { onStart: () => void }) {
   return (
-    <div className="space-y-12 pt-6 animate-fade-in">
+    <div className="space-y-12 animate-fade-in">
       {/* Hero */}
       <div className="text-center space-y-7">
         <div className="flex justify-center">
