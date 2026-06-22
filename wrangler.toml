@@ -6,4 +6,4 @@ pages_build_output_dir = "dist"
 # 创建 KV 后，将下面的 id 替换为你的实际 Namespace ID
 [[kv_namespaces]]
 binding = "STATS"
-id = "你的KV命名空间ID"  # 替换为从 Cloudflare 控制台获取的 ID
+id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # 替换为你复制的 Namespace ID
