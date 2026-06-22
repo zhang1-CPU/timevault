@@ -122,29 +122,29 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
                 />
 
                 <g clipPath="url(#glassClip)">
-                  {/* Top sand - small amount, top corner area, NO triangle */}
+                  {/* Top sand - 小量, 只在沙漏顶部边缘附近，薄薄一层 */}
                   <path
-                    d="M 19 17 L 81 17 L 81 24 Q 78 26 70 30 Q 60 36 53 44 Q 51 47 50 50 Q 49 47 47 44 Q 40 36 30 30 Q 22 26 19 24 Z"
+                    d="M 19 17 L 81 17 Q 75 22 60 30 Q 53 36 51 50 Q 50 52 49 50 Q 47 36 40 30 Q 25 22 19 17 Z"
                     fill="url(#hSandGrad)"
                   />
 
-                  {/* Bottom sand - much larger pile, NO triangle */}
+                  {/* Bottom sand - 大量堆积, 圆润填满下半部 */}
                   <path
-                    d="M 18 103 L 18 88 Q 22 75 32 65 Q 42 56 50 54 Q 58 56 68 65 Q 78 75 82 88 L 82 103 Z"
+                    d="M 19 103 L 19 90 Q 24 78 35 70 Q 44 64 50 63 Q 56 64 65 70 Q 76 78 81 90 L 81 103 Z"
                     fill="url(#hSandGrad)"
                   />
 
-                  {/* Sand stream - continuous downward flow */}
+                  {/* Sand stream - 细流 */}
                   <rect x="49.4" y="58" width="1.2" height="22" fill="url(#hSandGrad)">
                     <animate attributeName="opacity" values="0.85;1;0.85" dur="0.5s" repeatCount="indefinite" />
                   </rect>
 
-                  {/* Falling sand grains - continuous downward */}
+                  {/* Falling sand grains - 持续下落 */}
                   {[0, 1, 2, 3, 4, 5, 6].map((i) => (
                     <circle key={i} cx="50" cy={60 + i * 3} r="1" fill="#ffd700">
                       <animate
                         attributeName="cy"
-                        values={`${58 + i * 2};${86}`}
+                        values={`${58 + i * 2};${84}`}
                         dur={`${1.0 + i * 0.12}s`}
                         begin={`${i * 0.15}s`}
                         repeatCount="indefinite"
