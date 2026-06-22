@@ -22,7 +22,7 @@ import { CoupleCeremony } from './CoupleCeremony';
 import {
   Upload, Check, Timer, FileKey,
   AlertCircle, Download, Copy, Heart, Sparkles, Lock,
-  Image as ImageIcon, Scissors, AlertTriangle,
+  Image as ImageIcon, Scissors,
 } from 'lucide-react';
 import { downloadBlob, useScrollToTop } from '@/lib/download-utils';
 
@@ -491,7 +491,7 @@ export function CoupleMode({ onBack, onHome }: CoupleModeProps) {
 
   // ─── Render ────────────────────────────────────────────────
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex-1 flex flex-col">
       <CoupleHeader
         onBack={() => {
           if (scene === 'landing') onBack();
@@ -748,6 +748,19 @@ function LandingStep({ onStart }: { onStart: () => void }) {
         </div>
       </div>
 
+      {/* Private browsing notice */}
+      <div className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/5">
+        <div className="w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center flex-shrink-0">
+          <Timer className="w-4 h-4 text-violet-300/60" />
+        </div>
+        <div>
+          <p className="text-white/45 text-xs font-medium">Note about private browsing</p>
+          <p className="text-white/25 text-[10px] leading-relaxed">
+            If you're in incognito/private mode, please complete the entire process in one session — don't close the browser before both of you finish.
+          </p>
+        </div>
+      </div>
+
       {/* CTA — larger, more dramatic */}
       <button
         onClick={onStart}
@@ -824,50 +837,59 @@ function CreateStep({
           </p>
         </div>
 
-        {/* ⚠️ URGENT — This Half is Your Only Key */}
+        {/* 💌 Your Secret is Safe with You */}
         <div
-          className="relative rounded-2xl border-2 border-amber-400/60 p-5 sm:p-6 overflow-hidden"
+          className="relative rounded-2xl border border-white/10 p-5 sm:p-6 overflow-hidden"
           style={{
-            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(180, 83, 9, 0.12) 50%, rgba(217, 119, 6, 0.15) 100%)',
-            boxShadow: '0 0 40px rgba(245, 158, 11, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(236, 72, 153, 0.06) 50%, rgba(139, 92, 246, 0.06) 100%)',
+            boxShadow: '0 0 60px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
           }}
         >
-          <div className="flex items-start gap-4 relative">
-            <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center animate-heart-bob"
-                 style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.4), rgba(217, 119, 6, 0.3))' }}>
-              <AlertTriangle className="w-6 h-6 text-amber-200" />
-            </div>
-            <div className="flex-1 space-y-3">
-              <h3 className="text-amber-100 font-semibold text-base sm:text-lg leading-tight text-left">
-                SAVE THIS — THIS IS YOUR ONLY KEY
-              </h3>
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl pointer-events-none opacity-50"
+               style={{ background: 'radial-gradient(circle, rgba(236, 72, 153, 0.3), transparent 70%)' }} />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full blur-3xl pointer-events-none opacity-50"
+               style={{ background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3), transparent 70%)' }} />
 
-              <div className="space-y-2.5">
-                <p className="text-amber-200/90 text-sm font-medium leading-relaxed text-left">
-                  <span className="text-white font-bold">1.</span> Your downloaded half has a{' '}
-                  <span className="text-white font-semibold">TimeVault watermark in the bottom-right corner</span>.
-                </p>
-                <p className="text-amber-200/90 text-sm font-medium leading-relaxed text-left">
-                  <span className="text-white font-bold">2.</span> Only{' '}
-                  <span className="text-white font-semibold">THIS exact half</span> can unlock the message.
-                  Your <span className="italic">original photo without the watermark</span> will{' '}
-                  <span className="text-white font-semibold">NOT work for decryption</span>.
-                </p>
-                <p className="text-amber-200/90 text-sm font-medium leading-relaxed text-left">
-                  <span className="text-white font-bold">3.</span> Remember your{' '}
-                  <span className="text-white font-semibold">4-digit PIN</span>. Without both the watermarked half + PIN,
-                  the message is lost forever.
-                </p>
-                <p className="text-amber-200/90 text-sm font-medium leading-relaxed text-left">
-                  <span className="text-white font-bold">4.</span> Never{' '}
-                  <span className="text-white font-semibold">re-save / re-export</span> this half — converting or compressing destroys the hidden data.
-                </p>
+          <div className="relative">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="relative">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center"
+                     style={{ background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(139, 92, 246, 0.2))' }}>
+                  <Lock className="w-5 h-5 text-rose-300" />
+                </div>
+                <Sparkles className="absolute -bottom-0.5 -right-0.5 w-3 h-3 text-violet-300 animate-twinkle" />
               </div>
+              <h3 className="text-white/90 font-semibold text-base sm:text-lg">
+                Your Half is Your Key
+              </h3>
+            </div>
 
-              <div className="mt-4 pt-4 border-t border-amber-400/25">
-                <p className="text-amber-200/70 text-xs leading-relaxed text-center font-medium">
-                  🚨 We store NOTHING. If you lose this half or forget your PIN, there is no way to recover your message. 🚨
-                </p>
+            <div className="space-y-3">
+              <p className="text-white/55 text-sm leading-relaxed">
+                <span className="text-rose-300 font-medium">1.</span> Your downloaded half has a{' '}
+                <span className="text-white/80 font-medium">TimeVault watermark</span> in the bottom-right corner.
+              </p>
+              <p className="text-white/55 text-sm leading-relaxed">
+                <span className="text-rose-300 font-medium">2.</span> Only{' '}
+                <span className="text-white/80 font-medium">THIS exact half</span> can unlock your shared message.
+                Your original photo without the watermark will{' '}
+                <span className="text-rose-300 font-medium">NOT work</span>.
+              </p>
+              <p className="text-white/55 text-sm leading-relaxed">
+                <span className="text-violet-300 font-medium">3.</span> Remember your{' '}
+                <span className="text-white/80 font-medium">4-digit PIN</span>. Without both, your message stays locked forever.
+              </p>
+              <p className="text-white/55 text-sm leading-relaxed">
+                <span className="text-violet-300 font-medium">4.</span> Never{' '}
+                <span className="text-white/80 font-medium">re-save or re-export</span> this half — compression destroys hidden data.
+              </p>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-white/5">
+              <div className="flex items-center justify-center gap-2 text-white/30 text-xs">
+                <Heart className="w-3 h-3 text-rose-400/60" fill="rgba(236,72,153,0.3)" />
+                <span>We store nothing. Your secret stays yours, always.</span>
+                <Heart className="w-3 h-3 text-rose-400/60" fill="rgba(236,72,153,0.3)" />
               </div>
             </div>
           </div>
@@ -1290,50 +1312,59 @@ function BDoneStep({
         </p>
       </div>
 
-      {/* ⚠️ URGENT — This Half is Your Only Key */}
+      {/* 💌 Your Secret is Safe with You */}
       <div
-        className="relative rounded-2xl border-2 border-amber-400/60 p-5 sm:p-6 overflow-hidden"
+        className="relative rounded-2xl border border-white/10 p-5 sm:p-6 overflow-hidden"
         style={{
-          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(180, 83, 9, 0.12) 50%, rgba(217, 119, 6, 0.15) 100%)',
-          boxShadow: '0 0 40px rgba(245, 158, 11, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(236, 72, 153, 0.06) 50%, rgba(139, 92, 246, 0.06) 100%)',
+          boxShadow: '0 0 60px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
         }}
       >
-        <div className="flex items-start gap-4 relative">
-          <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center animate-heart-bob"
-               style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.4), rgba(217, 119, 6, 0.3))' }}>
-            <AlertTriangle className="w-6 h-6 text-amber-200" />
-          </div>
-          <div className="flex-1 space-y-3">
-            <h3 className="text-amber-100 font-semibold text-base sm:text-lg leading-tight text-left">
-              SAVE THIS — THIS IS YOUR ONLY KEY
-            </h3>
+        <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl pointer-events-none opacity-50"
+             style={{ background: 'radial-gradient(circle, rgba(236, 72, 153, 0.3), transparent 70%)' }} />
+        <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full blur-3xl pointer-events-none opacity-50"
+             style={{ background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3), transparent 70%)' }} />
 
-            <div className="space-y-2.5">
-              <p className="text-amber-200/90 text-sm font-medium leading-relaxed text-left">
-                <span className="text-white font-bold">1.</span> The half you downloaded has a{' '}
-                <span className="text-white font-semibold">TimeVault watermark in the bottom-right corner</span>.
-              </p>
-              <p className="text-amber-200/90 text-sm font-medium leading-relaxed text-left">
-                <span className="text-white font-bold">2.</span> Only{' '}
-                <span className="text-white font-semibold">THIS exact half</span> can unlock the message.
-                Your <span className="italic">original photo without the watermark</span> will{' '}
-                <span className="text-white font-semibold">NOT work for decryption</span>.
-              </p>
-              <p className="text-amber-200/90 text-sm font-medium leading-relaxed text-left">
-                <span className="text-white font-bold">3.</span> Remember your{' '}
-                <span className="text-white font-semibold">4-digit PIN</span>. Without both the watermarked half + PIN,
-                the message is lost forever.
-              </p>
-              <p className="text-amber-200/90 text-sm font-medium leading-relaxed text-left">
-                <span className="text-white font-bold">4.</span> Never{' '}
-                <span className="text-white font-semibold">re-save / re-export</span> this half — converting or compressing destroys the hidden data.
-              </p>
+        <div className="relative">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="relative">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center"
+                   style={{ background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(139, 92, 246, 0.2))' }}>
+                <Lock className="w-5 h-5 text-rose-300" />
+              </div>
+              <Sparkles className="absolute -bottom-0.5 -right-0.5 w-3 h-3 text-violet-300 animate-twinkle" />
             </div>
+            <h3 className="text-white/90 font-semibold text-base sm:text-lg">
+              Your Half is Your Key
+            </h3>
+          </div>
 
-            <div className="mt-4 pt-4 border-t border-amber-400/25">
-              <p className="text-amber-200/70 text-xs leading-relaxed text-center font-medium">
-                🚨 We store NOTHING. If you lose this half or forget your PIN, there is no way to recover your message. 🚨
-              </p>
+          <div className="space-y-3">
+            <p className="text-white/55 text-sm leading-relaxed">
+              <span className="text-rose-300 font-medium">1.</span> Your downloaded half has a{' '}
+              <span className="text-white/80 font-medium">TimeVault watermark</span> in the bottom-right corner.
+            </p>
+            <p className="text-white/55 text-sm leading-relaxed">
+              <span className="text-rose-300 font-medium">2.</span> Only{' '}
+              <span className="text-white/80 font-medium">THIS exact half</span> can unlock your shared message.
+              Your original photo without the watermark will{' '}
+              <span className="text-rose-300 font-medium">NOT work</span>.
+            </p>
+            <p className="text-white/55 text-sm leading-relaxed">
+              <span className="text-violet-300 font-medium">3.</span> Remember your{' '}
+              <span className="text-white/80 font-medium">4-digit PIN</span>. Without both, your message stays locked forever.
+            </p>
+            <p className="text-white/55 text-sm leading-relaxed">
+              <span className="text-violet-300 font-medium">4.</span> Never{' '}
+              <span className="text-white/80 font-medium">re-save or re-export</span> this half — compression destroys hidden data.
+            </p>
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-white/5">
+            <div className="flex items-center justify-center gap-2 text-white/30 text-xs">
+              <Heart className="w-3 h-3 text-rose-400/60" fill="rgba(236,72,153,0.3)" />
+              <span>We store nothing. Your secret stays yours, always.</span>
+              <Heart className="w-3 h-3 text-rose-400/60" fill="rgba(236,72,153,0.3)" />
             </div>
           </div>
         </div>
@@ -1473,50 +1504,59 @@ function MergeStep({
         )}
       </button>
 
-      {/* ⚠️ URGENT — This Half is Your Only Key */}
+      {/* 💌 Your Secret is Safe with You */}
       <div
-        className="relative rounded-2xl border-2 border-amber-400/60 p-5 sm:p-6 overflow-hidden"
+        className="relative rounded-2xl border border-white/10 p-5 sm:p-6 overflow-hidden"
         style={{
-          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(180, 83, 9, 0.12) 50%, rgba(217, 119, 6, 0.15) 100%)',
-          boxShadow: '0 0 40px rgba(245, 158, 11, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(236, 72, 153, 0.06) 50%, rgba(139, 92, 246, 0.06) 100%)',
+          boxShadow: '0 0 60px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
         }}
       >
-        <div className="flex items-start gap-4 relative">
-          <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center animate-heart-bob"
-               style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.4), rgba(217, 119, 6, 0.3))' }}>
-            <AlertTriangle className="w-6 h-6 text-amber-200" />
-          </div>
-          <div className="flex-1 space-y-3">
-            <h3 className="text-amber-100 font-semibold text-base sm:text-lg leading-tight text-left">
-              SAVE THIS — THIS IS YOUR ONLY KEY
-            </h3>
+        <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl pointer-events-none opacity-50"
+             style={{ background: 'radial-gradient(circle, rgba(236, 72, 153, 0.3), transparent 70%)' }} />
+        <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full blur-3xl pointer-events-none opacity-50"
+             style={{ background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3), transparent 70%)' }} />
 
-            <div className="space-y-2.5">
-              <p className="text-amber-200/90 text-sm font-medium leading-relaxed text-left">
-                <span className="text-white font-bold">1.</span> The half you downloaded has a{' '}
-                <span className="text-white font-semibold">TimeVault watermark in the bottom-right corner</span>.
-              </p>
-              <p className="text-amber-200/90 text-sm font-medium leading-relaxed text-left">
-                <span className="text-white font-bold">2.</span> Only{' '}
-                <span className="text-white font-semibold">THIS exact half</span> can unlock the message.
-                Your <span className="italic">original photo without the watermark</span> will{' '}
-                <span className="text-white font-semibold">NOT work for decryption</span>.
-              </p>
-              <p className="text-amber-200/90 text-sm font-medium leading-relaxed text-left">
-                <span className="text-white font-bold">3.</span> Remember your{' '}
-                <span className="text-white font-semibold">4-digit PIN</span>. Without both the watermarked half + PIN,
-                the message is lost forever.
-              </p>
-              <p className="text-amber-200/90 text-sm font-medium leading-relaxed text-left">
-                <span className="text-white font-bold">4.</span> Never{' '}
-                <span className="text-white font-semibold">re-save / re-export</span> this half — converting or compressing destroys the hidden data.
-              </p>
+        <div className="relative">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="relative">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center"
+                   style={{ background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(139, 92, 246, 0.2))' }}>
+                <Lock className="w-5 h-5 text-rose-300" />
+              </div>
+              <Sparkles className="absolute -bottom-0.5 -right-0.5 w-3 h-3 text-violet-300 animate-twinkle" />
             </div>
+            <h3 className="text-white/90 font-semibold text-base sm:text-lg">
+              Your Half is Your Key
+            </h3>
+          </div>
 
-            <div className="mt-4 pt-4 border-t border-amber-400/25">
-              <p className="text-amber-200/70 text-xs leading-relaxed text-center font-medium">
-                🚨 We store NOTHING. If you lose this half or forget your PIN, there is no way to recover your message. 🚨
-              </p>
+          <div className="space-y-3">
+            <p className="text-white/55 text-sm leading-relaxed">
+              <span className="text-rose-300 font-medium">1.</span> Your downloaded half has a{' '}
+              <span className="text-white/80 font-medium">TimeVault watermark</span> in the bottom-right corner.
+            </p>
+            <p className="text-white/55 text-sm leading-relaxed">
+              <span className="text-rose-300 font-medium">2.</span> Only{' '}
+              <span className="text-white/80 font-medium">THIS exact half</span> can unlock your shared message.
+              Your original photo without the watermark will{' '}
+              <span className="text-rose-300 font-medium">NOT work</span>.
+            </p>
+            <p className="text-white/55 text-sm leading-relaxed">
+              <span className="text-violet-300 font-medium">3.</span> Remember your{' '}
+              <span className="text-white/80 font-medium">4-digit PIN</span>. Without both, your message stays locked forever.
+            </p>
+            <p className="text-white/55 text-sm leading-relaxed">
+              <span className="text-violet-300 font-medium">4.</span> Never{' '}
+              <span className="text-white/80 font-medium">re-save or re-export</span> this half — compression destroys hidden data.
+            </p>
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-white/5">
+            <div className="flex items-center justify-center gap-2 text-white/30 text-xs">
+              <Heart className="w-3 h-3 text-rose-400/60" fill="rgba(236,72,153,0.3)" />
+              <span>We store nothing. Your secret stays yours, always.</span>
+              <Heart className="w-3 h-3 text-rose-400/60" fill="rgba(236,72,153,0.3)" />
             </div>
           </div>
         </div>
