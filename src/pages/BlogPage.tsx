@@ -1,7 +1,8 @@
 // TimeVault Blog Page. 2026-06-22
 // Static blog listing + article detail rendered entirely client-side.
 // No CMS, no backend — article content lives in blog-data.ts.
-import { useState } from 'react';
+// AI-SEO-AUDIT: 2026-06-22 — Added Article Schema JSON-LD for blog articles
+import { useState, useEffect } from 'react';
 import { Calendar, Clock, ArrowLeft, Book, Tag, Heart, Sparkles } from 'lucide-react';
 import { ScrollReveal } from '../components/ScrollReveal';
 import { usePageMeta } from '../hooks/usePageMeta';
@@ -12,6 +13,7 @@ function ArticleCard({ article, onClick }: { article: BlogArticle; onClick: () =
   return (
     <button
       onClick={onClick}
+      data-slug={article.slug}
       className="text-left w-full glass-romantic rounded-2xl p-6 sm:p-7 transition-all duration-500 hover:border-rose-400/20 group cursor-pointer"
       style={{ borderColor: `${article.categoryColor}30` }}
     >
@@ -58,6 +60,45 @@ function ArticleDetail({ article, onBack }: { article: BlogArticle; onBack: () =
     description: article.subtitle,
     canonicalPath: `blog/${article.slug}`,
   });
+
+  // AI-SEO-AUDIT: 2026-06-22 — Inject Article Schema JSON-LD
+  useEffect(() => {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": article.title,
+      "description": article.subtitle,
+      "author": {
+        "@type": "Organization",
+        "name": "TimeVault"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "TimeVault",
+        "url": "https://timevault.online"
+      },
+      "datePublished": "2026-06-22",
+      "dateModified": "2026-06-22",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": `https://timevault.online/blog/${article.slug}/`
+      },
+      "image": "https://timevault.online/og-image.svg",
+      "articleSection": article.category,
+      "keywords": article.tags.join(", ")
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(schema);
+    script.id = `article-schema-${article.slug}`;
+    document.head.appendChild(script);
+
+    return () => {
+      const existing = document.getElementById(`article-schema-${article.slug}`);
+      if (existing) existing.remove();
+    };
+  }, [article]);
 
   return (
     <div className="animate-page-enter">
@@ -132,6 +173,40 @@ function ArticleDetail({ article, onBack }: { article: BlogArticle; onBack: () =
               <Heart className="w-4 h-4 text-rose-300" />
               Create a time capsule
             </a>
+          </div>
+
+          {/* AI-SEO-AUDIT: 2026-06-22 — Related articles for internal linking */}
+          <div className="mt-8">
+            <h3 className="text-white/50 text-sm font-light mb-4 flex items-center gap-2">
+              <Book className="w-4 h-4" />
+              Related articles
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {BLOG_ARTICLES.filter(a => a.slug !== article.slug).slice(0, 2).map(related => (
+                <button
+                  key={related.slug}
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    onBack();
+                    setTimeout(() => {
+                      const card = document.querySelector(`[data-slug="${related.slug}"]`);
+                      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                  }}
+                  className="text-left p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-colors group"
+                >
+                  <span
+                    className="text-[10px] px-2 py-0.5 rounded-full border font-light tracking-wide mb-2 inline-block"
+                    style={{ borderColor: `${related.categoryColor}40`, color: `${related.categoryColor}90`, backgroundColor: `${related.categoryColor}10` }}
+                  >
+                    {related.category}
+                  </span>
+                  <p className="text-white/60 text-sm font-light group-hover:text-white/80 transition-colors line-clamp-2">
+                    {related.title}
+                  </p>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </section>
