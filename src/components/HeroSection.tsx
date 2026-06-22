@@ -122,64 +122,150 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
                 />
 
                 <g clipPath="url(#glassClip)">
-                  {/* Top sand - 小量, 只在沙漏顶部边缘附近，薄薄一层 */}
-                  <path
-                    d="M 19 17 L 81 17 Q 75 22 60 30 Q 53 36 51 50 Q 50 52 49 50 Q 47 36 40 30 Q 25 22 19 17 Z"
-                    fill="url(#hSandGrad)"
-                  />
+                  {/* ─── 顶部沙子：少量，贴合沙漏上半部分轮廓 ─── */}
+                  {/* 使用动态动画让沙子缓慢下降，但保持"看起来差不多"的量 */}
+                  <g>
+                    <animateTransform attributeName="transform" type="translate"
+                      values="0,0; 0,0.8; 0,0" dur="8s" repeatCount="indefinite" />
+                    {/* 顶部沙子 - 自然的弧形表面，量少 */}
+                    <path
+                      d="M 20 17
+                         L 80 17
+                         Q 78 23 72 32
+                         Q 65 42 58 50
+                         Q 54 54 52 56
+                         Q 50 54 48 50
+                         Q 42 42 35 32
+                         Q 28 23 20 17 Z"
+                      fill="url(#hSandGrad)"
+                      opacity="0.92"
+                    />
+                    {/* 沙子向漏颈汇聚的细流 */}
+                    <path
+                      d="M 48 52 Q 49 55 50 58 Q 51 55 52 52 Z"
+                      fill="url(#hSandGrad)"
+                      opacity="0.85"
+                    />
+                  </g>
 
-                  {/* Bottom sand - 大量堆积, 圆润填满下半部 */}
-                  <path
-                    d="M 19 103 L 19 90 Q 24 78 35 70 Q 44 64 50 63 Q 56 64 65 70 Q 76 78 81 90 L 81 103 Z"
-                    fill="url(#hSandGrad)"
-                  />
+                  {/* ─── 底部沙子：大量堆积，圆润饱满 ─── */}
+                  {/* 沙子从漏颈落下，在底部堆积成形 */}
+                  <g>
+                    <animateTransform attributeName="transform" type="translate"
+                      values="0,0; 0,-0.6; 0,0" dur="8s" repeatCount="indefinite" />
+                    {/* 底部沙堆 - 从漏颈向下扩散，形成自然的圆锥形 */}
+                    <path
+                      d="M 50 58
+                         Q 46 62 38 70
+                         Q 30 78 24 88
+                         Q 20 96 19 103
+                         L 81 103
+                         Q 80 96 76 88
+                         Q 70 78 62 70
+                         Q 54 62 50 58 Z"
+                      fill="url(#hSandGrad)"
+                      opacity="0.95"
+                    />
+                    {/* 沙堆顶部微微起伏，模拟自然堆积 */}
+                    <ellipse cx="50" cy="72" rx="18" ry="4" fill="url(#hSandGrad)" opacity="0.6">
+                      <animate attributeName="rx" values="18;20;18" dur="6s" repeatCount="indefinite" />
+                    </ellipse>
+                  </g>
 
-                  {/* Sand stream - 细流 */}
-                  <rect x="49.4" y="58" width="1.2" height="22" fill="url(#hSandGrad)">
-                    <animate attributeName="opacity" values="0.85;1;0.85" dur="0.5s" repeatCount="indefinite" />
-                  </rect>
-
-                  {/* Falling sand grains - 持续下落 */}
-                  {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-                    <circle key={i} cx="50" cy={60 + i * 3} r="1" fill="#ffd700">
-                      <animate
-                        attributeName="cy"
-                        values={`${58 + i * 2};${84}`}
-                        dur={`${1.0 + i * 0.12}s`}
-                        begin={`${i * 0.15}s`}
-                        repeatCount="indefinite"
-                      />
-                      <animate
-                        attributeName="opacity"
-                        values="0;1;1;0"
-                        dur={`${1.0 + i * 0.12}s`}
-                        begin={`${i * 0.15}s`}
-                        repeatCount="indefinite"
-                      />
+                  {/* ─── 流沙：中间细流，持续下落 ─── */}
+                  {/* 从漏颈到沙堆顶的连续沙流 */}
+                  <g opacity="0.9">
+                    {/* 主沙流 - 柔和的流沙效果 */}
+                    <path
+                      d="M 49.5 56 Q 49.8 65 50 72 Q 50.2 65 50.5 56 Z"
+                      fill="url(#hSandGrad)"
+                    >
+                      <animate attributeName="d"
+                        values="M 49.5 56 Q 49.8 65 50 72 Q 50.2 65 50.5 56 Z;
+                                M 49.3 56 Q 49.6 65 50 72 Q 50.4 65 50.7 56 Z;
+                                M 49.5 56 Q 49.8 65 50 72 Q 50.2 65 50.5 56 Z"
+                        dur="1.5s" repeatCount="indefinite" />
+                    </path>
+                    {/* 沙流光点脉动 - 浪漫金色闪烁 */}
+                    <circle cx="50" cy="64" r="1.8" fill="#ffd700" opacity="0.8">
+                      <animate attributeName="cy" values="58;78" dur="0.8s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="0.9;0.2;0.9" dur="0.8s" repeatCount="indefinite" />
+                      <animate attributeName="r" values="1.2;2.2;1.2" dur="0.8s" repeatCount="indefinite" />
                     </circle>
+                    {/* 第二颗流光，稍微错开 */}
+                    <circle cx="50" cy="66" r="1.2" fill="#ffe4b5" opacity="0.6">
+                      <animate attributeName="cy" values="60;80" dur="1s" begin="0.3s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="0.7;0.1;0.7" dur="1s" begin="0.3s" repeatCount="indefinite" />
+                    </circle>
+                  </g>
+
+                  {/* ─── 散落沙粒：浪漫闪烁效果 ─── */}
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <g key={i}>
+                      {/* 沙粒从漏颈下落 */}
+                      <circle cx="50" cy="62" r="0.8" fill="#ffd700">
+                        <animate attributeName="cy" values={`${58 + i * 2};${85}`} dur={`${1.2 + i * 0.2}s`}
+                          begin={`${i * 0.18}s`} repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="0;1;1;0" dur={`${1.2 + i * 0.2}s`}
+                          begin={`${i * 0.18}s`} repeatCount="indefinite" />
+                      </circle>
+                      {/* 底部散落的沙粒闪烁 */}
+                      <circle cx={35 + i * 7} cy={90 + (i % 3) * 3} r="0.6" fill="#ffb347">
+                        <animate attributeName="opacity" values="0.2;0.8;0.2" dur={`${2 + i * 0.3}s`}
+                          begin={`${i * 0.4}s`} repeatCount="indefinite" />
+                      </circle>
+                    </g>
                   ))}
+
+                  {/* ─── 沙漏玻璃光泽效果 ─── */}
+                  <path
+                    d="M 22 20 Q 30 18 38 22 Q 28 35 24 55 Q 22 70 26 90"
+                    stroke="rgba(255,255,255,0.12)"
+                    strokeWidth="1"
+                    fill="none"
+                  />
                 </g>
 
-                {/* Sparkle decorations */}
-                <circle cx="20" cy="12.5" r="1.5" fill="#ffb3d0">
-                  <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite" />
-                </circle>
-                <circle cx="80" cy="12.5" r="1.2" fill="#c8a2ff">
-                  <animate attributeName="opacity" values="0.4;1;0.4" dur="1.8s" repeatCount="indefinite" />
-                </circle>
-                <circle cx="80" cy="107.5" r="1.5" fill="#ffd700">
-                  <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />
-                </circle>
-                <circle cx="20" cy="107.5" r="1.2" fill="#ec4899">
-                  <animate attributeName="opacity" values="0.4;1;0.4" dur="1.6s" repeatCount="indefinite" />
-                </circle>
+                {/* Sparkle decorations - 浪漫星光 */}
+                <g className="sparkle-group">
+                  {/* 顶部左星光 */}
+                  <circle cx="20" cy="12.5" r="1.8" fill="#ffb3d0">
+                    <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" repeatCount="indefinite" />
+                    <animate attributeName="r" values="1.2;2.2;1.2" dur="2s" repeatCount="indefinite" />
+                  </circle>
+                  {/* 顶部右星光 - 紫罗兰色 */}
+                  <circle cx="80" cy="12.5" r="1.5" fill="#c8a2ff">
+                    <animate attributeName="opacity" values="0.3;1;0.3" dur="2.3s" repeatCount="indefinite" />
+                    <animate attributeName="r" values="1;2;1" dur="2.3s" repeatCount="indefinite" />
+                  </circle>
+                  {/* 底部右星光 - 金色 */}
+                  <circle cx="80" cy="107.5" r="1.8" fill="#ffd700">
+                    <animate attributeName="opacity" values="0.2;0.9;0.2" dur="2.5s" repeatCount="indefinite" />
+                    <animate attributeName="r" values="1.2;2;1.2" dur="2.5s" repeatCount="indefinite" />
+                  </circle>
+                  {/* 底部左星光 - 玫瑰色 */}
+                  <circle cx="20" cy="107.5" r="1.5" fill="#ec4899">
+                    <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" begin="0.5s" repeatCount="indefinite" />
+                    <animate attributeName="r" values="1;1.8;1" dur="2s" begin="0.5s" repeatCount="indefinite" />
+                  </circle>
 
-                <circle cx="8" cy="60" r="1.3" fill="#ffd700">
-                  <animate attributeName="opacity" values="0;0.9;0" dur="1.2s" repeatCount="indefinite" />
-                </circle>
-                <circle cx="92" cy="60" r="1.1" fill="#ec4899">
-                  <animate attributeName="opacity" values="0;0.9;0" dur="1.5s" begin="0.6s" repeatCount="indefinite" />
-                </circle>
+                  {/* 侧面漂浮光点 - 增加浪漫感 */}
+                  <circle cx="8" cy="55" r="1.5" fill="#ffd700">
+                    <animate attributeName="opacity" values="0;0.8;0" dur="2s" repeatCount="indefinite" />
+                    <animate attributeName="cy" values="55;48;55" dur="2s" repeatCount="indefinite" />
+                  </circle>
+                  <circle cx="92" cy="65" r="1.3" fill="#ec4899">
+                    <animate attributeName="opacity" values="0;0.8;0" dur="2.2s" begin="0.7s" repeatCount="indefinite" />
+                    <animate attributeName="cy" values="65;58;65" dur="2.2s" begin="0.7s" repeatCount="indefinite" />
+                  </circle>
+                  {/* 中间悬浮星光 */}
+                  <circle cx="12" cy="60" r="1" fill="#ffb3d0">
+                    <animate attributeName="opacity" values="0;0.6;0" dur="1.8s" begin="1s" repeatCount="indefinite" />
+                  </circle>
+                  <circle cx="88" cy="55" r="1.2" fill="#c8a2ff">
+                    <animate attributeName="opacity" values="0;0.7;0" dur="2.1s" begin="1.3s" repeatCount="indefinite" />
+                  </circle>
+                </g>
               </svg>
             </div>
           </div>
