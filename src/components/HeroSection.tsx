@@ -122,72 +122,60 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
                 />
 
                 <g clipPath="url(#glassClip)">
-                  {/* ─── 顶部沙子：薄薄一层，从顶壁向漏颈汇聚的漏斗形（很少） ─── */}
-                  {/* 物理规律：沙子贴着玻璃壁，从上方边缘向漏斗颈汇聚 */}
+                  {/* ─── 顶部沙子：只有顶部一小撮，向漏颈汇聚（大部分上半区是空的） ─── */}
+                  {/* 物理规律：沙子大部分已流下去，只剩顶部一小撮贴着玻璃壁 */}
                   <g>
                     <animateTransform attributeName="transform" type="translate"
-                      values="0,0; 0,0.5; 0,0" dur="10s" repeatCount="indefinite" />
-                    {/* 顶部沙子 - 紧贴上半边玻璃壁形成的薄层，向中心漏颈汇聚 */}
+                      values="0,0; 0,0.4; 0,0" dur="12s" repeatCount="indefinite" />
+                    {/* 顶部沙子 - 只占顶部很小区域，形成一个小漏斗 */}
                     <path
-                      d="M 20 17
-                         L 80 17
-                         Q 76 22 70 30
-                         Q 62 40 56 50
-                         Q 53 55 51 57
-                         Q 50 58 50 60
-                         Q 50 58 49 57
-                         Q 47 55 44 50
-                         Q 38 40 30 30
-                         Q 24 22 20 17 Z"
+                      d="M 28 17
+                         L 72 17
+                         Q 68 22 64 28
+                         Q 60 36 56 44
+                         Q 53 50 51 55
+                         Q 50 57 50 58
+                         Q 50 57 49 55
+                         Q 47 50 44 44
+                         Q 40 36 36 28
+                         Q 32 22 28 17 Z"
                       fill="url(#hSandGrad)"
                       opacity="0.95"
                     />
-                    {/* 沙子向漏颈汇聚的下尖 */}
-                    <path
-                      d="M 49 56 Q 50 58 51 56 Q 50 60 50 60 Q 50 58 49 56 Z"
-                      fill="url(#hSandGrad)"
-                      opacity="0.9"
-                    />
                   </g>
 
-                  {/* ─── 底部沙子：饱满圆锥沙堆（比上半多） ─── */}
-                  {/* 物理规律：沙子从漏颈落下堆积成圆锥形，中间高两侧低 */}
+                  {/* ─── 底部沙子：圆锥沙堆（顶部留出空间，不贴漏颈） ─── */}
+                  {/* 物理规律：沙堆从下方堆积，顶部是斜面，距离漏颈有距离 */}
                   <g>
                     <animateTransform attributeName="transform" type="translate"
-                      values="0,0; 0,-0.4; 0,0" dur="10s" repeatCount="indefinite" />
-                    {/* 底部沙堆 - 圆锥状，中央高，向两侧玻璃壁滑落 */}
+                      values="0,0; 0,-0.3; 0,0" dur="12s" repeatCount="indefinite" />
+                    {/* 底部沙堆 - 圆锥状，中央高，向两侧玻璃壁延伸，顶部低于漏颈 */}
                     <path
-                      d="M 50 58
-                         Q 50 58 51 59
-                         Q 56 62 64 68
-                         Q 72 75 78 84
-                         Q 82 92 82 100
-                         Q 82 102 81 103
-                         L 19 103
-                         Q 18 102 18 100
-                         Q 18 92 22 84
-                         Q 28 75 36 68
-                         Q 44 62 49 59
-                         Q 50 58 50 58 Z"
+                      d="M 50 68
+                         Q 58 70 66 75
+                         Q 74 81 80 88
+                         Q 84 95 84 100
+                         Q 84 102 83 103
+                         L 17 103
+                         Q 16 102 16 100
+                         Q 16 95 20 88
+                         Q 26 81 34 75
+                         Q 42 70 50 68 Z"
                       fill="url(#hSandGrad)"
                       opacity="0.95"
                     />
                     {/* 沙堆顶部高光，让堆积感更自然 */}
-                    <path
-                      d="M 50 58 Q 58 63 64 70 Q 56 64 50 62 Q 44 64 36 70 Q 42 63 50 58 Z"
-                      fill="url(#hSandGrad)"
-                      opacity="0.7"
-                    />
+                    <ellipse cx="50" cy="72" rx="14" ry="3" fill="url(#hSandGrad)" opacity="0.5" />
                   </g>
 
                   {/* ─── 流沙：从漏颈到沙堆顶的细流 ─── */}
                   <g opacity="0.85">
                     <path
-                      d="M 49.7 58 Q 49.8 62 50 65 Q 50.2 62 50.3 58 Z"
+                      d="M 49.7 58 L 50.3 58 L 50.2 70 L 49.8 70 Z"
                       fill="url(#hSandGrad)"
                     />
                     {/* 流光沙粒 */}
-                    <circle cx="50" cy="62" r="1.3" fill="#ffd700" opacity="0.7">
+                    <circle cx="50" cy="63" r="1.2" fill="#ffd700" opacity="0.7">
                       <animate attributeName="cy" values="58;72" dur="0.9s" repeatCount="indefinite" />
                       <animate attributeName="opacity" values="0.9;0.2;0.9" dur="0.9s" repeatCount="indefinite" />
                     </circle>
@@ -195,8 +183,8 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
 
                   {/* ─── 散落沙粒：浪漫金色闪烁 ─── */}
                   {[0, 1, 2, 3, 4].map((i) => (
-                    <circle key={i} cx="50" cy="62" r="0.7" fill="#ffd700">
-                      <animate attributeName="cy" values="58;75" dur={`${1.0 + i * 0.15}s`}
+                    <circle key={i} cx="50" cy="62" r="0.6" fill="#ffd700">
+                      <animate attributeName="cy" values="58;76" dur={`${1.0 + i * 0.15}s`}
                         begin={`${i * 0.2}s`} repeatCount="indefinite" />
                       <animate attributeName="opacity" values="0;1;1;0" dur={`${1.0 + i * 0.15}s`}
                         begin={`${i * 0.2}s`} repeatCount="indefinite" />
