@@ -15,6 +15,80 @@ export interface BlogArticle {
 
 export const BLOG_ARTICLES: BlogArticle[] = [
   {
+    slug: 'letter-to-future-self',
+    title: 'Letter to My Future Self: What to Write and When to Open It',
+    subtitle: 'Learn how to write a powerful letter to your future self. Includes 5 writing prompts and how to seal it with TimeVault until the perfect moment.',
+    category: 'Self-Reflection',
+    categoryColor: '#a78bfa',
+    readTime: '8 min read',
+    date: 'June 22, 2026',
+    tags: ['letter to future self', 'self-reflection', 'personal growth', 'time capsule', 'journaling'],
+    content: `
+      <p class="lead">A letter to your future self is more than just words on a page. It's a conversation across time — a way to connect with who you'll become, hold yourself accountable to your dreams, and create a record of who you are right now. When sealed with a time lock, it becomes a powerful tool for self-reflection that grows more meaningful with each passing year.</p>
+
+      <h2>Why Writing to Your Future Self Works</h2>
+      <p>There's a reason why successful people from Oprah to Tim Ferriss swear by writing letters to their future selves. The practice taps into powerful psychological principles that make it more than just a journaling exercise.</p>
+      <p>First, there's <strong>goal-setting theory</strong>. Research shows that writing down specific goals increases your chances of achieving them by <em>42%</em>. When you write to your future self, you're not just imagining — you're declaring. You're telling the universe (and yourself) what you intend to become.</p>
+      <p>Then there's <strong>self-distancing theory</strong>. When we imagine our future selves, we create psychological distance that helps us make wiser decisions. Studies from Harvard Business Review show that people who write letters to their future selves make better long-term choices because they're able to see beyond immediate gratification.</p>
+      <p>Finally, there's the <strong>permanence factor</strong>. Unlike fleeting thoughts or digital notes, a sealed letter waits for you. It doesn't get lost in your inbox or buried under notifications. It becomes a promise you made to yourself that time will deliver.</p>
+
+      <h2>5 Writing Prompts to Get You Started</h2>
+      <p>Don't worry about being perfect. Just write from the heart. Here are five prompts to help you begin:</p>
+
+      <h3>1. What do you hope hasn't changed about you?</h3>
+      <p>Write about your core values — the things that make you "you." What parts of your personality do you hope remain constant? What habits or beliefs are non-negotiable? This helps you stay grounded in what truly matters.</p>
+
+      <h3>2. What are you afraid of right now?</h3>
+      <p>Fears change over time. What's keeping you up at night today? What worries feel overwhelming? When you open this letter later, you'll likely see that many of these fears either came true (and you survived) or never materialized at all.</p>
+
+      <h3>3. What do you want to have achieved?</h3>
+      <p>Be specific. Instead of "I want to be happier," try "I want to have run my first 5K" or "I want to have learned basic Spanish." Include personal, professional, and relationship goals. This is your chance to dream big.</p>
+
+      <h3>4. Who do you want to thank?</h3>
+      <p>Who is supporting you now? Who has helped shape who you are? Write a note of gratitude to them — and to your future self for keeping going. Gratitude writing has been shown to increase happiness and resilience.</p>
+
+      <h3>5. What advice would you give your future self?</h3>
+      <p>What do you wish someone had told you five years ago? What wisdom have you gained that you want to pass on? This becomes a time capsule of your current perspective.</p>
+
+      <h2>When Should You Open It?</h2>
+      <p>The timing matters. Here are three options depending on what you want to achieve:</p>
+      <ul>
+        <li><strong>1 year from now:</strong> Perfect for short-term goals. Did you keep those promises? How has your daily life changed? This is great for New Year's resolutions or after major life transitions.</li>
+        <li><strong>5 years from now:</strong> Ideal for life-stage milestones. Where will you be living? What will your career look like? Five years is enough time for significant change but close enough to still feel connected.</li>
+        <li><strong>10 years from now:</strong> For the big picture. This becomes a powerful record of growth. You'll be amazed at how much you've learned, how your priorities have shifted, and how far you've come.</li>
+      </ul>
+
+      <h2>How to Seal It So You Can't Cheat</h2>
+      <p>The temptation to peek is real. That's why TimeVault is the perfect tool for this exercise — it's impossible to open before the date you choose.</p>
+      <p>Here's how it works:</p>
+      <ol>
+        <li><strong>Write your letter.</strong> Use the prompts above, or just write freely from your heart.</li>
+        <li><strong>Choose a photo.</strong> Pick an image that represents your current self — a selfie, a place that matters, or something that symbolizes your journey.</li>
+        <li><strong>Set the unlock date.</strong> Choose 1 year, 5 years, or whatever timeframe feels right.</li>
+        <li><strong>Create a PIN.</strong> This becomes your personal key to unlock the message.</li>
+        <li><strong>Download and save.</strong> Your letter is now encrypted inside the photo. Store it somewhere safe.</li>
+      </ol>
+      <p>The psychological value of "can't cheat" is huge. When you know the letter <em>literally cannot be opened</em> until that date, you're forced to trust the process. You can't second-guess yourself or peek when times get tough. The letter waits, and so should you.</p>
+      <p><a href="/">Start your time capsule →</a></p>
+
+      <h2>Frequently Asked Questions</h2>
+
+      <h3>How long should I wait to open my letter?</h3>
+      <p>It depends on your goals. If you're working on specific short-term goals, 1 year works well. For bigger life questions, 5 or 10 years gives you perspective. Many people write multiple letters for different timeframes — one for next year, one for five years from now.</p>
+
+      <h3>Can I write multiple letters to different future versions of myself?</h3>
+      <p>Absolutely! This is a great practice. Write one letter for 1 year, another for 5 years, and another for 10 years. Each one will give you a different lens to view your growth.</p>
+
+      <h3>What if I forget my PIN?</h3>
+      <p>Your PIN is the key to unlocking your letter. Write it down somewhere safe — in your journal, in a password manager, or even on a sticky note in your wallet. Without the PIN, the letter stays locked forever.</p>
+
+      <h2>Your Future Self Is Waiting</h2>
+      <p>Writing to your future self is an act of self-love. It's saying, "I believe in who I'm becoming." It's creating a bridge between the person you are now and the person you want to be.</p>
+      <p>Don't wait for the "perfect" time to write. The best time is now — while your thoughts, fears, and dreams are fresh.</p>
+      <p><a href="/">Write a letter your future self will thank you for →</a></p>
+    `,
+  },
+  {
     slug: 'anniversary-letters-sealed-in-time',
     title: 'Anniversary Letters Sealed in Time: A Complete Guide',
     subtitle: 'Discover meaningful anniversary letter ideas and learn how to seal your love letter inside a photo. A gift that waits for the perfect moment.',
