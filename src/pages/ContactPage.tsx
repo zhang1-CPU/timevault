@@ -1,21 +1,13 @@
-import { useEffect } from 'react';
 import { Shield, Heart, Lock, FileText } from 'lucide-react';
+import { usePageMeta } from '../hooks/usePageMeta';
 import type { Page } from '../App';
 
 export function ContactPage({ navigate }: { navigate: (to: Page) => void }) {
-  useEffect(() => {
-    document.title = 'Contact — TimeVault';
-    let meta = document.querySelector('meta[name="description"]');
-    if (!meta) {
-      meta = document.createElement('meta');
-      meta.setAttribute('name', 'description');
-      document.head.appendChild(meta);
-    }
-    meta.setAttribute(
-      'content',
-      'Questions about TimeVault, privacy, or time-locked messages? Get in touch with our team — we read every message.'
-    );
-  }, []);
+  usePageMeta({
+    title: 'Contact — TimeVault',
+    description: 'Questions about TimeVault, privacy, or time-locked messages? Get in touch with our team — we read every message.',
+    canonicalPath: 'contact',
+  });
 
   return (
     <div className="pt-20 sm:pt-24 animate-page-enter">

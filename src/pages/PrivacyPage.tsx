@@ -1,20 +1,12 @@
-import { useEffect } from 'react';
+import { usePageMeta } from '../hooks/usePageMeta';
 import type { Page } from '../App';
 
 export function PrivacyPage({ navigate }: { navigate: (to: Page) => void }) {
-  useEffect(() => {
-    document.title = 'Privacy Policy — TimeVault';
-
-    const metaDesc = document.createElement('meta');
-    metaDesc.name = 'description';
-    metaDesc.content =
-      'TimeVault privacy policy — what we collect (nothing), how encryption works in-browser, third-party infrastructure, cookie policy, and your data rights.';
-    document.head.appendChild(metaDesc);
-
-    return () => {
-      document.head.removeChild(metaDesc);
-    };
-  }, []);
+  usePageMeta({
+    title: 'Privacy Policy — TimeVault',
+    description: 'TimeVault privacy policy — what we collect (nothing), how encryption works in-browser, third-party infrastructure, cookie policy, and your data rights.',
+    canonicalPath: 'privacy',
+  });
 
   return (
     <div className="pt-20 sm:pt-24 animate-page-enter">

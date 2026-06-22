@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Heart, Gift, Star, Users, Calendar, Book, Plane, Leaf, Sparkles, Moon, Globe } from 'lucide-react';
 import { ScrollReveal } from '../components/ScrollReveal';
+import { usePageMeta } from '../hooks/usePageMeta';
 import type { Page } from '../App';
 
 const STORIES = [
@@ -103,15 +104,13 @@ const STORIES = [
 ];
 
 export function StoriesPage({ navigate }: { navigate: (to: Page) => void }) {
+  usePageMeta({
+    title: 'Stories & Ideas — What People Seal Inside a Photo | TimeVault',
+    description: 'Ideas and inspiration for what to seal inside a photo — anniversary letters, birthday traditions, travel memories, farewell notes, wedding vows, grief letters, and more.',
+    canonicalPath: 'stories',
+  });
+
   useEffect(() => {
-    document.title = 'Stories & Use Cases — TimeVault';
-
-    const metaDesc = document.createElement('meta');
-    metaDesc.name = 'description';
-    metaDesc.content =
-      'Ideas and inspiration for what to seal inside a photo — anniversary letters, birthday traditions, travel memories, farewell notes, wedding vows, grief letters, and more.';
-    document.head.appendChild(metaDesc);
-
     const jsonLd = document.createElement('script');
     jsonLd.type = 'application/ld+json';
     jsonLd.text = JSON.stringify({
@@ -128,9 +127,7 @@ export function StoriesPage({ navigate }: { navigate: (to: Page) => void }) {
       },
     });
     document.head.appendChild(jsonLd);
-
     return () => {
-      document.head.removeChild(metaDesc);
       document.head.removeChild(jsonLd);
     };
   }, []);

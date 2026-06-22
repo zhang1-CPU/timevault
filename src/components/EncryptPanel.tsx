@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { sealMessage } from '@/lib/crypto';
 import { ReminderSection } from './ReminderSection';
-import { ArrowLeft, Upload, Lock, Download, Sparkles, Image, FileKey, Calendar, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Upload, Lock, Download, Sparkles, Image, FileKey, Calendar } from 'lucide-react';
 import { useScrollToTop, downloadBlob } from '@/lib/download-utils';
 
 interface EncryptPanelProps {

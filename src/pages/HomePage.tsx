@@ -1,9 +1,15 @@
 import { HeroSection } from '../components/HeroSection';
 import { HowItWorks } from '../components/HowItWorks';
 import { StoriesPreview } from './StoriesPreview';
+import { usePageMeta } from '../hooks/usePageMeta';
 import type { Page } from '../App';
 
 export function HomePage({ navigate }: { navigate: (to: Page) => void }) {
+  usePageMeta({
+    title: 'TimeVault — Seal a message, choose when it opens. A time capsule for two hearts.',
+    description: 'Write a secret message. Hide it inside any photo. Pick a future date. On that day — and only that day — it opens. End-to-end encrypted. Zero servers. Your photo holds the key.',
+    canonicalPath: '',
+  });
   return (
     <div className="animate-page-enter">
       <HeroSection
