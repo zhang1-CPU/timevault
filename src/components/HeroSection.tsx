@@ -122,15 +122,15 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
                 />
 
                 <g clipPath="url(#glassClip)">
-                  {/* Top sand - small amount, follows the glass curve naturally, NO triangle */}
+                  {/* Top sand - small amount, top corner area, NO triangle */}
                   <path
-                    d="M 19 17 L 81 17 Q 80 22 73 32 Q 64 44 56 52 Q 54 54 53 55 Q 52 56 51 57 Q 50 58 49 57 Q 48 56 47 55 Q 46 54 44 52 Q 36 44 27 32 Q 20 22 19 17 Z"
+                    d="M 19 17 L 81 17 L 81 24 Q 78 26 70 30 Q 60 36 53 44 Q 51 47 50 50 Q 49 47 47 44 Q 40 36 30 30 Q 22 26 19 24 Z"
                     fill="url(#hSandGrad)"
                   />
 
-                  {/* Bottom sand - larger pile, follows the glass curve, NO triangle */}
+                  {/* Bottom sand - much larger pile, NO triangle */}
                   <path
-                    d="M 19 103 L 19 95 Q 21 86 30 76 Q 40 67 50 64 Q 60 67 70 76 Q 79 86 81 95 L 81 103 Z"
+                    d="M 18 103 L 18 88 Q 22 75 32 65 Q 42 56 50 54 Q 58 56 68 65 Q 78 75 82 88 L 82 103 Z"
                     fill="url(#hSandGrad)"
                   />
 
