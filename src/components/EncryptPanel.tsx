@@ -474,57 +474,61 @@ export function EncryptPanel({ onBack }: EncryptPanelProps) {
 
               {/* ⚠️ URGENT WARNING — Watermark Photo + PIN = Your ONLY Key */}
               <div
-                className="relative rounded-2xl border-2 border-amber-400/60 p-5 sm:p-6 overflow-hidden"
+                className="relative rounded-2xl border border-white/10 p-5 sm:p-6 overflow-hidden"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(180, 83, 9, 0.12) 50%, rgba(217, 119, 6, 0.15) 100%)',
-                  boxShadow: '0 0 40px rgba(245, 158, 11, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                  background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(236, 72, 153, 0.06) 50%, rgba(139, 92, 246, 0.06) 100%)',
+                  boxShadow: '0 0 60px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
                 }}
               >
-                <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl pointer-events-none"
-                     style={{ background: 'radial-gradient(circle, rgba(245, 158, 11, 0.25), transparent 70%)' }} />
+                <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl pointer-events-none opacity-50"
+                     style={{ background: 'radial-gradient(circle, rgba(236, 72, 153, 0.3), transparent 70%)' }} />
+                <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full blur-3xl pointer-events-none opacity-50"
+                     style={{ background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3), transparent 70%)' }} />
 
-                <div className="flex items-start gap-4 relative">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center animate-heart-bob"
-                       style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.4), rgba(217, 119, 6, 0.3))' }}>
-                    <AlertTriangle className="w-6 h-6 text-amber-200" />
+                <div className="flex flex-col items-center text-center relative">
+                  <div className="relative mb-4">
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center animate-glow-pulse"
+                         style={{ background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(139, 92, 246, 0.2))' }}>
+                      <Lock className="w-6 h-6 text-rose-300" />
+                    </div>
+                    <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-400/80 animate-ping" />
+                    <Sparkles className="absolute -bottom-1 -left-1 w-4 h-4 text-violet-300 animate-twinkle" />
                   </div>
-                  <div className="flex-1 space-y-3">
-                    <h3 className="text-amber-100 font-semibold text-base sm:text-lg leading-tight">
-                      SAVE THIS — THIS IS YOUR ONLY KEY
-                    </h3>
 
-                    <div className="space-y-2.5">
-                      <p className="text-amber-200/90 text-sm font-medium leading-relaxed">
-                        <span className="text-white font-bold">1.</span> The photo you're about to download has a{' '}
-                        <span className="text-white font-semibold">TimeVault watermark in the bottom-right corner</span>.
-                      </p>
-                      <p className="text-amber-200/90 text-sm font-medium leading-relaxed">
-                        <span className="text-white font-bold">2.</span> Only{' '}
-                        <span className="text-white font-semibold">THIS exact photo</span> can unlock your message.
-                        Your <span className="italic">original photo without the watermark</span> will{' '}
-                        <span className="text-white font-semibold">NOT work for decryption</span>.
-                      </p>
-                      <p className="text-amber-200/90 text-sm font-medium leading-relaxed">
-                        <span className="text-white font-bold">3.</span> Remember your{' '}
-                        <span className="text-white font-semibold">4-digit PIN</span>. Without both the watermarked photo + PIN,
-                        the message is lost forever.
-                      </p>
-                      <p className="text-amber-200/90 text-sm font-medium leading-relaxed">
-                        <span className="text-white font-bold">4.</span> Save it as{' '}
-                        <span className="text-white font-semibold">PNG</span>. Never convert to JPG — compression destroys the hidden data.
-                      </p>
+                  <h3 className="text-lg sm:text-xl font-display font-light text-white mb-1">
+                    Your Secret is Safe with You
+                  </h3>
+                  <p className="text-white/40 text-xs sm:text-sm mb-4">Guard these carefully — they hold the key to your message</p>
+
+                  <div className="w-full grid grid-cols-2 gap-3 sm:gap-4">
+                    <div className="rounded-xl p-3 sm:p-4 bg-white/[0.02] border border-white/5">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose-500/20 to-violet-500/20 flex items-center justify-center mx-auto mb-2">
+                        <Image className="w-4 h-4 text-rose-300" />
+                      </div>
+                      <p className="text-white/60 text-[10px] sm:text-xs">Save the <span className="text-rose-300 font-medium">watermarked photo</span></p>
+                      <p className="text-white/30 text-[9px] sm:text-[10px] mt-1">Original won't work</p>
                     </div>
 
-                    <div className="mt-4 pt-4 border-t border-amber-400/25">
-                      <p className="text-amber-200/70 text-xs leading-relaxed text-center font-medium">
-                        🚨 We store NOTHING. If you lose this photo or forget your PIN, there is no way to recover your message. 🚨
-                      </p>
-                      <p className="text-amber-200/50 text-[11px] text-center mt-2">
-                        Return after{' '}
-                        <span className="text-white font-semibold">{unlockDate ? new Date(unlockDate).toLocaleDateString() : ''}</span>{' '}
-                        to unlock
-                      </p>
+                    <div className="rounded-xl p-3 sm:p-4 bg-white/[0.02] border border-white/5">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500/20 to-rose-500/20 flex items-center justify-center mx-auto mb-2">
+                        <FileKey className="w-4 h-4 text-violet-300" />
+                      </div>
+                      <p className="text-white/60 text-[10px] sm:text-xs">Remember your <span className="text-violet-300 font-medium">4-digit PIN</span></p>
+                      <p className="text-white/30 text-[9px] sm:text-[10px] mt-1">No recovery possible</p>
                     </div>
+                  </div>
+
+                  <div className="w-full mt-4 pt-4 border-t border-white/5">
+                    <div className="flex items-center justify-center gap-2 text-white/30 text-[10px] sm:text-xs">
+                      <span className="text-rose-400">💜</span>
+                      <span>We store nothing. Your secret stays yours, always.</span>
+                      <span className="text-rose-400">💜</span>
+                    </div>
+                    <p className="text-white/20 text-[10px] sm:text-xs mt-2">
+                      Return after{' '}
+                      <span className="text-rose-300 font-medium">{unlockDate ? new Date(unlockDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : ''}</span>{' '}
+                      to unlock your message
+                    </p>
                   </div>
                 </div>
               </div>
