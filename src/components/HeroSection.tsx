@@ -128,33 +128,39 @@ export function HeroSection({ onEncrypt, onDecrypt, onCouple, onCoupleUnlock }: 
 
                 {/* 所有沙子被 clipPath 裁剪，永远不会溢出玻璃 */}
                 <g clipPath="url(#glassClip)">
-                  {/* Top sand pile — 缓慢缩小 */}
+                  {/* Top sand pile — 持续缩小，沙子一直往下流 */}
                   <path
                     d="M 22 18 L 78 18 Q 64 38 54 55 Q 50 58 46 55 Q 36 38 22 18 Z"
                     fill="url(#hSandGrad)"
-                    style={{
-                      transformOrigin: '50px 58px',
-                      animation: 'sand-top 6s ease-in-out infinite',
-                    }}
-                  />
+                  >
+                    <animate
+                      attributeName="d"
+                      values="M 22 18 L 78 18 Q 64 38 54 55 Q 50 58 46 55 Q 36 38 22 18 Z;M 28 28 L 72 28 Q 60 40 54 55 Q 52 58 48 55 Q 40 40 28 28 Z"
+                      dur="12s"
+                      repeatCount="indefinite"
+                    />
+                  </path>
 
-                  {/* Bottom sand pile — 缓慢堆积 */}
+                  {/* Bottom sand pile — 持续堆积 */}
                   <path
                     d="M 30 90 Q 50 84 70 90 L 80 102 L 20 102 Z"
                     fill="url(#hSandGrad)"
                     opacity="0.9"
-                    style={{
-                      transformOrigin: '50px 90px',
-                      animation: 'sand-bottom 6s ease-in-out infinite',
-                    }}
-                  />
+                  >
+                    <animate
+                      attributeName="d"
+                      values="M 30 90 Q 50 84 70 90 L 80 102 L 20 102 Z;M 22 78 Q 50 70 78 78 L 84 102 L 16 102 Z"
+                      dur="12s"
+                      repeatCount="indefinite"
+                    />
+                  </path>
 
                   {/* Narrow neck sand stream — 细小的流沙柱 */}
                   <rect x="49.4" y="58" width="1.2" height="28" fill="url(#hSandGrad)" opacity="0.85">
                     <animate attributeName="opacity" values="0.6;1;0.6" dur="1s" repeatCount="indefinite" />
                   </rect>
 
-                  {/* Falling sand grains — 5 粒金沙下坠，被 clip 后只会在玻璃内部可见 */}
+                  {/* Falling sand grains — 金沙持续下坠 */}
                   {[0, 1, 2, 3, 4].map((i) => (
                     <circle key={i} cx="50" cy={62 + i * 2} r="0.8" fill="#ffd700">
                       <animate
