@@ -2,27 +2,11 @@
   "version": 1,
   "include": [
     {
-      "path": "/*",
-      "headers": {
-        "X-Robots-Tag": "index, follow"
-      }
-    },
-    {
       "path": "/analytics/*",
       "headers": {
         "Cache-Control": "no-store"
       }
     }
   ],
-  "exclude": [
-    "/assets/*",
-    "/favicon.svg",
-    "/manifest.json",
-    "/robots.txt",
-    "/sitemap.xml",
-    "/og-image.svg",
-    "/logo.png",
-    "/logo.svg",
-    "/google4bd1e08685667667.html"
-  ]
+  "exclude": []
 }
