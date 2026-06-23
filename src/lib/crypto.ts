@@ -466,8 +466,8 @@ const MAX_DIMENSION = 2048;
 
 /**
  * Draw a source image/bitmap into a canvas, automatically fitting within
- * MAX_DIMENSION on the longest edge. This both prevents OOM on huge photos
- * AND ensures the source is fully visible (not clipped) in the output.
+ * MAX_DIMENSION on the longest edge. Uses the 9-arg drawImage form to be
+ * unambiguous: source rect (0,0,srcW,srcH) → dest rect (0,0,w,h).
  */
 function drawSourceFitted(
   source: CanvasImageSource,
@@ -481,14 +481,16 @@ function drawSourceFitted(
     const scale = MAX_DIMENSION / longest;
     const w = Math.max(1, Math.round(srcW * scale));
     const h = Math.max(1, Math.round(srcH * scale));
+    target.width = w;
+    target.height = h;
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    // Explicitly draw at target dimensions — otherwise the source would be
-    // drawn at its native (huge) size and clipped by the smaller canvas.
-    ctx.drawImage(source, 0, 0, w, h);
+    // 9-arg form: drawImage(source, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
+    // This unambiguously maps source rect (0,0,srcW,srcH) → dest rect (0,0,w,h)
+    ctx.drawImage(source, 0, 0, srcW, srcH, 0, 0, w, h);
   } else {
     // Source fits as-is — draw at native size
-    ctx.drawImage(source, 0, 0);
+    ctx.drawImage(source, 0, 0, srcW, srcH, 0, 0, srcW, srcH);
   }
 }
 
