@@ -466,8 +466,12 @@ const MAX_DIMENSION = 2048;
 
 /**
  * Draw a source image/bitmap into a canvas, automatically fitting within
- * MAX_DIMENSION on the longest edge. Uses the 9-arg drawImage form to be
- * unambiguous: source rect (0,0,srcW,srcH) → dest rect (0,0,w,h).
+ * MAX_DIMENSION on the longest edge.
+ *
+ * Critical behavior:
+ * - When downscaling is needed: enable smoothing for best visual quality
+ * - When drawing 1:1 (no scale): disable smoothing entirely so pixel values
+ *   are preserved exactly — this is essential for LSB steganography round-trip
  */
 function drawSourceFitted(
   source: CanvasImageSource,
@@ -485,31 +489,33 @@ function drawSourceFitted(
     target.height = h;
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    // 9-arg form: drawImage(source, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
-    // This unambiguously maps source rect (0,0,srcW,srcH) → dest rect (0,0,w,h)
+    // 9-arg form: source rect (0,0,srcW,srcH) → dest rect (0,0,w,h)
     ctx.drawImage(source, 0, 0, srcW, srcH, 0, 0, w, h);
   } else {
-    // Source fits as-is — draw at native size
-    ctx.drawImage(source, 0, 0, srcW, srcH, 0, 0, srcW, srcH);
+    // Source fits as-is — exact 1:1 copy, NO smoothing to preserve pixel values
+    target.width = srcW;
+    target.height = srcH;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(source, 0, 0);
   }
 }
 
 /**
- * Load the input image into a canvas, applying EXIF orientation so that
- * iOS Safari / Android Chrome produce pixel arrays that are aligned
- * with the visual layout. Falls back to plain <img> onload when
- * createImageBitmap is not available.
+ * Load a source image into a canvas for ENCRYPTION.
  *
- * Auto-downscales images larger than MAX_DIMENSION on the longest edge to
- * keep memory under control on mobile devices — a 4032x3024 iPhone photo
- * would otherwise consume ~46MB of canvas memory and OOM on iOS Safari.
+ * - Applies EXIF orientation (so portrait photos from iPhones display correctly)
+ * - Auto-downscales to MAX_DIMENSION for memory safety
+ * - For unscaled images: disables smoothing to preserve pixel values
  */
-async function loadImageToCanvas(imageFile: File): Promise<{ canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D }> {
-  // Prefer createImageBitmap (modern browsers & Safari 15+) with explicit orientation
-  // orientation: 'from-image' applies EXIF rotation onto pixels.
+async function loadImageForEncryption(
+  imageFile: File,
+): Promise<{ canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D }> {
   if (typeof createImageBitmap !== 'undefined') {
     try {
-      const bitmap = await createImageBitmap(imageFile, { imageOrientation: 'from-image', premultiplyAlpha: 'none' });
+      const bitmap = await createImageBitmap(imageFile, {
+        imageOrientation: 'from-image',
+        premultiplyAlpha: 'none',
+      } as ImageBitmapOptions);
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
       if (!ctx) throw new Error('Canvas 2D context not available');
@@ -527,7 +533,6 @@ async function loadImageToCanvas(imageFile: File): Promise<{ canvas: HTMLCanvasE
     const url = URL.createObjectURL(imageFile);
     img.onload = () => {
       try {
-        // Decode to ensure pixels are ready (needed on some iOS Safari versions)
         const decoder = img.decode ? img.decode() : Promise.resolve();
         (decoder as Promise<void>)
           .then(() => {
@@ -564,8 +569,131 @@ async function loadImageToCanvas(imageFile: File): Promise<{ canvas: HTMLCanvasE
   });
 }
 
+/**
+ * Load a sealed PNG image and return its pixel data, with maximum
+ * effort to preserve exact pixel values (zero color-space conversion,
+ * no smoothing, no resampling).
+ *
+ * This is the DECRYPTION counterpart to loadImageForEncryption — both
+ * must agree on the final pixel values for the generated PNG.
+ *
+ * Pipeline (tried in order):
+ *   1. ImageDecoder API (Safari 17+, Chrome 94+) — native, pixel-exact
+ *   2. createImageBitmap + exact-size canvas with smoothing disabled
+ *   3. <img> fallback + exact-size canvas
+ *
+ * Any canvas operations during decryption MUST:
+ *   - Match the source image dimensions 1:1
+ *   - Have imageSmoothingEnabled = false
+ *   - Use premultiplyAlpha: 'none' (no alpha-multiplication rounding)
+ *
+ * Failure to do so means iOS Safari (and other browsers) will silently
+ * apply color-space / gamma conversion that flips LSB bits and makes
+ * the hidden message undetectable.
+ */
+async function loadImageDataForDecryption(imageFile: File): Promise<ImageData> {
+  const w = window as unknown as {
+    ImageDecoder?: new (opts: unknown) => {
+      decode: () => Promise<{ image: { displayWidth: number; displayHeight: number; close?: () => void } }>;
+    };
+  };
+
+  // ── Path 1: ImageDecoder API (pixel-exact native decode) ──────
+  if (typeof w.ImageDecoder !== 'undefined') {
+    try {
+      const decoder = new w.ImageDecoder({
+        data: imageFile,
+        type: 'image/png',
+        premultiplyAlpha: 'none',
+        colorSpaceConversion: 'default',
+      });
+      const result = await decoder.decode();
+      const canvas = document.createElement('canvas');
+      canvas.width = result.image.displayWidth;
+      canvas.height = result.image.displayHeight;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (ctx) {
+        ctx.imageSmoothingEnabled = false;
+        const vf = result.image as unknown as CanvasImageSource;
+        ctx.drawImage(vf, 0, 0);
+        result.image.close?.();
+        return ctx.getImageData(0, 0, canvas.width, canvas.height);
+      }
+    } catch {
+      // fall through
+    }
+  }
+
+  // ── Path 2: createImageBitmap with pixel-preserving options ───
+  if (typeof createImageBitmap !== 'undefined') {
+    try {
+      const bitmap = await createImageBitmap(imageFile, {
+        imageOrientation: 'none',
+        premultiplyAlpha: 'none',
+      } as ImageBitmapOptions);
+      const canvas = document.createElement('canvas');
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (ctx) {
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(bitmap, 0, 0);
+        (bitmap as ImageBitmap).close?.();
+        return ctx.getImageData(0, 0, canvas.width, canvas.height);
+      }
+    } catch {
+      // fall through
+    }
+  }
+
+  // ── Path 3: <img> fallback ────────────────────────────────────
+  return new Promise((resolve, reject) => {
+    const img = document.createElement('img');
+    const url = URL.createObjectURL(imageFile);
+    img.onload = () => {
+      const cleanup = () => URL.revokeObjectURL(url);
+      try {
+        const decoder = img.decode ? img.decode() : Promise.resolve();
+        (decoder as Promise<void>)
+          .then(() => {
+            if (!img.width || !img.height) {
+              cleanup();
+              reject(new Error('Image has no content'));
+              return;
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            if (!ctx) {
+              cleanup();
+              reject(new Error('Canvas 2D context not available'));
+              return;
+            }
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(img, 0, 0);
+            cleanup();
+            resolve(ctx.getImageData(0, 0, canvas.width, canvas.height));
+          })
+          .catch(() => {
+            cleanup();
+            reject(new Error('Failed to decode image'));
+          });
+      } catch (err) {
+        cleanup();
+        reject(err);
+      }
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Failed to load image'));
+    };
+    img.src = url;
+  });
+}
+
 async function embedInImage(imageFile: File, data: Uint8Array, unlockDate: Date): Promise<Blob> {
-  const { canvas, ctx } = await loadImageToCanvas(imageFile);
+  const { canvas, ctx } = await loadImageForEncryption(imageFile);
 
   const w = canvas.width;
   const h = canvas.height;
@@ -573,54 +701,49 @@ async function embedInImage(imageFile: File, data: Uint8Array, unlockDate: Date)
     throw new Error('Image has no content');
   }
 
-  // Step 1: Read the raw image pixels BEFORE drawing the watermark.
-  // The watermark would overwrite pixel values in the corner — if we
-  // embedded LSB data into those pixels, the watermark would destroy
-  // them. By reading pixels first, the hidden data is derived from the
-  // original photo. We then overwrite the watermark corner LSBs with
-  // a fixed pattern so the decoder can safely skip that region.
+  // Read image pixels (from the pre-watermark canvas). The watermark will be
+  // drawn AFTER LSB embedding so it never overwrites hidden data.
   const imageData = ctx.getImageData(0, 0, w, h);
 
-  // Reserve a watermark-safe region in the bottom-right corner. The
-  // region is slightly larger than the drawn watermark so text / glow
-  // anti-aliasing fringes are also excluded from LSB payload.
-  const watermarkPixelCount = Math.min(
-    Math.max(2000, Math.floor(w * h * 0.02)),
-    Math.floor(w * h * 0.1)
-  );
+  // Reserve a watermark-safe region at the end of the pixel buffer —
+  // (bottom rows in row-major order) — so the brand watermark drawn in
+  // the bottom-right corner cannot collide with the hidden payload.
   const totalPixels = Math.floor(imageData.data.length / 4);
+  const watermarkPixelCount = Math.min(
+    Math.max(2000, Math.floor(totalPixels * 0.02)),
+    Math.floor(totalPixels * 0.1),
+  );
   const usablePixels = Math.max(1, totalPixels - watermarkPixelCount);
 
-  // Check capacity: 4 bytes magic "TVLT" + 4 bytes length + data
+  // Check capacity: 4 bytes magic "TVLT" + 4 bytes length + data bytes
   const availableBits = usablePixels * 3;
   const neededBits = MAGIC_BYTES.length * 8 + 32 + data.length * 8;
   if (neededBits > availableBits) {
     throw new Error(
-      `Image too small. Need ${Math.ceil(neededBits / 8)} bytes, have ${Math.floor(availableBits / 8)}. Use a larger image.`
+      `Image too small. Need ${Math.ceil(neededBits / 8)} bytes, have ${Math.floor(availableBits / 8)}. Use a larger image.`,
     );
   }
 
-  // Step 2: Embed LSB data only in the usable (non-watermark) region.
+  // Embed LSB data into the usable (non-watermark) pixel region.
   embedLsb(imageData, data, usablePixels);
 
-  // Step 3: Write modified pixels back, then draw the watermark on top.
+  // Write pixels back. The watermark is drawn next only in the reserved region.
   ctx.putImageData(imageData, 0, 0);
+
+  // Brand watermark drawn LAST so it never interferes with the hidden payload.
   drawBrandWatermark(ctx, w, h, unlockDate);
 
-  // Produce PNG blob; on iOS Safari canvas.toBlob may be missing on old versions.
+  // Produce PNG blob.
   return new Promise<Blob>((resolve, reject) => {
     const done = (blob: Blob | null) => {
       if (blob) resolve(blob);
       else reject(new Error('Failed to create PNG blob'));
     };
     if (typeof (canvas as HTMLCanvasElement & { mozGetAsFile?: (name: string, type: string) => Blob }).mozGetAsFile !== 'undefined') {
-      // Firefox legacy path
       done((canvas as HTMLCanvasElement & { mozGetAsFile: (name: string, type: string) => Blob }).mozGetAsFile('timevault.png', 'image/png'));
     } else if (typeof canvas.toBlob !== 'undefined') {
-      // Standard path — toBlob is asynchronous on every modern browser.
       canvas.toBlob(done, 'image/png');
     } else {
-      // Fallback: toDataURL + manual Blob
       try {
         const dataUrl = canvas.toDataURL('image/png');
         const base64 = dataUrl.split(',')[1] || '';
@@ -636,19 +759,17 @@ async function embedInImage(imageFile: File, data: Uint8Array, unlockDate: Date)
 }
 
 /**
- * Extract binary data from LSB-steganography image.
+ * Extract binary data from LSB-steganography PNG.
+ *
+ * Uses the pixel-preserving loader `loadImageDataForDecryption` to avoid
+ * color-space / gamma conversion that would flip the hidden bits.
  */
 async function extractFromImage(imageFile: File): Promise<Uint8Array> {
-  const { canvas, ctx } = await loadImageToCanvas(imageFile);
-
-  if (!canvas.width || !canvas.height) {
+  const imageData = await loadImageDataForDecryption(imageFile);
+  if (!imageData.width || !imageData.height) {
     throw new Error('Image has no content');
   }
-
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = extractLsb(imageData);
-
-  return data;
+  return extractLsb(imageData);
 }
 
 // ─── Magic Bytes ──────────────────────────────────────────────
