@@ -465,31 +465,31 @@ function roundedRect(
 const MAX_DIMENSION = 2048;
 
 /**
- * Helper: create a canvas of target (possibly downscaled) dimensions and
- * invoke a draw callback to render the source into it. Returns the
- * configured canvas + 2D context.
+ * Draw a source image/bitmap into a canvas, automatically fitting within
+ * MAX_DIMENSION on the longest edge. This both prevents OOM on huge photos
+ * AND ensures the source is fully visible (not clipped) in the output.
  */
-function drawScaledToCanvas(
+function drawSourceFitted(
+  source: CanvasImageSource,
   srcW: number,
   srcH: number,
-  draw: (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => void,
-): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } {
+  target: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D,
+): void {
   const longest = Math.max(srcW, srcH);
-  const scale = longest > MAX_DIMENSION ? MAX_DIMENSION / longest : 1;
-  const w = Math.max(1, Math.round(srcW * scale));
-  const h = Math.max(1, Math.round(srcH * scale));
-  const canvas = document.createElement('canvas');
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  if (!ctx) throw new Error('Canvas 2D context not available');
-  if (scale < 1) {
-    // Smooth downscale avoids jagged pixels and keeps LSB data readable
+  if (longest > MAX_DIMENSION) {
+    const scale = MAX_DIMENSION / longest;
+    const w = Math.max(1, Math.round(srcW * scale));
+    const h = Math.max(1, Math.round(srcH * scale));
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
+    // Explicitly draw at target dimensions — otherwise the source would be
+    // drawn at its native (huge) size and clipped by the smaller canvas.
+    ctx.drawImage(source, 0, 0, w, h);
+  } else {
+    // Source fits as-is — draw at native size
+    ctx.drawImage(source, 0, 0);
   }
-  draw(canvas, ctx);
-  return { canvas, ctx };
 }
 
 /**
@@ -508,9 +508,10 @@ async function loadImageToCanvas(imageFile: File): Promise<{ canvas: HTMLCanvasE
   if (typeof createImageBitmap !== 'undefined') {
     try {
       const bitmap = await createImageBitmap(imageFile, { imageOrientation: 'from-image', premultiplyAlpha: 'none' });
-      const { canvas, ctx } = drawScaledToCanvas(bitmap.width, bitmap.height, (c, cx) => {
-        cx.drawImage(bitmap, 0, 0);
-      });
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) throw new Error('Canvas 2D context not available');
+      drawSourceFitted(bitmap, bitmap.width, bitmap.height, canvas, ctx);
       (bitmap as ImageBitmap).close?.();
       return { canvas, ctx };
     } catch {
@@ -533,9 +534,14 @@ async function loadImageToCanvas(imageFile: File): Promise<{ canvas: HTMLCanvasE
               reject(new Error('Image has no content'));
               return;
             }
-            const { canvas, ctx } = drawScaledToCanvas(img.width, img.height, (c, cx) => {
-              cx.drawImage(img, 0, 0);
-            });
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            if (!ctx) {
+              URL.revokeObjectURL(url);
+              reject(new Error('Canvas 2D context not available'));
+              return;
+            }
+            drawSourceFitted(img, img.width, img.height, canvas, ctx);
             URL.revokeObjectURL(url);
             resolve({ canvas, ctx });
           })
