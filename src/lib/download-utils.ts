@@ -69,6 +69,8 @@ export async function downloadBlob(
 ): Promise<void> {
   const url = URL.createObjectURL(blob);
   let openedWindow: Window | null = null;
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
+                (navigator.platform === 'MacIntel' && (navigator as unknown as { maxTouchPoints?: number }).maxTouchPoints! > 1);
 
   try {
     // Desktop + modern mobile: click-based anchor with download attribute
@@ -77,12 +79,23 @@ export async function downloadBlob(
     a.download = filename;
     a.rel = 'noopener';
     a.target = '_self';
+    a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
-    // Delay removal to ensure the browser's download handler has started —
-    // 100ms can race on slow Android WebView; 1000ms is reliably safe.
-    await new Promise<void>((r) => window.setTimeout(r, 1000));
-    document.body.removeChild(a);
+    // On iOS Safari the download confirmation dialog is async — the user
+    // has to tap "Download" AFTER we return. If we remove the anchor or
+    // revoke the URL too early, the tap silently fails ("no response").
+    // Keep both alive long enough for the user to confirm.
+    if (isIOS) {
+      // Leave anchor in DOM and URL alive for 30s — covers slow taps
+      window.setTimeout(() => {
+        try { a.remove(); } catch { /* noop */ }
+      }, 30000);
+    } else {
+      // Desktop / Android: removal after 1s is reliably safe
+      await new Promise<void>((r) => window.setTimeout(r, 1000));
+      try { a.remove(); } catch { /* noop */ }
+    }
   } catch {
     // Fallback: mobile / older browsers — open the blob URL in a new tab
     try {
@@ -102,10 +115,13 @@ export async function downloadBlob(
       }
     }
   } finally {
-    // Delay URL revocation so the download has time to start
+    // Delay URL revocation so the download has time to start.
+    // On iOS, the confirmation dialog is async, so we must wait much longer
+    // than on desktop — the blob URL needs to live until the user taps "Download".
+    const revokeDelay = isIOS ? 60000 : 5000;
     window.setTimeout(() => {
       try { URL.revokeObjectURL(url); } catch { /* no-op */ }
-    }, 5000);
+    }, revokeDelay);
   }
 
   // Track the event AFTER successful download, non-blocking
