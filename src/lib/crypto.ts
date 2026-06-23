@@ -701,40 +701,10 @@ async function embedInImage(imageFile: File, data: Uint8Array, unlockDate: Date)
     throw new Error('Image has no content');
   }
 
-  // Read image pixels (from the pre-watermark canvas). The watermark will be
-  // drawn AFTER LSB embedding so it never overwrites hidden data.
-  const imageData = ctx.getImageData(0, 0, w, h);
-
-  // Reserve a watermark-safe region at the end of the pixel buffer —
-  // (bottom rows in row-major order) — so the brand watermark drawn in
-  // the bottom-right corner cannot collide with the hidden payload.
-  const totalPixels = Math.floor(imageData.data.length / 4);
-  const watermarkPixelCount = Math.min(
-    Math.max(2000, Math.floor(totalPixels * 0.02)),
-    Math.floor(totalPixels * 0.1),
-  );
-  const usablePixels = Math.max(1, totalPixels - watermarkPixelCount);
-
-  // Check capacity: 4 bytes magic "TVLT" + 4 bytes length + data bytes
-  const availableBits = usablePixels * 3;
-  const neededBits = MAGIC_BYTES.length * 8 + 32 + data.length * 8;
-  if (neededBits > availableBits) {
-    throw new Error(
-      `Image too small. Need ${Math.ceil(neededBits / 8)} bytes, have ${Math.floor(availableBits / 8)}. Use a larger image.`,
-    );
-  }
-
-  // Embed LSB data into the usable (non-watermark) pixel region.
-  embedLsb(imageData, data, usablePixels);
-
-  // Write pixels back. The watermark is drawn next only in the reserved region.
-  ctx.putImageData(imageData, 0, 0);
-
-  // Brand watermark drawn LAST so it never interferes with the hidden payload.
   drawBrandWatermark(ctx, w, h, unlockDate);
 
-  // Produce PNG blob.
-  return new Promise<Blob>((resolve, reject) => {
+  // Produce PNG blob from canvas (watermark drawn on top).
+  const canvasPngBlob: Blob = await new Promise<Blob>((resolve, reject) => {
     const done = (blob: Blob | null) => {
       if (blob) resolve(blob);
       else reject(new Error('Failed to create PNG blob'));
@@ -756,15 +726,35 @@ async function embedInImage(imageFile: File, data: Uint8Array, unlockDate: Date)
       }
     }
   });
+
+  // Encode the payload as base64 and insert it as a PNG tEXt chunk.
+  // tEXt chunks use Latin-1 encoding, so we store base64 (all ASCII-safe).
+  const pngBytes = await blobToUint8Array(canvasPngBlob);
+  const base64 = uint8ToBase64(data);
+  const withText = insertPngTextChunk(pngBytes, TV_TEXT_KEYWORD, base64);
+  return uint8ArrayToBlob(withText, 'image/png');
 }
 
 /**
- * Extract binary data from LSB-steganography PNG.
+ * Extract binary data from a sealed TimeVault PNG.
  *
- * Uses the pixel-preserving loader `loadImageDataForDecryption` to avoid
- * color-space / gamma conversion that would flip the hidden bits.
+ * Tries two methods, in order:
+ *   1. PNG tEXt chunk (new format) — lossless, survives iOS color-space conversion
+ *   2. LSB steganography (legacy format) — for backward compatibility
  */
 async function extractFromImage(imageFile: File): Promise<Uint8Array> {
+  // ── Method 1: PNG tEXt chunk (new, reliable) ────────────────
+  const fileBytes = await blobToUint8Array(imageFile);
+  const textValue = extractPngTextChunk(fileBytes, TV_TEXT_KEYWORD);
+  if (textValue !== null) {
+    try {
+      return base64ToUint8(textValue);
+    } catch {
+      // fall through to LSB fallback
+    }
+  }
+
+  // ── Method 2: LSB steganography (legacy, for old images) ────
   const imageData = await loadImageDataForDecryption(imageFile);
   if (!imageData.width || !imageData.height) {
     throw new Error('Image has no content');
@@ -772,13 +762,189 @@ async function extractFromImage(imageFile: File): Promise<Uint8Array> {
   return extractLsb(imageData);
 }
 
-// ─── Magic Bytes ──────────────────────────────────────────────
+// ─── PNG tEXt Chunk Storage ──────────────────────────────────
+//
+// We store the sealed payload in a PNG tEXt (text) chunk instead of
+// LSB steganography. Why?
+//
+//   1. iOS Safari applies color-space / gamma conversion when
+//      round-tripping PNG pixels through <canvas>, which silently
+//      flips the least-significant bits and breaks LSB steganography.
+//   2. PNG tEXt chunks are a standard, lossless metadata mechanism —
+//      the data survives any pixel-level processing (watermarks,
+//      resizing to the same canvas, etc.).
+//   3. The payload is already encrypted (AES-256 + tlock), so
+//      storing it in a tEXt chunk is just as secure as hiding it
+//      in pixel bits.
+//
+// The keyword is "TimeVault" and the value is base64-encoded binary
+// data (the tlock-encrypted payload).
+//
+// For backward compatibility, we still try LSB extraction as a
+// fallback when no tEXt chunk is found.
 
-// 4-byte magic identifier: "TVLT" (TimeVaulT) — written before
-// the 32-bit length header so the unlock page can quickly tell
-// whether a PNG is a valid TimeVault sealed image.
-const MAGIC_BYTES = new Uint8Array([0x54, 0x56, 0x4c, 0x54]); // "TVLT"
-const MAGIC_LENGTH = MAGIC_BYTES.length;
+const PNG_SIGNATURE = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const TV_TEXT_KEYWORD = 'TimeVault';
+
+let crcTable: Uint32Array | null = null;
+
+function getCrcTable(): Uint32Array {
+  if (crcTable) return crcTable;
+  const table = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) {
+      c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    }
+    table[n] = c >>> 0;
+  }
+  crcTable = table;
+  return table;
+}
+
+function crc32(buf: Uint8Array): number {
+  const table = getCrcTable();
+  let crc = 0xffffffff;
+  for (let i = 0; i < buf.length; i++) {
+    crc = table[(crc ^ buf[i]) & 0xff] ^ (crc >>> 8);
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function writeUint32BE(value: number): Uint8Array {
+  const b = new Uint8Array(4);
+  b[0] = (value >>> 24) & 0xff;
+  b[1] = (value >>> 16) & 0xff;
+  b[2] = (value >>> 8) & 0xff;
+  b[3] = value & 0xff;
+  return b;
+}
+
+function readUint32BE(buf: Uint8Array, offset: number): number {
+  return (
+    ((buf[offset] & 0xff) << 24) |
+    ((buf[offset + 1] & 0xff) << 16) |
+    ((buf[offset + 2] & 0xff) << 8) |
+    (buf[offset + 3] & 0xff)
+  ) >>> 0;
+}
+
+/**
+ * Insert a tEXt chunk into a PNG file right after IHDR.
+ * keyword + \0 + text (ISO-8859-1 encoded)
+ */
+function insertPngTextChunk(pngBytes: Uint8Array, keyword: string, text: string): Uint8Array {
+  // Verify PNG signature
+  for (let i = 0; i < PNG_SIGNATURE.length; i++) {
+    if (pngBytes[i] !== PNG_SIGNATURE[i]) {
+      throw new Error('Not a valid PNG file');
+    }
+  }
+
+  // Build the tEXt chunk data: keyword (ASCII) + null + text (Latin-1)
+  const keywordBytes = new Uint8Array(keyword.length);
+  for (let i = 0; i < keyword.length; i++) {
+    keywordBytes[i] = keyword.charCodeAt(i) & 0xff;
+  }
+  const textBytes = new Uint8Array(text.length);
+  for (let i = 0; i < text.length; i++) {
+    textBytes[i] = text.charCodeAt(i) & 0xff;
+  }
+  const chunkDataLen = keywordBytes.length + 1 + textBytes.length;
+  const chunkData = new Uint8Array(chunkDataLen);
+  chunkData.set(keywordBytes, 0);
+  chunkData[keywordBytes.length] = 0;
+  chunkData.set(textBytes, keywordBytes.length + 1);
+
+  // Build tEXt chunk: type (4) + data
+  const chunkType = new Uint8Array([0x74, 0x45, 0x58, 0x74]); // "tEXt"
+  const typePlusData = new Uint8Array(4 + chunkDataLen);
+  typePlusData.set(chunkType, 0);
+  typePlusData.set(chunkData, 4);
+  const crcVal = crc32(typePlusData);
+  const crcBytes = writeUint32BE(crcVal);
+
+  // Find IHDR end position
+  const ihdrLen = readUint32BE(pngBytes, 8);
+  const ihdrEnd = 8 + 4 + ihdrLen + 4; // after IHDR CRC
+
+  // Assemble: signature + IHDR + tEXt + rest
+  const result = new Uint8Array(PNG_SIGNATURE.length + (pngBytes.length - PNG_SIGNATURE.length) + 4 + 4 + chunkDataLen + 4);
+  let pos = 0;
+  result.set(pngBytes.subarray(0, ihdrEnd), pos);
+  pos += ihdrEnd;
+  result.set(writeUint32BE(chunkDataLen), pos);
+  pos += 4;
+  result.set(typePlusData, pos);
+  pos += 4 + chunkDataLen;
+  result.set(crcBytes, pos);
+  pos += 4;
+  result.set(pngBytes.subarray(ihdrEnd), pos);
+
+  return result;
+}
+
+/**
+ * Extract a tEXt chunk value by keyword from a PNG file.
+ * Returns null if not found.
+ */
+function extractPngTextChunk(pngBytes: Uint8Array, keyword: string): string | null {
+  // Verify PNG signature
+  if (pngBytes.length < PNG_SIGNATURE.length) return null;
+  for (let i = 0; i < PNG_SIGNATURE.length; i++) {
+    if (pngBytes[i] !== PNG_SIGNATURE[i]) return null;
+  }
+
+  let offset = PNG_SIGNATURE.length;
+  while (offset < pngBytes.length - 8) {
+    const length = readUint32BE(pngBytes, offset);
+    const type = String.fromCharCode(
+      pngBytes[offset + 4],
+      pngBytes[offset + 5],
+      pngBytes[offset + 6],
+      pngBytes[offset + 7],
+    );
+
+    if (type === 'IEND') break;
+
+    if (type === 'tEXt') {
+      const dataStart = offset + 8;
+      const dataEnd = dataStart + length;
+      // Find null separator
+      let nullIdx = -1;
+      for (let i = dataStart; i < dataEnd; i++) {
+        if (pngBytes[i] === 0) {
+          nullIdx = i;
+          break;
+        }
+      }
+      if (nullIdx !== -1) {
+        const kw = String.fromCharCode(...pngBytes.subarray(dataStart, nullIdx));
+        if (kw === keyword) {
+          const textBytes = pngBytes.subarray(nullIdx + 1, dataEnd);
+          let text = '';
+          for (let i = 0; i < textBytes.length; i++) {
+            text += String.fromCharCode(textBytes[i]);
+          }
+          return text;
+        }
+      }
+    }
+
+    offset += 12 + length; // length + type + data + crc
+  }
+
+  return null;
+}
+
+function uint8ArrayToBlob(bytes: Uint8Array, type: string): Blob {
+  return new Blob([bytes], { type });
+}
+
+async function blobToUint8Array(blob: Blob): Promise<Uint8Array> {
+  const arrayBuffer = await blob.arrayBuffer();
+  return new Uint8Array(arrayBuffer);
+}
 
 // ─── LSB Implementation ──────────────────────────────────────
 
