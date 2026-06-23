@@ -1,6 +1,7 @@
 import { NavBar } from '../components/NavBar';
 import { Footer } from '../components/Footer';
 import { AmbientLayer } from '../components/AmbientLayer';
+import { GlobalUsageBoard } from '../lib/global-stats';
 import type { Page } from '../App';
 
 export function Layout({
@@ -21,6 +22,7 @@ export function Layout({
       <main className="flex-1 relative z-10 pt-[64px] sm:pt-[70px]">
         {children}
       </main>
+      <GlobalUsageBoard />
       <Footer navigate={navigate} />
     </div>
   );

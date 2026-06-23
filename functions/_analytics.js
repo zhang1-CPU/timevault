@@ -21,15 +21,8 @@ export async function onRequestGet(context) {
   const { request, env } = context;
   const secret = request.headers.get('X-Admin-Secret');
   const expectedSecret = env.ADMIN_SECRET || 'changeme';
-  if (secret !== expectedSecret) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
-      },
-    });
-  }
+  const isAdmin = secret === expectedSecret;
+
   const stats = { solo: 0, 'couple-a': 0, 'couple-b': 0, unlock: 0 };
   if (env.STATS) {
     for (const key of Object.keys(stats)) {
@@ -37,7 +30,12 @@ export async function onRequestGet(context) {
       if (val) stats[key] = parseInt(val) || 0;
     }
   }
-  return new Response(JSON.stringify({ stats, persistent: !!env.STATS }), {
+
+  const body = isAdmin
+    ? { stats, persistent: !!env.STATS }
+    : { stats, persistent: false };
+
+  return new Response(JSON.stringify(body), {
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
