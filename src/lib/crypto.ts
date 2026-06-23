@@ -24,6 +24,10 @@ const ITERATIONS = 25_000; // PBKDF2 iterations — tuned for mobile.
                             // so extra iterations provide diminishing marginal security
                             // while seriously hurting load time on phones.
 
+// LSB magic constants for legacy format detection
+const MAGIC_LENGTH = 4;
+const MAGIC_BYTES = new Uint8Array([0x54, 0x56, 0x4C, 0x54]); // "TVLT"
+
 // ─── Types ───────────────────────────────────────────────────
 
 export interface LockStatus {
@@ -942,7 +946,8 @@ function extractPngTextChunk(pngBytes: Uint8Array, keyword: string): string | nu
 }
 
 function uint8ArrayToBlob(bytes: Uint8Array, type: string): Blob {
-  return new Blob([bytes], { type });
+  const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+  return new Blob([buffer], { type });
 }
 
 async function blobToUint8Array(blob: Blob): Promise<Uint8Array> {
@@ -951,41 +956,6 @@ async function blobToUint8Array(blob: Blob): Promise<Uint8Array> {
 }
 
 // ─── LSB Implementation ──────────────────────────────────────
-
-function embedLsb(imageData: ImageData, data: Uint8Array, usablePixels: number): void {
-  const pixels = imageData.data;
-  const budget = usablePixels * 3;
-  let bitIndex = 0;
-
-  const writeBit = (bit: number) => {
-    if (bitIndex >= budget) return;
-    const pixelIdx = Math.floor(bitIndex / 3);
-    const channel = bitIndex % 3; // 0=R, 1=G, 2=B
-    const dataIdx = pixelIdx * 4 + channel;
-    pixels[dataIdx] = (pixels[dataIdx] & 0xfe) | (bit & 1);
-    bitIndex++;
-  };
-
-  // Step 1: write 4-byte magic "TVLT" (32 bits)
-  for (let byteIdx = 0; byteIdx < MAGIC_LENGTH; byteIdx++) {
-    for (let bitOffset = 7; bitOffset >= 0; bitOffset--) {
-      writeBit((MAGIC_BYTES[byteIdx] >>> bitOffset) & 1);
-    }
-  }
-
-  // Step 2: write 32-bit length header (big-endian)
-  const length = data.length;
-  for (let i = 31; i >= 0; i--) {
-    writeBit((length >>> i) & 1);
-  }
-
-  // Step 3: write data bytes
-  for (let byteIdx = 0; byteIdx < data.length; byteIdx++) {
-    for (let bitOffset = 7; bitOffset >= 0; bitOffset--) {
-      writeBit((data[byteIdx] >>> bitOffset) & 1);
-    }
-  }
-}
 
 function extractLsb(imageData: ImageData): Uint8Array {
   const pixels = imageData.data;
