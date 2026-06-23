@@ -458,34 +458,6 @@ function roundedRect(
 // ─── LSB Steganography ───────────────────────────────────────
 
 /**
- * Helper: create a canvas of target (possibly downscaled) dimensions and
- * invoke a draw callback to render the source into it. Returns the
- * configured canvas + 2D context.
- */
-function drawScaledToCanvas(
-  srcW: number,
-  srcH: number,
-  draw: (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => void,
-): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } {
-  const longest = Math.max(srcW, srcH);
-  const scale = longest > MAX_DIMENSION ? MAX_DIMENSION / longest : 1;
-  const w = Math.max(1, Math.round(srcW * scale));
-  const h = Math.max(1, Math.round(srcH * scale));
-  const canvas = document.createElement('canvas');
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  if (!ctx) throw new Error('Canvas 2D context not available');
-  if (scale < 1) {
-    // Smooth downscale avoids jagged pixels and keeps LSB data readable
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-  }
-  draw(canvas, ctx);
-  return { canvas, ctx };
-}
-
-/**
  * Embed binary data into image using LSB steganography.
  * Also draws a brand watermark (hourglass logo + timevault.online + unlock time)
  * in the bottom-right corner. Output: PNG Blob.
