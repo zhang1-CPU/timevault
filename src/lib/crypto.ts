@@ -727,6 +727,10 @@ async function embedInImage(imageFile: File, data: Uint8Array, unlockDate: Date)
     }
   });
 
+  if (canvasPngBlob.size === 0) {
+    throw new Error('Canvas produced empty PNG blob');
+  }
+
   // Encode the payload as base64 and insert it as a PNG tEXt chunk.
   // tEXt chunks use Latin-1 encoding, so we store base64 (all ASCII-safe).
   const pngBytes = await blobToUint8Array(canvasPngBlob);
