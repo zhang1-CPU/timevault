@@ -567,18 +567,32 @@ async function loadImageToCanvas(imageFile: File): Promise<{ canvas: HTMLCanvasE
 async function embedInImage(imageFile: File, data: Uint8Array, unlockDate: Date): Promise<Blob> {
   const { canvas, ctx } = await loadImageToCanvas(imageFile);
 
-  if (!canvas.width || !canvas.height) {
+  const w = canvas.width;
+  const h = canvas.height;
+  if (!w || !h) {
     throw new Error('Image has no content');
   }
 
-  // Draw watermark (brand logo + website + unlock time) in bottom-right corner.
-  drawBrandWatermark(ctx, canvas.width, canvas.height, unlockDate);
+  // Step 1: Read the raw image pixels BEFORE drawing the watermark.
+  // The watermark would overwrite pixel values in the corner — if we
+  // embedded LSB data into those pixels, the watermark would destroy
+  // them. By reading pixels first, the hidden data is derived from the
+  // original photo. We then overwrite the watermark corner LSBs with
+  // a fixed pattern so the decoder can safely skip that region.
+  const imageData = ctx.getImageData(0, 0, w, h);
 
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  // Reserve a watermark-safe region in the bottom-right corner. The
+  // region is slightly larger than the drawn watermark so text / glow
+  // anti-aliasing fringes are also excluded from LSB payload.
+  const watermarkPixelCount = Math.min(
+    Math.max(2000, Math.floor(w * h * 0.02)),
+    Math.floor(w * h * 0.1)
+  );
+  const totalPixels = Math.floor(imageData.data.length / 4);
+  const usablePixels = Math.max(1, totalPixels - watermarkPixelCount);
 
   // Check capacity: 4 bytes magic "TVLT" + 4 bytes length + data
-  const numPixels = imageData.data.length / 4;
-  const availableBits = numPixels * 3;
+  const availableBits = usablePixels * 3;
   const neededBits = MAGIC_BYTES.length * 8 + 32 + data.length * 8;
   if (neededBits > availableBits) {
     throw new Error(
@@ -586,8 +600,12 @@ async function embedInImage(imageFile: File, data: Uint8Array, unlockDate: Date)
     );
   }
 
-  embedLsb(imageData, data);
+  // Step 2: Embed LSB data only in the usable (non-watermark) region.
+  embedLsb(imageData, data, usablePixels);
+
+  // Step 3: Write modified pixels back, then draw the watermark on top.
   ctx.putImageData(imageData, 0, 0);
+  drawBrandWatermark(ctx, w, h, unlockDate);
 
   // Produce PNG blob; on iOS Safari canvas.toBlob may be missing on old versions.
   return new Promise<Blob>((resolve, reject) => {
@@ -643,11 +661,13 @@ const MAGIC_LENGTH = MAGIC_BYTES.length;
 
 // ─── LSB Implementation ──────────────────────────────────────
 
-function embedLsb(imageData: ImageData, data: Uint8Array): void {
+function embedLsb(imageData: ImageData, data: Uint8Array, usablePixels: number): void {
   const pixels = imageData.data;
+  const budget = usablePixels * 3;
   let bitIndex = 0;
 
   const writeBit = (bit: number) => {
+    if (bitIndex >= budget) return;
     const pixelIdx = Math.floor(bitIndex / 3);
     const channel = bitIndex % 3; // 0=R, 1=G, 2=B
     const dataIdx = pixelIdx * 4 + channel;
@@ -679,6 +699,15 @@ function embedLsb(imageData: ImageData, data: Uint8Array): void {
 function extractLsb(imageData: ImageData): Uint8Array {
   const pixels = imageData.data;
   const numPixels = pixels.length / 4;
+  // Mirror the encoder: reserve the same watermark-safe region at the
+  // end of the pixel buffer so we never try to read bits that were
+  // overwritten by the brand watermark.
+  const watermarkPixelCount = Math.min(
+    Math.max(2000, Math.floor(numPixels * 0.02)),
+    Math.floor(numPixels * 0.1)
+  );
+  const usablePixels = Math.max(1, numPixels - watermarkPixelCount);
+
   let bitIndex = 0;
 
   const readBit = (): number => {
@@ -692,7 +721,7 @@ function extractLsb(imageData: ImageData): Uint8Array {
 
   // Step 1: verify minimum size — need at least magic (4 bytes = 32 bits) + length (32 bits) = 64 bits ≈ 22 pixels
   const minPixelsNeeded = Math.ceil((MAGIC_LENGTH * 8 + 32) / 3);
-  if (numPixels < minPixelsNeeded) {
+  if (usablePixels < minPixelsNeeded) {
     throw new Error('No hidden data found in this image');
   }
 
@@ -718,8 +747,8 @@ function extractLsb(imageData: ImageData): Uint8Array {
     length = (length << 1) | readBit();
   }
 
-  // Step 4: validate — length must fit in remaining pixels
-  const totalBitBudget = numPixels * 3;
+  // Step 4: validate — length must fit in remaining usable bits
+  const totalBitBudget = usablePixels * 3;
   const consumedBits = bitIndex;
   const availableBytes = Math.max(0, Math.floor((totalBitBudget - consumedBits) / 8));
   if (length <= 0 || length > availableBytes || length > 2 * 1024 * 1024) {
