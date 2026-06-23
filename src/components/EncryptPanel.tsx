@@ -101,7 +101,17 @@ export function EncryptPanel({ onBack }: EncryptPanelProps) {
       const blob = await sealMessage(message.trim(), pin, unlock, image);
       revokeResultUrl();
       setResultBlob(blob);
-      setResultUrl(URL.createObjectURL(blob));
+      // Use dataURL for preview — more reliable than blob URLs on iOS Safari
+      // (blob URLs can be GC'd or fail to load in <img> in some flows)
+      const reader = new FileReader();
+      reader.onload = () => {
+        setResultUrl(typeof reader.result === 'string' ? reader.result : '');
+      };
+      reader.onerror = () => {
+        // Fallback to blob URL if FileReader fails
+        setResultUrl(URL.createObjectURL(blob));
+      };
+      reader.readAsDataURL(blob);
       // Wait for ceremony animation to complete before showing done state
       // Use timer ref so we can cancel on unmount/back-nav
       ceremonyTimerRef.current = window.setTimeout(() => {
