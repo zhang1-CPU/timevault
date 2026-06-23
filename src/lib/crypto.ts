@@ -458,15 +458,77 @@ function roundedRect(
 // ─── LSB Steganography ───────────────────────────────────────
 
 /**
+ * Helper: create a canvas of target (possibly downscaled) dimensions and
+ * invoke a draw callback to render the source into it. Returns the
+ * configured canvas + 2D context.
+ */
+function drawScaledToCanvas(
+  srcW: number,
+  srcH: number,
+  draw: (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => void,
+): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } {
+  const longest = Math.max(srcW, srcH);
+  const scale = longest > MAX_DIMENSION ? MAX_DIMENSION / longest : 1;
+  const w = Math.max(1, Math.round(srcW * scale));
+  const h = Math.max(1, Math.round(srcH * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) throw new Error('Canvas 2D context not available');
+  if (scale < 1) {
+    // Smooth downscale avoids jagged pixels and keeps LSB data readable
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+  }
+  draw(canvas, ctx);
+  return { canvas, ctx };
+}
+
+/**
  * Embed binary data into image using LSB steganography.
  * Also draws a brand watermark (hourglass logo + timevault.online + unlock time)
  * in the bottom-right corner. Output: PNG Blob.
  */
+const MAX_DIMENSION = 2048;
+
+/**
+ * Helper: create a canvas of target (possibly downscaled) dimensions and
+ * invoke a draw callback to render the source into it. Returns the
+ * configured canvas + 2D context.
+ */
+function drawScaledToCanvas(
+  srcW: number,
+  srcH: number,
+  draw: (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => void,
+): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } {
+  const longest = Math.max(srcW, srcH);
+  const scale = longest > MAX_DIMENSION ? MAX_DIMENSION / longest : 1;
+  const w = Math.max(1, Math.round(srcW * scale));
+  const h = Math.max(1, Math.round(srcH * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) throw new Error('Canvas 2D context not available');
+  if (scale < 1) {
+    // Smooth downscale avoids jagged pixels and keeps LSB data readable
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+  }
+  draw(canvas, ctx);
+  return { canvas, ctx };
+}
+
 /**
  * Load the input image into a canvas, applying EXIF orientation so that
  * iOS Safari / Android Chrome produce pixel arrays that are aligned
  * with the visual layout. Falls back to plain <img> onload when
  * createImageBitmap is not available.
+ *
+ * Auto-downscales images larger than MAX_DIMENSION on the longest edge to
+ * keep memory under control on mobile devices — a 4032x3024 iPhone photo
+ * would otherwise consume ~46MB of canvas memory and OOM on iOS Safari.
  */
 async function loadImageToCanvas(imageFile: File): Promise<{ canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D }> {
   // Prefer createImageBitmap (modern browsers & Safari 15+) with explicit orientation
@@ -474,12 +536,9 @@ async function loadImageToCanvas(imageFile: File): Promise<{ canvas: HTMLCanvasE
   if (typeof createImageBitmap !== 'undefined') {
     try {
       const bitmap = await createImageBitmap(imageFile, { imageOrientation: 'from-image', premultiplyAlpha: 'none' });
-      const canvas = document.createElement('canvas');
-      canvas.width = bitmap.width;
-      canvas.height = bitmap.height;
-      const ctx = canvas.getContext('2d', { willReadFrequently: true });
-      if (!ctx) throw new Error('Canvas 2D context not available');
-      ctx.drawImage(bitmap, 0, 0);
+      const { canvas, ctx } = drawScaledToCanvas(bitmap.width, bitmap.height, (c, cx) => {
+        cx.drawImage(bitmap, 0, 0);
+      });
       (bitmap as ImageBitmap).close?.();
       return { canvas, ctx };
     } catch {
@@ -502,16 +561,9 @@ async function loadImageToCanvas(imageFile: File): Promise<{ canvas: HTMLCanvasE
               reject(new Error('Image has no content'));
               return;
             }
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d', { willReadFrequently: true });
-            if (!ctx) {
-              URL.revokeObjectURL(url);
-              reject(new Error('Canvas 2D context not available'));
-              return;
-            }
-            ctx.drawImage(img, 0, 0);
+            const { canvas, ctx } = drawScaledToCanvas(img.width, img.height, (c, cx) => {
+              cx.drawImage(img, 0, 0);
+            });
             URL.revokeObjectURL(url);
             resolve({ canvas, ctx });
           })
