@@ -7,6 +7,7 @@ import { CouplePage } from './pages/CouplePage';
 import { HowItWorksPage } from './pages/HowItWorksPage';
 import { StoriesPage } from './pages/StoriesPage';
 import { FaqPage } from './pages/FaqPage';
+import { BlogPage } from './pages/BlogPage';
 import { AboutPage } from './pages/AboutPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { TermsPage } from './pages/TermsPage';
@@ -20,6 +21,7 @@ export type Page =
   | 'how-it-works'
   | 'stories'
   | 'faq'
+  | 'blog'
   | 'about'
   | 'privacy'
   | 'terms'
@@ -33,6 +35,7 @@ const ROUTE_MAP: Record<string, Page> = {
   'how-it-works': 'how-it-works',
   stories: 'stories',
   faq: 'faq',
+  blog: 'blog',
   about: 'about',
   privacy: 'privacy',
   terms: 'terms',
@@ -78,6 +81,7 @@ export default function App() {
       {page === 'how-it-works' && <HowItWorksPage navigate={navigate} />}
       {page === 'stories' && <StoriesPage navigate={navigate} />}
       {page === 'faq' && <FaqPage navigate={navigate} />}
+      {page === 'blog' && <BlogPage />}
       {page === 'about' && <AboutPage navigate={navigate} />}
       {page === 'privacy' && <PrivacyPage navigate={navigate} />}
       {page === 'terms' && <TermsPage navigate={navigate} />}
