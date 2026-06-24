@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>梦想时间胶囊｜写下你最大的梦想 - TimeVault</title>
+  <meta name="description" content="每个人都有自己的梦想，但真正坚持的人不多。把你的梦想写下来，封存在照片里，让时间帮你检验。">
+  <meta name="keywords" content="梦想,目标设定,人生规划,追梦,时间胶囊">
+  <meta property="og:title" content="梦想时间胶囊｜写下你最大的梦想">
+  <meta property="og:description" content="每个人都有自己的梦想，但真正坚持的人不多。">
+  <meta property="og:type" content="article">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: #0a0612; color: rgba(255,255,255,0.75); line-height: 1.9; min-height: 100vh; }
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; background: rgba(10,6,18,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.03); }
+    .nav a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.9rem; transition: color 0.3s; }
+    .nav a:hover { color: rgba(255,255,255,0.9); }
+    .nav .logo { font-family: Georgia, serif; font-size: 1.2rem; background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero { padding: 140px 2rem 80px; text-align: center; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; top: 10%; left: 50%; transform: translateX(-50%); width: 700px; height: 600px; background: radial-gradient(circle, rgba(236,72,153,0.12) 0%, rgba(168,85,247,0.08) 30%, transparent 70%); pointer-events: none; }
+    .hero .tag { color: rgba(244,114,182,0.5); font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 1.5rem; font-weight: 300; }
+    .hero h1 { font-family: Georgia, serif; font-size: 2.5rem; font-weight: 300; line-height: 1.4; margin-bottom: 1.5rem; position: relative; }
+    .hero h1 .gradient { background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero .subtitle { font-size: 1.1rem; color: rgba(255,255,255,0.4); max-width: 600px; margin: 0 auto; font-weight: 300; }
+    .content { max-width: 720px; margin: 0 auto; padding: 0 2rem 6rem; }
+    .content h2 { font-family: Georgia, serif; font-size: 1.6rem; color: rgba(255,255,255,0.8); margin: 2.5rem 0 1rem; font-weight: 300; }
+    .content p { margin-bottom: 1.5rem; color: rgba(255,255,255,0.6); font-weight: 300; }
+    .content blockquote { border-left: 3px solid rgba(244,114,182,0.4); padding-left: 1.5rem; margin: 2rem 0; color: rgba(255,255,255,0.45); font-style: italic; font-family: Georgia, serif; }
+    .highlight-box { background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(168,85,247,0.05) 100%); border: 1px solid rgba(244,114,182,0.15); border-radius: 1rem; padding: 2rem; margin: 2rem 0; }
+    .highlight-box h3 { font-family: Georgia, serif; font-size: 1.2rem; color: rgba(255,255,255,0.75); margin-bottom: 1rem; }
+    .highlight-box p { margin-bottom: 0.8rem; }
+    .cta-section { max-width: 720px; margin: 4rem auto; background: linear-gradient(135deg, rgba(236,72,153,0.1) 0%, rgba(168,85,247,0.08) 100%); border: 1px solid rgba(244,114,182,0.15); border-radius: 1.5rem; padding: 3rem 2rem; text-align: center; }
+    .cta-section h3 { font-family: Georgia, serif; font-size: 1.5rem; color: rgba(255,255,255,0.75); margin-bottom: 1rem; }
+    .cta-section p { color: rgba(255,255,255,0.45); margin-bottom: 2rem; font-size: 0.95rem; }
+    .cta-btn { display: inline-block; padding: 1rem 2.5rem; background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%); color: white; text-decoration: none; border-radius: 1rem; font-size: 0.95rem; font-weight: 500; transition: all 0.3s; border: none; cursor: pointer; }
+    .cta-btn:hover { transform: scale(1.03); box-shadow: 0 0 60px rgba(219,39,119,0.4); }
+    .footer { text-align: center; padding: 3rem 2rem; border-top: 1px solid rgba(255,255,255,0.03); color: rgba(255,255,255,0.2); font-size: 0.85rem; }
+    .footer a { color: rgba(244,114,182,0.5); text-decoration: none; }
+    @media (max-width: 768px) { .hero h1 { font-size: 2rem; } .content { padding: 0 1.5rem 4rem; } }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="logo">TimeVault</a>
+    <a href="/blog/">← 返回博客</a>
+  </nav>
+
+  <section class="hero">
+    <p class="tag">梦想 · 目标 · 追梦</p>
+    <h1>梦想时间胶囊<br><span class="gradient">写下你最大的梦想</span></h1>
+    <p class="subtitle">每个人都有自己的梦想，但真正坚持的人不多。</p>
+  </section>
+
+  <article class="content">
+    <p>"你的梦想是什么？"这个问题，你有没有认真想过？很多人会说"我要赚很多钱"、"我想环游世界"、"我想创业"——但这些是真的梦想，还是别人期待你有的梦想？</p>
+
+    <p>真正的梦想，是你听到这个问题时，脑海里第一个浮现的画面。</p>
+
+    <h2>为什么梦想需要被记录</h2>
+
+    <p>• <strong>梦想会淡忘</strong>：日常的琐碎会让我们忘记最初的梦想</p>
+    <p>• <strong>梦想需要检验</strong>：时间会告诉你什么是真正想要的</p>
+    <p>• <strong>梦想需要勇气</strong>：写下来是一种承诺</p>
+    <p>• <strong>梦想需要坚持</strong>：让时间帮你检验是否在坚持</p>
+
+    <blockquote>"我想在30岁之前出版一本自己的书。我知道这个梦想很远，但我愿意为它努力。五年后，让我看看自己走到了哪里。"</blockquote>
+
+    <h2>如何制作梦想时间胶囊</h2>
+
+    <div class="highlight-box">
+      <h3>建议封存的内容：</h3>
+      <p>• 一张代表梦想的图片</p>
+      <p>• 一封写给自己的信</p>
+      <p>• 写下你的梦想是什么</p>
+      <p>• 计划如何实现它</p>
+      <p>• 想对追梦的自己说什么</p>
+    </div>
+
+    <p>选择一张能代表你梦想的照片，写一封信。信里要具体描述你的梦想是什么，你打算如何实现它，你对追梦的自己有什么期待。设定一个解锁日期——也许是一年后，让你检验自己是否在坚持。</p>
+
+    <h2>让时间检验你的梦想</h2>
+
+    <p>一年后、三年后、五年后，当你打开这封信，你会看到当初的自己。也许你已经实现了梦想，也许你还在路上，也许你已经改变了方向——但无论如何，这封信会让你想起，那个曾经勇敢追梦的自己。</p>
+
+    <p>梦想还是要有的，万一实现了呢？</p>
+  </article>
+
+  <div class="cta-section">
+    <h3>现在就封存你的梦想</h3>
+    <p>免费、无需注册、所有加密在浏览器本地完成<br>你的秘密，只有你能打开。</p>
+    <a href="/#seal" class="cta-btn">开始制作时间胶囊 →</a>
+  </div>
+
+  <footer class="footer">
+    <p>© 2026 TimeVault · 写一封信给明天</p>
+    <p style="margin-top: 0.5rem;"><a href="/">返回首页</a></p>
+  </footer>
+</body>
+</html>
