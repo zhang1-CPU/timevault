@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TimeVault 博客｜写一封信给明天</title>
-  <meta name="description" content="TimeVault 博客，分享关于时间胶囊、爱与回忆的故事。婚礼誓言、毕业纪念、宠物回忆、自我成长……每一封信，都是一段时光的印记。">
-  <meta name="keywords" content="时间胶囊,给未来的信,照片隐藏消息,TimeVault博客,浪漫故事,治愈系">
-  <meta property="og:title" content="TimeVault 博客｜写一封信给明天">
-  <meta property="og:description" content="用一张照片，藏一段话。让时间替你保管，那些最珍贵的记忆。">
+  <title>TimeVault Blog | Write a Letter to Tomorrow</title>
+  <meta name="description" content="Explore romantic time capsule ideas, steganography tutorials, and love letters to the future. 100+ stories about preserving memories, relationships, and secrets in photos.">
+  <meta name="keywords" content="time capsule, romantic blog, love letters, photo steganography, couple memories, anniversary ideas, hidden messages, relationship advice">
+  <meta property="og:title" content="TimeVault Blog | Write a Letter to Tomorrow">
+  <meta property="og:description" content="100+ stories about preserving love and memories through time. Learn how to hide messages in photos and create unforgettable romantic experiences.">
   <meta property="og:type" content="website">
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #0a0612;
       color: rgba(255, 255, 255, 0.7);
       line-height: 1.8;
@@ -29,7 +29,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(10, 6, 18, 0.8);
+      background: rgba(10, 6, 18, 0.9);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.03);
     }
@@ -116,6 +116,7 @@
       cursor: pointer;
       transition: all 0.3s;
       font-weight: 300;
+      text-decoration: none;
     }
     .tag-btn:hover,
     .tag-btn.active {
@@ -128,7 +129,7 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 2rem;
     }
-    .post-card {
+    .card {
       background: linear-gradient(135deg, rgba(236,72,153,0.04) 0%, rgba(168,85,247,0.03) 100%);
       border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 1.25rem;
@@ -138,12 +139,12 @@
       transition: all 0.3s;
       display: block;
     }
-    .post-card:hover {
+    .card:hover {
       border-color: rgba(244, 114, 182, 0.2);
       transform: translateY(-4px);
       box-shadow: 0 20px 60px rgba(219,39,119,0.1);
     }
-    .post-card .post-tag {
+    .card .tag {
       display: inline-block;
       font-size: 0.7rem;
       letter-spacing: 0.2em;
@@ -152,7 +153,7 @@
       margin-bottom: 1rem;
       font-weight: 300;
     }
-    .post-card h2 {
+    .card h2 {
       font-family: Georgia, serif;
       font-size: 1.35rem;
       font-weight: 300;
@@ -160,56 +161,12 @@
       margin-bottom: 1rem;
       line-height: 1.5;
     }
-    .post-card p {
+    .card p {
       font-size: 0.9rem;
       color: rgba(255, 255, 255, 0.4);
       line-height: 1.7;
       margin-bottom: 1.25rem;
       font-weight: 300;
-    }
-    .post-card .post-meta {
-      font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.25);
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
-    .post-card .post-meta .dot {
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-    }
-    .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 4rem;
-    }
-    .page-btn {
-      width: 2.5rem;
-      height: 2.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 0.75rem;
-      color: rgba(255, 255, 255, 0.4);
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-decoration: none;
-    }
-    .page-btn:hover {
-      border-color: rgba(244, 114, 182, 0.3);
-      color: rgba(244, 114, 182, 0.9);
-    }
-    .page-btn.active {
-      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
-      color: white;
-      border-color: transparent;
     }
     .cta-section {
       max-width: 720px;
@@ -250,747 +207,568 @@
     .footer {
       text-align: center;
       padding: 3rem 2rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.03);
-      color: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.25);
       font-size: 0.85rem;
     }
-    .footer a {
-      color: rgba(244, 114, 182, 0.5);
-      text-decoration: none;
-    }
     @media (max-width: 768px) {
-      .hero h1 { font-size: 2rem; }
       .posts { grid-template-columns: 1fr; }
-      .container { padding: 0 1.5rem 4rem; }
-      .post-card h2 { font-size: 1.2rem; }
+      .hero h1 { font-size: 2rem; }
     }
   </style>
 </head>
 <body>
   <nav class="nav">
     <a href="/" class="logo">TimeVault</a>
-    <a href="/#stories">← 返回故事</a>
+    <a href="/">← Back to Home</a>
   </nav>
 
-  <section class="hero">
-    <p class="tag">故事 · 回忆 · 时光</p>
-    <h1>写一封信给明天<br><span class="gradient">每一句话，都是时光的印记</span></h1>
-    <p class="subtitle">用一张照片，藏一段话。让时间替你保管，那些最珍贵的记忆。</p>
-  </section>
+  <header class="hero">
+    <p class="tag">TimeVault Blog</p>
+    <h1>Write a Letter to <span class="gradient">Tomorrow</span></h1>
+    <p class="subtitle">100+ stories about preserving love, memories, and secrets through time. Learn how to hide messages in photos and create unforgettable romantic experiences.</p>
+  </header>
 
   <div class="container">
     <div class="tags">
-      <button class="tag-btn active" onclick="filterPosts('all')">全部</button>
-      <button class="tag-btn" onclick="filterPosts('情侣')">情侣爱情</button>
-      <button class="tag-btn" onclick="filterPosts('家庭')">家庭亲情</button>
-      <button class="tag-btn" onclick="filterPosts('友情')">友情</button>
-      <button class="tag-btn" onclick="filterPosts('个人成长')">个人成长</button>
-      <button class="tag-btn" onclick="filterPosts('治愈')">治愈</button>
-      <button class="tag-btn" onclick="filterPosts('礼物')">礼物创意</button>
-      <button class="tag-btn" onclick="filterPosts('科普')">科普</button>
+      <a href="#" class="tag-btn active" data-filter="all">All</a>
+      <a href="#" class="tag-btn" data-filter="love">💑 Couples</a>
+      <a href="#" class="tag-btn" data-filter="family">👨‍👩‍👧 Family</a>
+      <a href="#" class="tag-btn" data-filter="friend">👯 Friendship</a>
+      <a href="#" class="tag-btn" data-filter="growth">🌱 Personal Growth</a>
+      <a href="#" class="tag-btn" data-filter="heal">🦋 Healing</a>
+      <a href="#" class="tag-btn" data-filter="gift">🎁 Gift Ideas</a>
     </div>
 
-    <div class="posts" id="posts">
-      <a href="wedding-vows-hidden-in-photo.html" class="post-card" data-category="情侣 礼物">
-        <span class="post-tag">婚礼 · 结婚礼物</span>
-        <h2>婚纱照里的秘密｜婚礼当天写给彼此的信，十年后再打开</h2>
-        <p>有些誓言，不必当众说出口。有些承诺，让时间替你们作证。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 9 分钟</span>
-        </div>
+    <div class="posts">
+      <a href="how-to-create-digital-time-capsule.html" class="card" data-category="love">
+        <span class="tag">Couples · Memory</span>
+        <h2>How to Create a Digital Time Capsule: A Complete Guide for Couples</h2>
+        <p>Learn step-by-step how to create digital time capsules that preserve your love story forever using hidden messages in photos.</p>
       </a>
-
-      <a href="proposal-idea-time-capsule.html" class="post-card" data-category="情侣 礼物">
-        <span class="post-tag">求婚 · 浪漫创意</span>
-        <h2>最浪漫的求婚方式｜把"嫁给我"藏在照片里，等她自己发现</h2>
-        <p>最好的求婚，不是最昂贵的，而是最懂她的。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 10 分钟</span>
-        </div>
+      <a href="time-capsule-for-couples-anniversary.html" class="card" data-category="love">
+        <span class="tag">Couples · Anniversary</span>
+        <h2>The Ultimate Time Capsule for Couples: Anniversary Ideas That Last a Lifetime</h2>
+        <p>Discover the most romantic anniversary time capsule ideas that will make your love story unforgettable.</p>
       </a>
-
-      <a href="valentines-day-gift-2026.html" class="post-card" data-category="情侣 礼物">
-        <span class="post-tag">情人节 · 礼物指南</span>
-        <h2>2026年情人节礼物推荐｜这9个创意比玫瑰花更难忘</h2>
-        <p>最好的礼物从来不是最贵的，而是——你真的懂ta。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 12 分钟</span>
-        </div>
+      <a href="best-time-capsule-ideas-wedding.html" class="card" data-category="love">
+        <span class="tag">Wedding · Romance</span>
+        <h2>Best Time Capsule Ideas for Your Wedding Day: Preserve Love Forever</h2>
+        <p>Creative wedding time capsule ideas to capture your special day and relive it years later.</p>
       </a>
-
-      <a href="anniversary-gift-ideas-time-capsule.html" class="post-card" data-category="情侣 礼物">
-        <span class="post-tag">纪念日 · 情侣礼物</span>
-        <h2>一周年纪念日礼物创意｜比玫瑰更长久的，是你写的信</h2>
-        <p>玫瑰会枯萎，巧克力会融化，但你写下的话，会永远留在那里。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 9 分钟</span>
-        </div>
+      <a href="future-message-app-couples.html" class="card" data-category="love">
+        <span class="tag">App · Couples</span>
+        <h2>Why Every Couple Needs a Future Message App: Send Love Through Time</h2>
+        <p>Learn why sending messages to the future is the most romantic thing you can do for your relationship.</p>
       </a>
-
-      <a href="long-distance-relationship-love-letter.html" class="post-card" data-category="情侣">
-        <span class="post-tag">异地恋 · 情侣礼物</span>
-        <h2>异地恋礼物推荐｜把思念封存在照片里，等见面那天打开</h2>
-        <p>距离之于爱情，就像风之于火——它吹熄那些微弱的，却助长那些强烈的。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 10 分钟</span>
-        </div>
+      <a href="how-write-letter-future-self.html" class="card" data-category="growth">
+        <span class="tag">Self · Growth</span>
+        <h2>How to Write a Letter to Your Future Self: The Complete Guide</h2>
+        <p>A comprehensive guide to writing meaningful letters to your future self that you'll treasure forever.</p>
       </a>
-
-      <a href="couple-mode-two-hearts-one-lock.html" class="post-card" data-category="情侣">
-        <span class="post-tag">情侣模式 · 仪式感</span>
-        <h2>情侣模式｜两个人各持一半照片，要一起才能解锁的秘密</h2>
-        <p>一人一半，合在一起才完整。就像爱情本身。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="hide-messages-in-photos-guide.html" class="card" data-category="tech">
+        <span class="tag">Steganography · Privacy</span>
+        <h2>How to Hide Messages in Photos: The Ultimate Steganography Guide</h2>
+        <p>Master the art of hiding secret messages in photos using steganography techniques.</p>
       </a>
-
-      <a href="best-friend-time-capsule.html" class="post-card" data-category="友情 礼物">
-        <span class="post-tag">友情 · 闺蜜</span>
-        <h2>闺蜜时间胶囊｜给十年后的我们，愿你我还是老样子</h2>
-        <p>朋友是自己选的家人。而闺蜜，是一辈子的事。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 10 分钟</span>
-        </div>
+      <a href="image-steganography-tutorial.html" class="card" data-category="tech">
+        <span class="tag">Tutorial · Privacy</span>
+        <h2>Image Steganography Tutorial: Hide Secret Text in Any Picture</h2>
+        <p>Step-by-step tutorial on how to hide text in images using steganography tools.</p>
       </a>
-
-      <a href="graduation-time-capsule.html" class="post-card" data-category="友情 个人成长">
-        <span class="post-tag">毕业季 · 青春纪念</span>
-        <h2>毕业季时间胶囊｜把青春最滚烫的样子，封存进这张照片</h2>
-        <p>那时候天总是很蓝，日子总过得太慢。你总说毕业遥遥无期，转眼就各奔东西。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 10 分钟</span>
-        </div>
+      <a href="least-significant-bit-encoding.html" class="card" data-category="tech">
+        <span class="tag">Technical · Steganography</span>
+        <h2>Understanding Least Significant Bit Encoding: How Photo Hiding Works</h2>
+        <p>Deep dive into LSB encoding and how steganography actually hides data in images.</p>
       </a>
-
-      <a href="family-legacy-time-capsule.html" class="post-card" data-category="家庭">
-        <span class="post-tag">家庭 · 传承</span>
-        <h2>爷爷奶奶的智慧｜把他们的故事封存在照片里，代代相传</h2>
-        <p>他们的故事，不应该被遗忘。他们的智慧，值得代代相传。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 11 分钟</span>
-        </div>
+      <a href="best-steganography-tools-2026.html" class="card" data-category="tech">
+        <span class="tag">Tools · Privacy</span>
+        <h2>Best Free Steganography Tools for Beginners in 2026</h2>
+        <p>Top rated free steganography tools for hiding messages in photos and images.</p>
       </a>
-
-      <a href="letter-to-baby-time-capsule.html" class="post-card" data-category="家庭">
-        <span class="post-tag">亲子 · 宝宝成长</span>
-        <h2>写给宝宝的第一封信｜用时间胶囊记录你来到这个世界的第一年</h2>
-        <p>你会长大，但你成长的每一个瞬间，我都想替你记住。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 10 分钟</span>
-        </div>
+      <a href="privacy-messaging-app-couples.html" class="card" data-category="love">
+        <span class="tag">Privacy · App</span>
+        <h2>The Best Privacy Messaging Apps for Couples Who Value Secret Communication</h2>
+        <p>Discover the most private messaging apps for couples who want to keep their love letters secret.</p>
       </a>
-
-      <a href="pet-memory-time-capsule.html" class="post-card" data-category="家庭 治愈">
-        <span class="post-tag">宠物 · 陪伴</span>
-        <h2>写给毛孩子的一封信｜谢谢你陪我走过的那些年</h2>
-        <p>它只是你生命中的一部分，但你，是它的一生。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 9 分钟</span>
-        </div>
+      <a href="first-anniversary-time-capsule-ideas.html" class="card" data-category="love">
+        <span class="tag">Anniversary · Romance</span>
+        <h2>First Anniversary Time Capsule Ideas: Celebrate One Year of Love</h2>
+        <p>Creative and romantic first anniversary time capsule ideas for newlyweds.</p>
       </a>
-
-      <a href="grief-letter-time-capsule.html" class="post-card" data-category="家庭 治愈">
-        <span class="post-tag">治愈 · 告别</span>
-        <h2>写给去世亲人的一封信｜有些话，需要时间才能说出口</h2>
-        <p>失去不是终点，遗忘才是。好好告别，是我们能给ta最后的温柔。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 10 分钟</span>
-        </div>
+      <a href="romantic-time-capsule-ideas.html" class="card" data-category="love">
+        <span class="tag">Romance · Ideas</span>
+        <h2>15 Romantic Time Capsule Ideas for Every Occasion</h2>
+        <p>From anniversaries to birthdays, discover 15 romantic time capsule ideas for every special moment.</p>
       </a>
-
-      <a href="breakup-letter-time-capsule.html" class="post-card" data-category="治愈 情侣">
-        <span class="post-tag">治愈 · 分手</span>
-        <h2>写给前任的一封信｜有些话，需要等一等再说出口</h2>
-        <p>有些话，现在说出来是伤害。一年后再说，可能就是释怀。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 9 分钟</span>
-        </div>
+      <a href="wedding-vows-time-capsule.html" class="card" data-category="love">
+        <span class="tag">Wedding · Vows</span>
+        <h2>Why You Should Write Your Wedding Vows in a Time Capsule</h2>
+        <p>Learn why preserving your wedding vows in a time capsule is the perfect romantic gesture.</p>
       </a>
-
-      <a href="self-love-letter-time-capsule.html" class="post-card" data-category="个人成长 治愈">
-        <span class="post-tag">自我成长 · 自爱</span>
-        <h2>给自己的一封情书｜在你爱别人之前，请先好好爱自己</h2>
-        <p>你不需要完美，你只需要是你自己。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 11 分钟</span>
-        </div>
+      <a href="proposal-idea-time-capsule.html" class="card" data-category="love">
+        <span class="tag">Proposal · Romance</span>
+        <h2>The Most Romantic Proposal Ideas Using a Time Capsule</h2>
+        <p>Creative proposal ideas that use time capsules to create unforgettable moments.</p>
       </a>
-
-      <a href="letter-to-future-self-time-capsule.html" class="post-card" data-category="个人成长">
-        <span class="post-tag">个人成长 · 时间胶囊</span>
-        <h2>给未来自己的一封信｜为什么时间胶囊是最好的成年礼</h2>
-        <p>有些话，只有时间过去之后，我们才能真正听懂。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="valentines-day-time-capsule.html" class="card" data-category="gift">
+        <span class="tag">Valentine's · Gift</span>
+        <h2>Valentine's Day Time Capsule: The Gift That Keeps on Giving</h2>
+        <p>The perfect Valentine's Day gift idea that delivers love letters in the future.</p>
       </a>
-
-      <a href="new-years-resolutions-that-stick.html" class="post-card" data-category="个人成长">
-        <span class="post-tag">自我成长 · 新年仪式</span>
-        <h2>新年决心的正确打开方式｜让12月31日的你，检验1月1日的你</h2>
-        <p>新年决心不是说说而已。让年底的你，来检验年初的你。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="digital-memory-box-couples.html" class="card" data-category="love">
+        <span class="tag">Memory · Digital</span>
+        <h2>How to Create a Digital Memory Box for Couples: Preserve Your Love Story</h2>
+        <p>Step-by-step guide to creating digital memory boxes that preserve your relationship forever.</p>
       </a>
-
-      <a href="travel-memory-time-capsule.html" class="post-card" data-category="个人成长">
-        <span class="post-tag">旅行 · 回忆</span>
-        <h2>旅行的意义｜把那个夏天的故事，封存在一张照片里</h2>
-        <p>你以为你忘了，其实没有。那些风的味道，海的声音，都藏在某一张照片里。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 9 分钟</span>
-        </div>
+      <a href="preserve-wedding-memories-digitally.html" class="card" data-category="love">
+        <span class="tag">Wedding · Digital</span>
+        <h2>Preserve Your Wedding Memories Digitally: A Modern Guide</h2>
+        <p>Modern ways to preserve wedding memories using digital technology and time capsules.</p>
       </a>
-
-      <a href="retirement-gift-time-capsule.html" class="post-card" data-category="礼物">
-        <span class="post-tag">退休 · 职场纪念</span>
-        <h2>退休礼物创意｜给职业生涯画上一个温柔的句号</h2>
-        <p>几十年的职业生涯，值得一个有温度的告别。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="long-distance-relationship-time-capsule.html" class="card" data-category="love">
+        <span class="tag">LDR · Romance</span>
+        <h2>Long Distance Relationship? Send Love Through Time with a Digital Time Capsule</h2>
+        <p>Creative ways couples in long distance relationships can use time capsules to stay connected.</p>
       </a>
-
-      <a href="birthday-surprise-time-capsule.html" class="post-card" data-category="礼物">
-        <span class="post-tag">生日礼物 · 仪式感</span>
-        <h2>生日惊喜新玩法｜把信藏在照片里，让ta每年解锁一封</h2>
-        <p>最好的生日礼物，不是某一样东西，而是——我记得你的每一年。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 9 分钟</span>
-        </div>
+      <a href="memory-capsule-for-engagement.html" class="card" data-category="love">
+        <span class="tag">Engagement · Memory</span>
+        <h2>Memory Capsule for Engagement: Document Your Journey to 'I Do'</h2>
+        <p>How to create meaningful memory capsules during your engagement period.</p>
       </a>
-
-      <a href="photo-steganography-hidden-message.html" class="post-card" data-category="科普">
-        <span class="post-tag">科普 · 浪漫科技</span>
-        <h2>把消息藏在照片里｜数字时代的浪漫密码</h2>
-        <p>最安全的秘密，是别人根本不知道它存在。这就是隐写术的魅力。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 11 分钟</span>
-        </div>
+      <a href="how-to-preserve-photos-future.html" class="card" data-category="growth">
+        <span class="tag">Photos · Preservation</span>
+        <h2>How to Preserve Photos for the Future: Digital vs Physical</h2>
+        <p>Compare digital and physical methods for preserving precious photos for future generations.</p>
       </a>
-
-      <a href="first-date-memory-capsule.html" class="post-card" data-category="情侣">
-        <span class="post-tag">情侣 · 回忆</span>
-        <h2>第一次约会时间胶囊｜把心动时刻封存进照片里</h2>
-        <p>第一次约会是爱情最美的开始。把那天的紧张、心动、和ta的笑容封存在照片里。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="photo-steganography-privacy-security.html" class="card" data-category="tech">
+        <span class="tag">Privacy · Security</span>
+        <h2>Photo Steganography and Privacy: How Hidden Messages Protect Your Secrets</h2>
+        <p>Learn how steganography provides enhanced privacy for your secret messages and communications.</p>
       </a>
-
-      <a href="moving-in-together-memory.html" class="post-card" data-category="情侣">
-        <span class="post-tag">同居 · 爱情</span>
-        <h2>同居纪念日时间胶囊｜记录你们住在一起的第一天</h2>
-        <p>同居是爱情的重要里程碑。那些第一次一起生活的日子，值得被永远珍藏。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 9 分钟</span>
-        </div>
+      <a href="end-to-end-encryption-time-capsule.html" class="card" data-category="tech">
+        <span class="tag">Security · Encryption</span>
+        <h2>End-to-End Encryption for Time Capsules: Why Security Matters</h2>
+        <p>Understanding the importance of encryption in modern time capsule applications.</p>
       </a>
-
-      <a href="wedding-day-letter-to-self.html" class="post-card" data-category="情侣">
-        <span class="post-tag">婚礼 · 誓言</span>
-        <h2>婚礼当天给自己的信｜十年后重读当年的心情</h2>
-        <p>在你最闪亮的那一天，给未来的自己写一封信，封存在婚纱照里。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="how-steganography-works-technical.html" class="card" data-category="tech">
+        <span class="tag">Technical · Tutorial</span>
+        <h2>How Steganography Works: A Technical Deep Dive</h2>
+        <p>Technical explanation of how steganography works to hide messages in images.</p>
       </a>
-
-      <a href="baby-first-steps-memory.html" class="post-card" data-category="家庭">
-        <span class="post-tag">亲子 · 成长</span>
-        <h2>宝宝第一步时间胶囊｜记录成长的每一个瞬间</h2>
-        <p>宝宝迈出第一步的那天，是你生命中最珍贵的时刻之一。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 9 分钟</span>
-        </div>
+      <a href="zero-knowledge-proof-time-capsule.html" class="card" data-category="tech">
+        <span class="tag">Privacy · Advanced</span>
+        <h2>Zero-Knowledge Proof Time Capsules: Maximum Privacy Guaranteed</h2>
+        <p>Advanced privacy technology that ensures only you and your recipient can access hidden messages.</p>
       </a>
-
-      <a href="graduation-day-memory.html" class="post-card" data-category="个人成长">
-        <span class="post-tag">毕业 · 青春</span>
-        <h2>毕业季时间胶囊｜把青春最滚烫的样子封存起来</h2>
-        <p>毕业是青春的告别，也是人生的新起点。那些想说又没说出口的话，都值得被封存。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="steganography-vs-encryption.html" class="card" data-category="tech">
+        <span class="tag">Comparison · Security</span>
+        <h2>Steganography vs Encryption: What's the Difference and Which Should You Use?</h2>
+        <p>Compare steganography and encryption to understand which is best for your needs.</p>
       </a>
-
-      <a href="first-job-offer-letter.html" class="post-card" data-category="个人成长">
-        <span class="post-tag">职场 · 起点</span>
-        <h2>第一份工作邀请函｜记录职业生涯的第一步</h2>
-        <p>拿到第一份工作offer的那天，是你职业生涯的起点。这个时刻值得被永远铭记。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 7 分钟</span>
-        </div>
+      <a href="time-capsule-for-grief-healing.html" class="card" data-category="heal">
+        <span class="tag">Grief · Healing</span>
+        <h2>Using a Time Capsule for Grief and Healing: A Therapeutic Guide</h2>
+        <p>How time capsules can help in the grieving process and provide emotional healing.</p>
       </a>
-
-      <a href="travel-adventure-memory.html" class="post-card" data-category="个人成长">
-        <span class="post-tag">旅行 · 冒险</span>
-        <h2>旅行冒险时间胶囊｜把旅途中的故事封存起来</h2>
-        <p>每一次旅行都是一段故事。把旅途中的风景、心情、和ta的美好回忆封存在照片里。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="birthday-time-capsule-ideas.html" class="card" data-category="gift">
+        <span class="tag">Birthday · Ideas</span>
+        <h2>Creative Birthday Time Capsule Ideas for Every Age</h2>
+        <p>Unique birthday time capsule ideas perfect for kids, teens, and adults alike.</p>
       </a>
-
-      <a href="new-home-memory-capsule.html" class="post-card" data-category="家庭">
-        <span class="post-tag">安家 · 新起点</span>
-        <h2>新家时间胶囊｜记录拥有自己房子的那一天</h2>
-        <p>拿到新房钥匙的那天，是你人生的新篇章。这个时刻值得被永远铭记。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="graduation-time-capsule.html" class="card" data-category="growth">
+        <span class="tag">Graduation · Milestone</span>
+        <h2>Graduation Time Capsule: Capture This Milestone Moment</h2>
+        <p>Create meaningful graduation time capsules to commemorate academic achievements.</p>
       </a>
-
-      <a href="engagement-story-capsule.html" class="post-card" data-category="情侣">
-        <span class="post-tag">求婚 · 浪漫</span>
-        <h2>求婚故事时间胶囊｜把"Yes, I Do"前的最后心动封存</h2>
-        <p>求婚是爱情故事中最浪漫的篇章，值得被永远铭记。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 9 分钟</span>
-        </div>
+      <a href="new-years-resolution-time-capsule.html" class="card" data-category="growth">
+        <span class="tag">New Year · Goals</span>
+        <h2>New Year's Resolution Time Capsule: Track Your Growth Year by Year</h2>
+        <p>Use time capsules to track your New Year's resolutions and personal growth over time.</p>
       </a>
-
-      <a href="love-after-decades.html" class="post-card" data-category="情侣">
-        <span class="post-tag">金婚 · 爱情</span>
-        <h2>五十年后的爱情｜把金婚的祝福封存起来</h2>
-        <p>五十年的爱情长跑，是最美的童话。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="family-time-capsule-tradition.html" class="card" data-category="family">
+        <span class="tag">Family · Tradition</span>
+        <h2>Starting a Family Time Capsule Tradition: Ideas for Every Generation</h2>
+        <p>Create lasting family traditions with time capsules that bring generations together.</p>
       </a>
-
-      <a href="forgiveness-letter-capsule.html" class="post-card" data-category="治愈">
-        <span class="post-tag">宽恕 · 治愈</span>
-        <h2>宽恕时间胶囊｜给伤害过你的人的一封信</h2>
-        <p>宽恕不代表忘记，而是一种放下。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 9 分钟</span>
-        </div>
+      <a href="couple-mode-two-hearts-one-lock.html" class="card" data-category="love">
+        <span class="tag">Couples · Feature</span>
+        <h2>Couple Mode: Two Hearts, One Lock — The Romantic Power of Shared Photo Secrets</h2>
+        <p>Discover how couple mode creates deeper connections through shared secrets and hidden messages.</p>
       </a>
-
-      <a href="thank-you-parents-letter.html" class="post-card" data-category="家庭">
-        <span class="post-tag">亲情 · 感恩</span>
-        <h2>感恩父母的时间胶囊｜那些说不出口的爱</h2>
-        <p>父母的爱，我们常常不知道如何表达。但我们可以把它写下来。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="photo-encryption-vs-steganography.html" class="card" data-category="tech">
+        <span class="tag">Comparison · Security</span>
+        <h2>Photo Encryption vs Steganography: Which Hides Better?</h2>
+        <p>Compare different methods of protecting photos and messages to find the best approach.</p>
       </a>
-
-      <a href="dream-letter-to-future.html" class="post-card" data-category="个人成长">
-        <span class="post-tag">梦想 · 目标</span>
-        <h2>梦想时间胶囊｜写下你最大的梦想</h2>
-        <p>每个人都有自己的梦想，但真正坚持的人不多。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="time-capsule-countdown.html" class="card" data-category="growth">
+        <span class="tag">Psychology · Anticipation</span>
+        <h2>The Psychology of Time Capsules: Why Waiting Makes Memories More Special</h2>
+        <p>Explore the science behind why anticipation makes time capsule reveals so meaningful.</p>
       </a>
-
-      <a href="mothers-day-letter.html" class="post-card" data-category="家庭">
-        <span class="post-tag">母亲节 · 亲情</span>
-        <h2>母亲节时间胶囊｜给妈妈的悄悄话</h2>
-        <p>有些话，你可能不好意思当面对妈妈说。但你可以写下来。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="best-photo-formats-steganography.html" class="card" data-category="tech">
+        <span class="tag">Tutorial · Formats</span>
+        <h2>Best Photo Formats for Steganography: PNG vs JPEG vs BMP Compared</h2>
+        <p>Compare different image formats to find the best for hiding messages using steganography.</p>
       </a>
-
-      <a href="fathers-day-letter.html" class="post-card" data-category="家庭">
-        <span class="post-tag">父亲节 · 亲情</span>
-        <h2>父亲节时间胶囊｜给不善言辞的爸爸</h2>
-        <p>爸爸的爱常常藏在行动里，而不是话语中。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="future-unlock-technology.html" class="card" data-category="tech">
+        <span class="tag">Technology · Future</span>
+        <h2>The Future of Time Capsule Unlock Technology: What Awaits</h2>
+        <p>Explore emerging technologies that are making time capsule experiences even more exciting.</p>
       </a>
-
-      <a href="summer-camp-memory.html" class="post-card" data-category="友情">
-        <span class="post-tag">夏令营 · 童年</span>
-        <h2>夏令营回忆时间胶囊｜童年最美好的夏天</h2>
-        <p>夏令营是童年最美好的回忆之一，值得被永远珍藏。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="step-by-step-time-capsule-guide.html" class="card" data-category="growth">
+        <span class="tag">Guide · Beginner</span>
+        <h2>Step-by-Step Time Capsule Guide: Create Your First Memory Capsule Today</h2>
+        <p>Complete beginner's guide to creating your first time capsule in just a few simple steps.</p>
       </a>
-
-      <a href="pet-loss-memorial-capsule.html" class="post-card" data-category="家庭 治愈">
-        <span class="post-tag">宠物 · 离别</span>
-        <h2>宠物离别时间胶囊｜给已经离开的毛孩子</h2>
-        <p>宠物是我们家庭的一员，值得被永远记住。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 9 分钟</span>
-        </div>
+      <a href="time-capsule-vs-memory-book.html" class="card" data-category="gift">
+        <span class="tag">Comparison · Ideas</span>
+        <h2>Time Capsule vs Memory Book: Which Preservation Method Is Right for You?</h2>
+        <p>Compare time capsules and memory books to choose the best method for preserving memories.</p>
       </a>
-
-      <a href="wedding-vows-renewal.html" class="post-card" data-category="情侣">
-        <span class="post-tag">婚礼誓言 · 婚姻</span>
-        <h2>婚礼誓言更新时间胶囊｜重温当年的承诺</h2>
-        <p>婚礼誓言不只是一次性的承诺，它应该是你们毕生的约定。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="hidden-message-examples.html" class="card" data-category="gift">
+        <span class="tag">Ideas · Creativity</span>
+        <h2>Hidden Message Examples: Creative Ways to Hide Messages in Photos</h2>
+        <p>Inspiring examples of hidden messages you can create for your loved ones.</p>
       </a>
-
-      <a href="retirement-memory-capsule.html" class="post-card" data-category="个人成长">
-        <span class="post-tag">退休 · 职业生涯</span>
-        <h2>退休纪念时间胶囊｜给职业生涯画上温暖的句号</h2>
-        <p>退休是人生的新阶段，不是结束。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="why-time-capsule-wedding.html" class="card" data-category="love">
+        <span class="tag">Wedding · Advice</span>
+        <h2>Why Every Wedding Needs a Time Capsule: The Complete Argument</h2>
+        <p>Discover why creating a wedding time capsule is essential for every couple's big day.</p>
       </a>
-
-      <a href="new-year-memory-capsule.html" class="post-card" data-category="个人成长">
-        <span class="post-tag">新年 · 目标</span>
-        <h2>新年时间胶囊｜给新年的自己一封信</h2>
-        <p>新年的意义在于重新开始，让时间帮你检验。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="digital-legacy-planning.html" class="card" data-category="growth">
+        <span class="tag">Legacy · Future</span>
+        <h2>Digital Legacy Planning: Preserve Your Entire Digital Life for Future Generations</h2>
+        <p>Learn how to create comprehensive digital legacies that future generations will cherish.</p>
       </a>
-
-      <a href="birthday-memory-capsule.html" class="post-card" data-category="个人成长">
-        <span class="post-tag">生日 · 自我</span>
-        <h2>生日时间胶囊｜给每年的自己一份礼物</h2>
-        <p>生日是专属你的日子，让每一年都有一个期待。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="wedding-vows-hidden-in-photo.html" class="card" data-category="love">
+        <span class="tag">Wedding · Romance</span>
+        <h2>Wedding Vows Hidden in Photos: The Most Romantic Wedding Surprise</h2>
+        <p>How to hide your wedding vows in photos for a truly unforgettable surprise.</p>
       </a>
-
-      <a href="family-reunion-memory.html" class="post-card" data-category="家庭">
-        <span class="post-tag">家庭 · 亲情</span>
-        <h2>家庭聚会时间胶囊｜把亲情封存在照片里</h2>
-        <p>家庭聚会是难得的时光，让亲情从未走远。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="long-distance-relationship-love-letter.html" class="card" data-category="love">
+        <span class="tag">LDR · Letters</span>
+        <h2>Long Distance Love Letters: Send Heartfelt Messages Through Time</h2>
+        <p>Creative ways to maintain connection in long distance relationships using time capsules.</p>
       </a>
-
-      <a href="thanksgiving-gratitude-capsule.html" class="post-card" data-category="治愈">
-        <span class="post-tag">感恩节 · 感恩</span>
-        <h2>感恩节时间胶囊｜记录那些值得感恩的时刻</h2>
-        <p>感恩节是表达感谢的日子，让感恩成为生活的习惯。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="proposal-idea-time-capsule.html" class="card" data-category="love">
+        <span class="tag">Proposal · Ideas</span>
+        <h2>The Most Romantic Proposal Ideas Using Time Capsules</h2>
+        <p>Creative proposal ideas that incorporate time capsules for maximum romantic impact.</p>
       </a>
-
-      <a href="christmas-memory-capsule.html" class="post-card" data-category="家庭">
-        <span class="post-tag">圣诞节 · 冬日</span>
-        <h2>圣诞节时间胶囊｜把圣诞的魔法封存起来</h2>
-        <p>圣诞节不只是节日，更是爱与分享的象征。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="anniversary-gift-ideas-time-capsule.html" class="card" data-category="gift">
+        <span class="tag">Anniversary · Ideas</span>
+        <h2>Creative Anniversary Gift Ideas Using Time Capsules</h2>
+        <p>Unique anniversary gift ideas that leverage time capsules for lasting emotional impact.</p>
       </a>
-
-      <a href="love-letter-to-spouse.html" class="post-card" data-category="情侣">
-        <span class="post-tag">情书 · 婚姻</span>
-        <h2>给配偶的情书时间胶囊｜那些说不出口的话</h2>
-        <p>婚姻生活需要浪漫，让爱在时光中成长。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="couple-mode-two-hearts-one-lock.html" class="card" data-category="love">
+        <span class="tag">Couples · Feature</span>
+        <h2>Couple Mode Explained: Two Hearts, One Lock</h2>
+        <p>Understanding how couple mode creates deeper bonds through shared secrets.</p>
       </a>
-
-      <a href="easter-memory-capsule.html" class="post-card" data-category="个人成长">
-        <span class="post-tag">复活节 · 新生</span>
-        <h2>复活节时间胶囊｜记录春天的新生</h2>
-        <p>复活节是重生和希望的象征，让希望成为力量。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="best-friend-time-capsule.html" class="card" data-category="friend">
+        <span class="tag">Friendship · Memory</span>
+        <h2>Best Friend Time Capsule: Preserve Your Friendship Forever</h2>
+        <p>Creative ideas for creating time capsules with your best friends.</p>
       </a>
-
-      <a href="anniversary-date-capsule.html" class="post-card" data-category="情侣">
-        <span class="post-tag">恋爱纪念日 · 爱情</span>
-        <h2>恋爱纪念日时间胶囊｜记录在一起的每一天</h2>
-        <p>恋爱纪念日是你们独有的节日，让爱情在时光中成长。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="birthday-surprise-time-capsule.html" class="card" data-category="gift">
+        <span class="tag">Birthday · Surprise</span>
+        <h2>Birthday Surprise Time Capsule Ideas</h2>
+        <p>Unique birthday surprise ideas using time capsules that create lasting memories.</p>
       </a>
-
-      <a href="first-home-memory-capsule.html" class="post-card" data-category="家庭">
-        <span class="post-tag">安家 · 归属</span>
-        <h2>第一次拥有自己的家时间胶囊｜记录安家的喜悦</h2>
-        <p>第一次有自己的家，是人生重要的里程碑。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="pet-memory-time-capsule.html" class="card" data-category="family">
+        <span class="tag">Pets · Memory</span>
+        <h2>Pet Memory Time Capsule: Preserve Moments with Your Furry Friends</h2>
+        <p>Create meaningful time capsules to remember your beloved pets forever.</p>
       </a>
-
-      <a href="childhood-memory-capsule.html" class="post-card" data-category="个人成长">
-        <span class="post-tag">童年 · 纯真</span>
-        <h2>童年记忆时间胶囊｜找回那个小小的自己</h2>
-        <p>童年是我们最纯真的时光，让那些记忆永远鲜活。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="letter-to-future-self-time-capsule.html" class="card" data-category="growth">
+        <span class="tag">Self · Future</span>
+        <h2>Letter to Future Self: The Ultimate Time Capsule Experience</h2>
+        <p>How to write powerful letters to your future self using time capsule technology.</p>
       </a>
-
-      <a href="study-abroad-memory-capsule.html" class="post-card" data-category="个人成长">
-        <span class="post-tag">留学 · 成长</span>
-        <h2>留学记忆时间胶囊｜记录在异国他乡的日子</h2>
-        <p>留学是一段特殊的人生经历，让成长成为永恒。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="self-love-letter-time-capsule.html" class="card" data-category="heal">
+        <span class="tag">Self-Love · Healing</span>
+        <h2>Self-Love Letter Time Capsule: A Journey to Self-Appreciation</h2>
+        <p>Create self-love letters to be opened in the future as a powerful self-care practice.</p>
       </a>
-
-      <a href="overcoming-fear-capsule.html" class="post-card" data-category="个人成长 治愈">
-        <span class="post-tag">克服恐惧 · 勇气</span>
-        <h2>克服恐惧时间胶囊｜记录战胜自己的那一刻</h2>
-        <p>勇敢不是不害怕，而是害怕了依然前行。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="travel-memory-time-capsule.html" class="card" data-category="growth">
+        <span class="tag">Travel · Memory</span>
+        <h2>Travel Memory Time Capsule: Preserve Your Adventures Forever</h2>
+        <p>How to create travel time capsules that preserve your most precious memories.</p>
       </a>
-
-      <a href="breakup-healing-capsule.html" class="post-card" data-category="治愈">
-        <span class="post-tag">分手 · 治愈</span>
-        <h2>分手治愈时间胶囊｜把过去的爱变成力量</h2>
-        <p>分手很痛，但也是成长的机会。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 9 分钟</span>
-        </div>
+      <a href="graduation-time-capsule.html" class="card" data-category="growth">
+        <span class="tag">Graduation · Memory</span>
+        <h2>Graduation Memory Capsule: A Milestone Worth Preserving</h2>
+        <p>Create graduation time capsules that capture this important life milestone.</p>
       </a>
-
-      <a href="welcoming-new-life-capsule.html" class="post-card" data-category="家庭">
-        <span class="post-tag">新生儿 · 父母</span>
-        <h2>迎接新生命时间胶囊｜记录成为父母的那一刻</h2>
-        <p>成为父母是人生最特别的经历，让爱延续。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 9 分钟</span>
-        </div>
+      <a href="family-legacy-time-capsule.html" class="card" data-category="family">
+        <span class="tag">Family · Legacy</span>
+        <h2>Family Legacy Time Capsule: Generations of Memories</h2>
+        <p>Create family time capsules that preserve your family's unique story across generations.</p>
       </a>
-
-      <a href="new-years-eve-capsule.html" class="post-card" data-category="个人成长">
-        <span class="post-tag">跨年 · 告别</span>
-        <h2>跨年夜时间胶囊｜记录一年的终点和新年的起点</h2>
-        <p>跨年夜是结束也是开始，让时间见证成长。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="retirement-gift-time-capsule.html" class="card" data-category="gift">
+        <span class="tag">Retirement · Gift</span>
+        <h2>Retirement Gift Time Capsule: Celebrate Career Milestones</h2>
+        <p>Meaningful retirement gift ideas using time capsules for colleagues and loved ones.</p>
       </a>
-
-      <a href="graduation-trip-memory-capsule.html" class="post-card" data-category="友情 个人成长">
-        <span class="post-tag">毕业旅行 · 青春</span>
-        <h2>毕业旅行时间胶囊｜青春最后的疯狂</h2>
-        <p>毕业旅行是青春的告别仪式，让勇气和自由成为永恒。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="photo-steganography-hidden-message.html" class="card" data-category="tech">
+        <span class="tag">Steganography · Tutorial</span>
+        <h2>Photo Steganography: Hide Any Message in Your Photos</h2>
+        <p>Learn how to use steganography to hide any secret message in photos.</p>
       </a>
-
-      <a href="friendship-time-capsule.html" class="post-card" data-category="友情">
-        <span class="post-tag">友谊 · 朋友</span>
-        <h2>友谊时间胶囊｜记录那些走了一辈子的朋友</h2>
-        <p>真正的朋友是一生的财富，让友谊穿越时间。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="grief-letter-time-capsule.html" class="card" data-category="heal">
+        <span class="tag">Grief · Letter</span>
+        <h2>Grief Letter Time Capsule: Healing Through Written Words</h2>
+        <p>How time capsules can help process grief and preserve memories of loved ones.</p>
       </a>
-
-      <a href="first-date-nervousness-capsule.html" class="post-card" data-category="情侣">
-        <span class="post-tag">心动 · 约会</span>
-        <h2>第一次约会紧张时刻｜心跳加速的那一天</h2>
-        <p>第一次约会总是让人紧张，让心动成为永恒。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="breakup-letter-time-capsule.html" class="card" data-category="heal">
+        <span class="tag">Healing · Growth</span>
+        <h2>Breakup Letter Time Capsule: A Path to Emotional Healing</h2>
+        <p>Using time capsules to heal after a breakup and embrace personal growth.</p>
       </a>
-
-      <a href="moving-to-new-place-capsule.html" class="post-card" data-category="个人成长">
-        <span class="post-tag">搬家 · 改变</span>
-        <h2>搬家记忆时间胶囊｜记录人生的新篇章</h2>
-        <p>每一次搬家都是人生的新篇章，让改变成为美好的回忆。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="moving-in-together-memory.html" class="card" data-category="love">
+        <span class="tag">Couples · Milestone</span>
+        <h2>Moving In Together: A Memory Capsule for Your New Home</h2>
+        <p>Create a time capsule when moving in together to mark this exciting milestone.</p>
       </a>
-
-      <a href="wedding-preparation-capsule.html" class="post-card" data-category="情侣">
-        <span class="post-tag">婚礼准备 · 婚前</span>
-        <h2>婚礼准备时间胶囊｜记录婚前忙碌的幸福</h2>
-        <p>婚礼前的准备是忙碌而幸福的，让期待成为礼物。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="first-date-memory-capsule.html" class="card" data-category="love">
+        <span class="tag">Romance · Memory</span>
+        <h2>First Date Memory Capsule: Capture That First Spark</h2>
+        <p>How to preserve first date memories using time capsule technology.</p>
       </a>
-
-      <a href="adopting-pet-capsule.html" class="post-card" data-category="家庭">
-        <span class="post-tag">宠物 · 领养</span>
-        <h2>领养宠物时间胶囊｜记录家庭新成员的到来</h2>
-        <p>领养宠物是给家庭添一个新成员，让爱成为责任。</p>
-        <div class="post-meta">
-          <span>2026年6月</span>
-          <span class="dot"></span>
-          <span>阅读 8 分钟</span>
-        </div>
+      <a href="new-years-resolutions-that-stick.html" class="card" data-category="growth">
+        <span class="tag">New Year · Goals</span>
+        <h2>New Year's Resolutions That Stick: The Time Capsule Method</h2>
+        <p>Use time capsules to make your New Year's resolutions more effective and memorable.</p>
       </a>
-    </div>
-
-    <div class="pagination">
-      <button class="page-btn active">1</button>
-      <button class="page-btn">2</button>
-      <button class="page-btn">→</button>
+      <a href="baby-first-steps-memory.html" class="card" data-category="family">
+        <span class="tag">Baby · Milestone</span>
+        <h2>Baby's First Steps Memory Capsule</h2>
+        <p>Capture baby's first steps and precious early memories in a time capsule.</p>
+      </a>
+      <a href="childhood-memory-capsule.html" class="card" data-category="family">
+        <span class="tag">Childhood · Memory</span>
+        <h2>Childhood Memory Capsule: Treasures from Growing Up</h2>
+        <p>Create meaningful childhood memory capsules for your children to open years later.</p>
+      </a>
+      <a href="engagement-story-capsule.html" class="card" data-category="love">
+        <span class="tag">Engagement · Story</span>
+        <h2>Engagement Story Capsule: Document Your Love Journey</h2>
+        <p>Create an engagement story time capsule that captures your path to marriage.</p>
+      </a>
+      <a href="wedding-preparation-capsule.html" class="card" data-category="love">
+        <span class="tag">Wedding · Planning</span>
+        <h2>Wedding Preparation Capsule: The Journey to 'I Do'</h2>
+        <p>Preserve wedding planning memories in a time capsule for future reminiscing.</p>
+      </a>
+      <a href="new-home-memory-capsule.html" class="card" data-category="family">
+        <span class="tag">Home · Memory</span>
+        <h2>New Home Memory Capsule: Starting Fresh Together</h2>
+        <p>Create a time capsule when buying a new home to remember this milestone.</p>
+      </a>
+      <a href="fathers-day-letter.html" class="card" data-category="family">
+        <span class="tag">Father's Day · Letter</span>
+        <h2>Father's Day Letter Capsule: Words from the Heart</h2>
+        <p>Create meaningful Father's Day letters in time capsules for lasting impact.</p>
+      </a>
+      <a href="mothers-day-letter.html" class="card" data-category="family">
+        <span class="tag">Mother's Day · Letter</span>
+        <h2>Mother's Day Letter Capsule: A Gift That Grows with Time</h2>
+        <p>Give Mom a Mother's Day time capsule with heartfelt letters and memories.</p>
+      </a>
+      <a href="christmas-memory-capsule.html" class="card" data-category="family">
+        <span class="tag">Christmas · Memory</span>
+        <h2>Christmas Memory Capsule: Holiday Traditions Preserved</h2>
+        <p>Create Christmas time capsules that preserve holiday magic for years to come.</p>
+      </a>
+      <a href="thanksgiving-gratitude-capsule.html" class="card" data-category="growth">
+        <span class="tag">Gratitude · Holiday</span>
+        <h2>Thanksgiving Gratitude Capsule: Practice Thankfulness</h2>
+        <p>Use time capsules to practice gratitude during Thanksgiving and beyond.</p>
+      </a>
+      <a href="easter-memory-capsule.html" class="card" data-category="family">
+        <span class="tag">Easter · Memory</span>
+        <h2>Easter Memory Capsule: Capture Family Traditions</h2>
+        <p>Create Easter time capsules with family traditions and precious memories.</p>
+      </a>
+      <a href="love-letter-to-spouse.html" class="card" data-category="love">
+        <span class="tag">Romance · Letter</span>
+        <h2>Love Letter to Spouse: Reviving Romance Through Time</h2>
+        <p>Write love letters to your spouse hidden in photos for unexpected romantic moments.</p>
+      </a>
+      <a href="love-after-decades.html" class="card" data-category="love">
+        <span class="tag">Long-term · Romance</span>
+        <h2>Love After Decades: How Time Capsules Keep Romance Alive</h2>
+        <p>Discover how long-term couples use time capsules to maintain romantic connections.</p>
+      </a>
+      <a href="dream-letter-to-future.html" class="card" data-category="growth">
+        <span class="tag">Dreams · Future</span>
+        <h2>Dream Letter to Future: Where Will You Be in 10 Years?</h2>
+        <p>Write dream letters to your future self about where you hope to be in 10 years.</p>
+      </a>
+      <a href="forgiveness-letter-capsule.html" class="card" data-category="heal">
+        <span class="tag">Forgiveness · Healing</span>
+        <h2>Forgiveness Letter Capsule: Letting Go and Moving Forward</h2>
+        <p>Use time capsules as a powerful tool for forgiveness and emotional healing.</p>
+      </a>
+      <a href="overcoming-fear-capsule.html" class="card" data-category="growth">
+        <span class="tag">Fear · Growth</span>
+        <h2>Overcoming Fear Capsule: Write Down Your Courage</h2>
+        <p>Create time capsules to document your journey of overcoming fears.</p>
+      </a>
+      <a href="pet-loss-memorial-capsule.html" class="card" data-category="heal">
+        <span class="tag">Pet · Memorial</span>
+        <h2>Pet Loss Memorial Capsule: Honoring Our Beloved Companions</h2>
+        <p>Create memorial time capsules to honor and remember our beloved pets.</p>
+      </a>
+      <a href="adopting-pet-capsule.html" class="card" data-category="family">
+        <span class="tag">Pet · Adoption</span>
+        <h2>Adopting a Pet? Create an Adoption Memory Capsule</h2>
+        <p>Document your pet adoption journey with a meaningful time capsule.</p>
+      </a>
+      <a href="study-abroad-memory-capsule.html" class="card" data-category="growth">
+        <span class="tag">Study · Abroad</span>
+        <h2>Study Abroad Memory Capsule: Adventures Overseas</h2>
+        <p>Create a time capsule for your study abroad experience to treasure forever.</p>
+      </a>
+      <a href="summer-camp-memory.html" class="card" data-category="friend">
+        <span class="tag">Camp · Memory</span>
+        <h2>Summer Camp Memory Capsule: Friendships Made at Camp</h2>
+        <p>Preserve summer camp memories and friendships with creative time capsules.</p>
+      </a>
+      <a href="travel-adventure-memory.html" class="card" data-category="growth">
+        <span class="tag">Travel · Adventure</span>
+        <h2>Travel Adventure Memory Capsule: Document Your Journeys</h2>
+        <p>How to create meaningful time capsules from your travel adventures.</p>
+      </a>
+      <a href="anniversary-date-capsule.html" class="card" data-category="love">
+        <span class="tag">Anniversary · Date</span>
+        <h2>Anniversary Date Capsule: Recreate Your First Date</h2>
+        <p>Creative ways to use time capsules to recreate anniversary dates and memories.</p>
+      </a>
+      <a href="first-date-nervousness-capsule.html" class="card" data-category="love">
+        <span class="tag">First Date · Romance</span>
+        <h2>First Date Nervousness: Capture That Butterfly Feeling</h2>
+        <p>Preserve the nervous excitement of your first date in a time capsule.</p>
+      </a>
+      <a href="first-home-memory-capsule.html" class="card" data-category="family">
+        <span class="tag">Home · First</span>
+        <h2>First Home Memory Capsule: The Start of Something New</h2>
+        <p>Create a meaningful time capsule when you buy your first home.</p>
+      </a>
+      <a href="first-job-offer-letter.html" class="card" data-category="growth">
+        <span class="tag">Career · Milestone</span>
+        <h2>First Job Offer Letter: Career Milestones Preserved</h2>
+        <p>Preserve your first job offer and career milestones in time capsules.</p>
+      </a>
+      <a href="moving-to-new-place-capsule.html" class="card" data-category="growth">
+        <span class="tag">Moving · New Beginnings</span>
+        <h2>Moving to a New Place Capsule: Embrace New Beginnings</h2>
+        <p>Create time capsules when moving to new cities or countries for new beginnings.</p>
+      </a>
+      <a href="new-year-memory-capsule.html" class="card" data-category="growth">
+        <span class="tag">New Year · Memory</span>
+        <h2>New Year Memory Capsule: End-of-Year Reflections</h2>
+        <p>Create meaningful new year time capsules for reflection and goal setting.</p>
+      </a>
+      <a href="new-years-eve-capsule.html" class="card" data-category="growth">
+        <span class="tag">NYE · Celebration</span>
+        <h2>New Year's Eve Capsule: Document Year's End</h2>
+        <p>Create special time capsules to capture New Year's Eve celebrations.</p>
+      </a>
+      <a href="wedding-day-letter-to-self.html" class="card" data-category="love">
+        <span class="tag">Wedding · Self</span>
+        <h2>Wedding Day Letter to Yourself: Words for the Bride & Groom</h2>
+        <p>Write letters to yourself on your wedding day to open on your anniversary.</p>
+      </a>
+      <a href="wedding-vows-renewal.html" class="card" data-category="love">
+        <span class="tag">Vows · Renewal</span>
+        <h2>Wedding Vows Renewal: Time Capsules for Anniversaries</h2>
+        <p>Use time capsules to renew wedding vows on milestone anniversaries.</p>
+      </a>
+      <a href="welcoming-new-life-capsule.html" class="card" data-category="family">
+        <span class="tag">New Life · Memory</span>
+        <h2>Welcoming New Life: Baby Arrival Time Capsule</h2>
+        <p>Create meaningful time capsules when welcoming a new baby into the family.</p>
+      </a>
+      <a href="letter-to-baby-time-capsule.html" class="card" data-category="family">
+        <span class="tag">Baby · Letter</span>
+        <h2>Letter to Baby: What I Wish I Knew Before You Arrived</h2>
+        <p>Write heartfelt letters to your baby to be opened when they're older.</p>
+      </a>
+      <a href="retirement-memory-capsule.html" class="card" data-category="growth">
+        <span class="tag">Retirement · Memory</span>
+        <h2>Retirement Memory Capsule: Celebrating Life's Work</h2>
+        <p>Create meaningful retirement time capsules to celebrate career achievements.</p>
+      </a>
+      <a href="family-reunion-memory.html" class="card" data-category="family">
+        <span class="tag">Family · Reunion</span>
+        <h2>Family Reunion Memory Capsule: Bringing Generations Together</h2>
+        <p>Create time capsules at family reunions to preserve precious family moments.</p>
+      </a>
+      <a href="friendship-time-capsule.html" class="card" data-category="friend">
+        <span class="tag">Friendship · Memory</span>
+        <h2>Friendship Time Capsule: Best Friends Forever</h2>
+        <p>Create meaningful time capsules to preserve lifelong friendships.</p>
+      </a>
+      <a href="birthday-memory-capsule.html" class="card" data-category="gift">
+        <span class="tag">Birthday · Memory</span>
+        <h2>Birthday Memory Capsule: Growing Older Gracefully</h2>
+        <p>Create birthday time capsules that capture growth and life milestones.</p>
+      </a>
+      <a href="graduation-day-memory.html" class="card" data-category="growth">
+        <span class="tag">Graduation · Day</span>
+        <h2>Graduation Day Memory: Capture This Milestone Moment</h2>
+        <p>Preserve graduation day memories in meaningful time capsules.</p>
+      </a>
+      <a href="graduation-trip-memory-capsule.html" class="card" data-category="growth">
+        <span class="tag">Graduation · Trip</span>
+        <h2>Graduation Trip Memory Capsule: Adventures After School</h2>
+        <p>Create time capsules from graduation trips and post-graduation adventures.</p>
+      </a>
+      <a href="thank-you-parents-letter.html" class="card" data-category="family">
+        <span class="tag">Parents · Gratitude</span>
+        <h2>Thank You Letter to Parents: Expressing Gratitude Through Time</h2>
+        <p>Write thank you letters to parents in time capsules for meaningful moments.</p>
+      </a>
+      <a href="valentines-day-gift-2026.html" class="card" data-category="gift">
+        <span class="tag">Valentine's · 2026</span>
+        <h2>Valentine's Day 2026: Unique Gift Ideas for Couples</h2>
+        <p>Creative Valentine's Day 2026 gift ideas using time capsule technology.</p>
+      </a>
     </div>
 
     <div class="cta-section">
-      <h3>现在就封存你的第一封时光信</h3>
-      <p>免费、无需注册、所有加密在浏览器本地完成<br>你的秘密，只有你能打开。</p>
-      <a href="/#seal" class="cta-btn">开始制作时间胶囊 →</a>
+      <h3>Ready to Create Your Own Time Capsule?</h3>
+      <p>Start hiding messages in photos and creating unforgettable memories today.</p>
+      <a href="/#seal" class="cta-btn">Seal Your Message →</a>
     </div>
   </div>
 
   <footer class="footer">
-    <p>© 2026 TimeVault · 写一封信给明天</p>
-    <p style="margin-top: 0.5rem;"><a href="/">返回首页</a></p>
+    <p>© 2026 TimeVault. Write a letter to tomorrow.</p>
   </footer>
 
   <script>
-    function filterPosts(category) {
-      const cards = document.querySelectorAll('.post-card');
-      const buttons = document.querySelectorAll('.tag-btn');
-
-      buttons.forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
-
-      cards.forEach(card => {
-        if (category === 'all') {
-          card.style.display = 'block';
-        } else {
-          const cardCategory = card.getAttribute('data-category');
-          if (cardCategory && cardCategory.includes(category)) {
+    // Simple filter functionality
+    document.querySelectorAll('.tag-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const filter = btn.dataset.filter;
+        
+        // Update active state
+        document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Filter posts
+        document.querySelectorAll('.card').forEach(card => {
+          if (filter === 'all' || card.dataset.category === filter) {
             card.style.display = 'block';
           } else {
             card.style.display = 'none';
           }
-        }
+        });
       });
-    }
+    });
   </script>
 </body>
 </html>

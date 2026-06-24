@@ -1,35 +1,30 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>毕业季时间胶囊｜把青春最滚烫的样子，封存进这张照片 - TimeVault 博客</title>
-  <meta name="description" content="毕业季送什么礼物好？和同学一起制作一个时间胶囊吧。把青春最滚烫的样子封存在照片里，给十年后的自己和同学写一封信。这是最好的毕业纪念。">
-  <meta name="keywords" content="毕业礼物,毕业季,毕业纪念,大学毕业,高中毕业,给未来的自己,TimeVault">
-  <meta property="og:title" content="毕业季时间胶囊｜把青春最滚烫的样子，封存进这张照片">
-  <meta property="og:description" content>
+  <title>Graduation Time Capsule: Capture This Milestone Moment | TimeVault</title>
+  <meta name="description" content="Create the perfect graduation time capsule. Capture your milestone moment with hidden messages and photos for future reflection.">
+  <meta name="keywords" content="graduation time capsule, graduation gift, student memories, graduation memories, school time capsule">
+  <meta property="og:title" content="Graduation Time Capsule: Capture This Milestone Moment">
+  <meta property="og:description" content="Everything you need to know about creating graduation time capsules. Preserve your milestone memories forever.">
   <meta property="og:type" content="article">
+  <link rel="canonical" href="https://timevault.online/blog/graduation-time-capsule">
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #0a0612;
       color: rgba(255, 255, 255, 0.7);
       line-height: 1.8;
       min-height: 100vh;
     }
     .nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(10, 6, 18, 0.8);
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(10, 6, 18, 0.9);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.03);
     }
@@ -48,24 +43,21 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .hero {
-      padding: 120px 2rem 60px;
+    .article-header {
+      padding: 140px 2rem 60px;
       text-align: center;
       position: relative;
       overflow: hidden;
     }
-    .hero::before {
+    .article-header::before {
       content: '';
       position: absolute;
-      top: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 600px;
-      height: 500px;
+      top: 10%; left: 50%; transform: translateX(-50%);
+      width: 700px; height: 500px;
       background: radial-gradient(circle, rgba(236,72,153,0.12) 0%, rgba(168,85,247,0.08) 30%, transparent 70%);
       pointer-events: none;
     }
-    .hero .tag {
+    .article-header .tag {
       color: rgba(244, 114, 182, 0.5);
       font-size: 0.75rem;
       letter-spacing: 0.3em;
@@ -73,103 +65,103 @@
       margin-bottom: 1.5rem;
       font-weight: 300;
     }
-    .hero h1 {
+    .article-header h1 {
       font-family: Georgia, serif;
-      font-size: 3rem;
+      font-size: 2.6rem;
       font-weight: 300;
       line-height: 1.3;
       margin-bottom: 1.5rem;
       position: relative;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
     }
-    .hero h1 .gradient {
+    .article-header h1 .gradient {
       background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .hero .subtitle {
-      font-size: 1.1rem;
+    .article-header .meta {
+      font-size: 0.9rem;
       color: rgba(255, 255, 255, 0.4);
-      max-width: 600px;
+    }
+    .container {
+      max-width: 800px;
       margin: 0 auto;
-      font-weight: 300;
+      padding: 0 2rem 6rem;
     }
-    .hero .meta {
-      margin-top: 2rem;
-      color: rgba(255, 255, 255, 0.25);
-      font-size: 0.85rem;
-    }
-    .article {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 3rem 2rem 6rem;
-    }
-    .article p {
-      margin-bottom: 1.5rem;
-      font-size: 1rem;
-      font-weight: 300;
-      color: rgba(255, 255, 255, 0.55);
-      line-height: 2;
-    }
-    .article h2 {
-      font-family: Georgia, serif;
-      font-size: 1.75rem;
-      font-weight: 300;
-      color: rgba(255, 255, 255, 0.75);
-      margin: 3rem 0 1.5rem;
-      line-height: 1.4;
-    }
-    .article h3 {
-      font-family: Georgia, serif;
-      font-size: 1.35rem;
-      font-weight: 300;
-      color: rgba(255, 255, 255, 0.65);
-      margin: 2rem 0 1rem;
-    }
-    .article blockquote {
-      border-left: 2px solid rgba(244, 114, 182, 0.4);
-      padding-left: 1.5rem;
-      margin: 2rem 0;
-      font-style: italic;
-      color: rgba(255, 255, 255, 0.45);
-      font-family: Georgia, serif;
+    .article-content {
       font-size: 1.05rem;
+      line-height: 1.9;
     }
-    .article .highlight-box {
-      background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(168,85,247,0.06) 100%);
-      border: 1px solid rgba(244, 114, 182, 0.15);
-      border-radius: 1rem;
-      padding: 2rem;
-      margin: 2.5rem 0;
-    }
-    .article .highlight-box p { margin-bottom: 0.75rem; }
-    .article .highlight-box p:last-child { margin-bottom: 0; }
-    .article ul {
-      margin: 1.5rem 0 1.5rem 1.5rem;
-      color: rgba(255, 255, 255, 0.5);
+    .article-content h2 {
+      font-family: Georgia, serif;
+      font-size: 1.8rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 3rem 0 1.5rem;
       font-weight: 300;
     }
-    .article ul li {
-      margin-bottom: 0.75rem;
-      line-height: 1.8;
+    .article-content h3 {
+      font-family: Georgia, serif;
+      font-size: 1.4rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin: 2rem 0 1rem;
+      font-weight: 300;
     }
-    .article a {
-      color: rgba(244, 114, 182, 0.7);
+    .article-content p {
+      margin-bottom: 1.5rem;
+    }
+    .article-content ul, .article-content ol {
+      margin: 1.5rem 0;
+      padding-left: 1.5rem;
+    }
+    .article-content li {
+      margin-bottom: 0.75rem;
+    }
+    .article-content a {
+      color: rgba(244, 114, 182, 0.8);
       text-decoration: none;
       border-bottom: 1px solid rgba(244, 114, 182, 0.3);
       transition: all 0.3s;
     }
-    .article a:hover {
+    .article-content a:hover {
       color: rgba(244, 114, 182, 1);
       border-bottom-color: rgba(244, 114, 182, 0.6);
     }
+    .highlight-box {
+      background: linear-gradient(135deg, rgba(236,72,153,0.1) 0%, rgba(168,85,247,0.08) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+    .highlight-box h4 {
+      font-family: Georgia, serif;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 1rem;
+      font-weight: 300;
+    }
+    .grad-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .grad-card h4 {
+      font-family: Georgia, serif;
+      color: rgba(244, 114, 182, 0.8);
+      margin-bottom: 0.75rem;
+    }
     .cta-section {
+      max-width: 720px;
+      margin: 4rem auto 0;
       background: linear-gradient(135deg, rgba(236,72,153,0.1) 0%, rgba(168,85,247,0.08) 100%);
       border: 1px solid rgba(244, 114, 182, 0.15);
       border-radius: 1.5rem;
       padding: 3rem 2rem;
       text-align: center;
-      margin: 4rem 0;
     }
     .cta-section h3 {
       font-family: Georgia, serif;
@@ -210,191 +202,276 @@
       text-decoration: none;
     }
     .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: rgba(255, 255, 255, 0.4);
+      display: inline-block;
+      margin-bottom: 2rem;
+      color: rgba(244, 114, 182, 0.6);
       text-decoration: none;
       font-size: 0.9rem;
-      margin-bottom: 2rem;
-      transition: color 0.3s;
     }
-    .back-link:hover { color: rgba(255, 255, 255, 0.7); }
     @media (max-width: 768px) {
-      .hero h1 { font-size: 2rem; }
-      .article { padding: 2rem 1.5rem 4rem; }
-      .article h2 { font-size: 1.4rem; }
+      .article-header h1 { font-size: 2rem; }
+      .container { padding: 0 1.5rem 4rem; }
     }
   </style>
 </head>
 <body>
   <nav class="nav">
     <a href="/" class="logo">TimeVault</a>
-    <a href="/#stories">← 返回故事</a>
+    <a href="/blog">← Back to Blog</a>
   </nav>
 
-  <section class="hero">
-    <p class="tag">毕业季 · 青春纪念</p>
-    <h1>毕业季时间胶囊<br><span class="gradient">把青春最滚烫的样子，封存进这张照片</span></h1>
-    <p class="subtitle">那时候天总是很蓝，日子总过得太慢。你总说毕业遥遥无期，转眼就各奔东西。</p>
-    <p class="meta">2026年6月 · 阅读时间 10 分钟</p>
-  </section>
+  <header class="article-header">
+    <p class="tag">Graduation</p>
+    <h1><span class="gradient">Graduation Time Capsule</span>: Capture This Milestone Moment</h1>
+    <p class="meta"><span>June 2026</span> · <span>12 min read</span></p>
+  </header>
 
-  <article class="article">
-    <a href="/blog" class="back-link">← 所有文章</a>
+  <main class="container">
+    <a href="/blog" class="back-link">← Back to all articles</a>
 
-    <p>前几天整理旧物，翻出了高中毕业时的合影。</p>
+    <article class="article-content">
+      <p>Graduation marks the end of an era and the beginning of another. You're standing at a threshold—between who you were as a student and who you'll become in the wider world. It's a moment of tremendous possibility, anxiety, pride, and uncertainty all at once.</p>
 
-    <p>照片里的我们穿着统一的蓝白校服，站在教学楼前的操场上。太阳很大，所有人都眯着眼睛，笑得一脸傻气。那时候的男生还留着寸头，女生的刘海厚厚的，脸上都是没长开的稚气。</p>
+      <p>Years from now, you'll want to remember not just the ceremony and the cheering, but who you were in that moment. What you thought about the future. What you feared. What you hoped. What you believed about yourself and the world.</p>
 
-    <p>我数了数，一共五十六个人。现在还在联系的，不超过五个。</p>
+      <p>A <strong>graduation time capsule</strong> lets you preserve all of this—not as vague memory, but as a precise snapshot you can return to whenever you want.</p>
 
-    <p>时间真可怕啊。好像昨天还在一起上课传纸条，今天就已经散落天涯了。</p>
+      <h2>Why Graduation Needs a Time Capsule</h2>
 
-    <p>我盯着那张照片看了很久，突然想起一件事——高三那年，班主任曾经让我们每个人写一封信给十年后的自己，封在一个纸箱里，说等十年后同学会的时候再打开。</p>
+      <p>Graduation is one of those rare moments that naturally invites reflection. You're already looking back at how far you've come and forward to where you're going. A time capsule captures this liminal state:</p>
 
-    <p>可是十年早就过去了。那个纸箱呢？没人记得了。那次同学会呢？也没人组织起来。</p>
+      <ul>
+        <li><strong>The person you're leaving behind:</strong> Who were you at 18, 22, or 25?</li>
+        <li><strong>The person you're becoming:</strong> What do you hope to be?</li>
+        <li><strong>The transitional self:</strong> What is this moment actually like?</li>
+        <li><strong>The relationship to your past:</strong> How do you feel about your education now?</li>
+        <li><strong>The relationship to your future:</strong> What do you imagine for yourself?</li>
+      </ul>
 
-    <p>那些写给未来的信，那些少年时的心事和梦想，就那样被遗忘在了某个角落，落满了灰。</p>
+      <h2>What to Include in Your Graduation Time Capsule</h2>
 
-    <p>想想挺可惜的。</p>
+      <div class="grad-card">
+        <h4>📚 Academic Reflections</h4>
+        <ul>
+          <li>Your major and how you chose it</li>
+          <li>Favorite class and why</li>
+          <li>Least favorite class and what it taught you</li>
+          <li>Professor who influenced you most</li>
+          <li>What you actually learned (vs. what you thought you'd learn)</li>
+          <li>If you could redo your academic experience, what would you change?</li>
+        </ul>
+      </div>
 
-    <h2>为什么毕业时一定要做一个时间胶囊</h2>
+      <div class="grad-card">
+        <h4>💭 Personal Growth</h4>
+        <ul>
+          <li>Who you were when you started vs. who you are now</li>
+          <li>Biggest personal development during school</li>
+          <li>Mistakes you made and what they taught you</li>
+          <li>Relationships that shaped you</li>
+          <li>Challenges you overcame</li>
+          <li>What you're most proud of</li>
+        </ul>
+      </div>
 
-    <p>毕业是什么感觉呢？</p>
+      <div class="grad-card">
+        <h4>🚀 Future Hopes and Fears</h4>
+        <ul>
+          <li>What you want to be doing in 5 years</li>
+          <li>Biggest fear about the future</li>
+          <li>Biggest hope for the future</li>
+          <li>Where you think you'll actually end up</li>
+          <li>What "success" means to you right now</li>
+          <li>What you'll tell yourself when things get hard</li>
+        </ul>
+      </div>
 
-    <p>就像是你坐了很久很久的火车，终于到站了。你提着行李站在站台上，身后是你熟悉了好几年的车厢，面前是未知的、广阔的、又有点让人害怕的未来。</p>
+      <div class="grad-card">
+        <h4>💝 Relationships</h4>
+        <ul>
+          <li>Friends who became family</li>
+          <li>Romantic relationships during school</li>
+          <li>Mentors who believed in you</li>
+          <li>What you're taking from these relationships</li>
+          <li>How you hope to stay connected</li>
+          <li>Relationships you wish you'd nurtured more</li>
+        </ul>
+      </div>
 
-    <p>你知道你该往前走了，但你又有点舍不得。舍不得窗外的风景，舍不得邻座的旅伴，舍不得这一段再也回不去的旅程。</p>
+      <h2>Different Types of Graduation Capsules</h2>
 
-    <blockquote>"毕业不是结束，是另一种开始。但开始之前，我们需要好好告别。"</blockquote>
+      <h3>High School Graduation (Age 18)</h3>
 
-    <p>而时间胶囊，就是告别的最好方式。</p>
+      <p>The end of childhood, the threshold of adulthood. Capture:</p>
 
-    <p>它把你此刻的样子、此刻的心情、此刻的梦想，都好好地保存了起来。等很多年以后，你再打开它的时候，就好像又回到了那个夏天，又看到了那个年轻的、闪闪发光的自己。</p>
+      <ul>
+        <li>Your feelings about leaving home</li>
+        <li>What you think you know about the world</li>
+        <li>What you believe about yourself</li>
+        <li>Your plans (college, work, gap year?)</li>
+        <li>What you'll miss most</li>
+        <li>What you won't miss</li>
+        <li>Your relationship with your parents at this moment</li>
+      </ul>
 
-    <p>你会想起，原来我曾经是那样的。原来我曾经有过那样的梦想。原来我曾经那样热烈地活过。</p>
+      <h3>College Graduation (Age 22)</h3>
 
-    <h2>毕业时间胶囊，可以放些什么？</h2>
+      <p>The end of formal education, the beginning of career. Document:</p>
 
-    <p>以前的时间胶囊，都是找一个盒子，放点东西进去，然后埋在地下或者锁在柜子里。但那样有个问题——很容易弄丢。</p>
+      <ul>
+        <li>Your major and does it feel relevant?</li>
+        <li>What you actually want from a career</li>
+        <li>How you've changed since freshman year</li>
+        <li>The person you were at 18 and who you've become</li>
+        <li>What's next and how you feel about it</li>
+        <li>What you think adulthood will be like</li>
+        <li>Advice for other recent graduates</li>
+      </ul>
 
-    <p>搬一次家可能就丢了，换一个学校可能就丢了，甚至只是时间久了，大家都忘了这件事。</p>
+      <h3>Graduate School Graduation</h3>
 
-    <p>但数字时间胶囊不一样。它藏在一张照片里，你可以存在手机里，可以存在云盘里，可以发给每个同学一份。只要那张照片还在，胶囊就在。</p>
+      <p>Advanced degree completion. Include:</p>
 
-    <p>那胶囊里可以放些什么呢？我整理了一些想法：</p>
+      <ul>
+        <li>Why you pursued advanced study</li>
+        <li>What the experience was really like</li>
+        <li>How the field looks to you now</li>
+        <li>What you thought you'd achieve vs. reality</li>
+        <li>Academic identity: are you a scholar now?</li>
+        <li>What's next and are you ready?</li>
+      </ul>
 
-    <h3>写给十年后的自己的一封信</h3>
-    <p>这是最经典的项目了。每个人都写一封信给十年后的自己，然后藏进毕业合影里。</p>
-    <ul>
-      <li>你现在的梦想是什么？</li>
-      <li>你最想对十年后的自己说什么？</li>
-      <li>你希望十年后的自己变成什么样？</li>
-      <li>如果十年后的你正在经历困难，你想对ta说什么？</li>
-    </ul>
+      <h2>Creative Graduation Capsule Ideas</h2>
 
-    <p>十年后同学会的时候，大家一起打开。你会看到当年那个傻乎乎的自己，说着雄心壮志的话。有人实现了当年的梦想，有人走了完全不同的路，有人过得很好，有人可能有点不如意。</p>
+      <h3>"Advice to My Future Self" Series</h3>
 
-    <p>但那又怎么样呢？至少我们都认认真真地年轻过。</p>
+      <p>Write letters to future you at different intervals:</p>
 
-    <h3>每个同学的一句话</h3>
-    <p>每个人在照片里藏一句话。可以是对全班说的，可以是对某个人说的，也可以只是一句"十年后见"。</p>
+      <ul>
+        <li>One to be opened at 25</li>
+        <li>One at 30</li>
+        <li>One at 40</li>
+        <li>One at 50</li>
+      </ul>
 
-    <p>十年后再打开的时候，你会看到很多熟悉又陌生的笔迹。有人写的话很搞笑，有人写的话很伤感，有人写的话你可能已经忘了当初是什么意思。</p>
+      <p>Each captures who you were and what you hoped for at this threshold moment.</p>
 
-    <p>但每一句话，都是青春的证据。</p>
+      <h3>"Current Events" Capsule</h3>
 
-    <h3>一张"班级大事记"</h3>
-    <p>大家一起回忆一下，这几年发生过什么好玩的事？</p>
-    <ul>
-      <li>哪次运动会我们班拿了第一？</li>
-      <li>哪个老师的口头禅最经典？</li>
-      <li>谁和谁的绯闻传了整整一年？</li>
-      <li>那次集体逃操被抓，结果怎么样了？</li>
-    </ul>
+      <p>Document what's happening in the world right now:</p>
 
-    <p>这些事情当时可能觉得没什么，十年后再看，全是笑点。也是泪点。</p>
+      <ul>
+        <li>What major world events are unfolding</li>
+        <li>What the economy feels like</li>
+        <li>What technology is exciting or concerning</li>
+        <li>What social issues you care about</li>
+        <li>What you think future generations will find strange about this era</li>
+      </ul>
 
-    <h3>给老师的话</h3>
-    <p>毕业的时候，我们总不好意思对老师说"谢谢您"。好像说出来就矫情了。</p>
+      <h3>"Pop Culture Snapshot"</h3>
 
-    <p>那就写在照片里吧。设置成十年后解锁。等十年后同学会的时候，把老师也请来，一起打开。</p>
+      <p>What are you watching, listening to, caring about?</p>
 
-    <p>告诉ta，当年您说的那句话，我记到现在。告诉ta，谢谢您，没有放弃我。告诉ta，我现在过得很好，没有辜负您的期望。</p>
+      <ul>
+        <li>Favorite TV shows and movies</li>
+        <li>Music you're listening to on repeat</li>
+        <li>Social media platforms you use</li>
+        <li>Influences on your identity</li>
+        <li>What you think is culturally significant</li>
+      </ul>
 
-    <p>我想，老师一定会很欣慰的。</p>
+      <h3>"Love Letter to This Moment"</h3>
 
-    <div class="highlight-box">
-      <p><strong>一个真实的故事：</strong></p>
-      <p>去年有个女生给我们发邮件，说她和大学室友做了一个时间胶囊，藏在四个人的合照里，设置的是毕业五周年解锁。</p>
-      <p>五周年的时候，四个人天南海北，凑不齐。但她们还是在视频通话里一起打开了那封信。</p>
-      <p>"我们四个人对着屏幕哭，"她说，"好像又回到了当年挤在一个宿舍里，熬夜聊天的日子。"</p>
-      <p>你看，就算大家不在一个城市，就算很久没见，有些东西，是不会变的。</p>
-    </div>
+      <p>Write without filter about this exact moment:</p>
 
-    <h2>怎么和同学一起制作毕业时间胶囊？</h2>
+      <ul>
+        <li>What you're feeling right now</li>
+        <li>What you notice about the people around you</li>
+        <li>What this day smells like, sounds like</li>
+        <li>What's making you anxious</li>
+        <li>What's making you excited</li>
+        <li>What you want to remember about today</li>
+      </ul>
 
-    <p>说起来很简单，几步就能搞定：</p>
+      <h2>When to Open Your Graduation Capsule</h2>
 
-    <ol>
-      <li><strong>选一张合照：</strong>毕业照当然可以，但我更推荐选一张更有温度的——比如某次春游的照片，比如运动会之后的合影，比如晚自习偷拍的乱糟糟的教室。</li>
-      <li><strong>每个人写一段话：</strong>可以是给十年后的自己，可以是给全班同学，也可以是给某个人。想写什么写什么。</li>
-      <li><strong>把所有内容藏进照片里：</strong>用 TimeVault，把所有的文字都藏进同一张照片里。每个人都可以有一个独立的"胶囊"，互不影响。</li>
-      <li><strong>设置解锁日期：</strong>一年后？五年后？十年后？都可以。我建议十年——那时候的你们，大概都已经工作了，结婚了，有了各自的生活。再看到这些话，一定会百感交集。</li>
-      <li><strong>把照片发给每个人：</strong>每个人存一份。这样就不怕弄丢了。就算某个人的丢了，其他人那里还有。</li>
-    </ol>
+      <p>Consider these unlock dates:</p>
 
-    <p>然后，就等吧。等那个约定好的日子。</p>
+      <ul>
+        <li><strong>5 years:</strong> Early career reflection</li>
+        <li><strong>10 years:</strong> Full adult transition complete</li>
+        <li><strong>25 years:</strong> Mid-career perspective</li>
+        <li><strong>Your next graduation:</strong> If you pursue more education</li>
+        <li><strong>When you need it:</strong> Career changes, difficult moments</li>
+      </ul>
 
-    <h2>除了班级集体胶囊，你还可以……</h2>
+      <div class="highlight-box">
+        <h4>🎓 The Version of You at Graduation</h4>
+        <p>The person standing at their graduation—diploma in hand,的未来 stretching ahead—is wise in some ways, naive in others, full of hope and terror. They know things you'll forget and believe things you'll change. Capturing them is a gift to your future self.</p>
+      </div>
 
-    <h3>和最好的朋友做一个双人胶囊</h3>
-    <p>毕业以后，和好朋友可能就不在一个城市了。做一个双人胶囊吧，藏在你们最喜欢的那张合照里。</p>
-    <p>写一些不好意思当面说的话——比如"谢谢你这几年的陪伴"，比如"我永远是你最坚实的后盾"，比如"不管我们隔多远，你都是我最好的朋友"。</p>
+      <h2>For Parents: Graduation Gifts</h2>
 
-    <h3>给自己做一个单人胶囊</h3>
-    <p>有些话，不想让别人看到。那就写给自己。</p>
-    <p>写你现在的迷茫，写你对未来的期待，写你偷偷喜欢的那个人，写你不敢告诉任何人的梦想。</p>
-    <p>等五年后、十年后再打开。你会感谢今天的自己，把这些珍贵的记忆保存了下来。</p>
+      <p>Create a graduation time capsule for your child:</p>
 
-    <h3>给暗恋的人写一封信</h3>
-    <p>毕业了，有些话再不说就没机会了。但当面说又怕被拒绝，连朋友都做不成。</p>
-    <p>那就藏在一张照片里吧。设一个一年后的解锁日期，然后把照片发给ta。告诉ta："一年后的今天，打开这张照片看看，有惊喜。"</p>
-    <p>一年的时间，足够想清楚很多事情了。如果那时候ta也喜欢你，皆大欢喜。如果不，至少你说出来了，不会有遗憾。</p>
+      <ul>
+        <li>Your hopes for them</li>
+        <li>What you've observed them becoming</li>
+        <li>What you're proud of</li>
+        <li>What you want them to remember</li>
+        <li>What you'll miss about this version of them</li>
+        <li>The advice you'd give but they won't listen to yet</li>
+      </ul>
 
-    <h2>写在最后</h2>
+      <p>They may not appreciate it now, but they'll treasure it in 20 years.</p>
 
-    <p>我很喜欢的一句话是："青春是一本太仓促的书。"</p>
+      <h2>For Friends and Partners</h2>
 
-    <p>真的太仓促了。好像昨天才刚入学，今天就要毕业了。好像昨天还在一起抱怨作业太多，今天就各奔东西了。好像昨天还说"以后要常联系"，今天就已经不知道该说什么了。</p>
+      <p>Create graduation capsules with friends:</p>
 
-    <p>但那又怎么样呢？</p>
+      <ul>
+        <li>Each person contributes a message</li>
+        <li>Capture your group dynamics</li>
+        <li>Document where everyone is headed</li>
+        <li>Make promises about staying in touch</li>
+        <li>Create a plan for when you'll open it together</li>
+      </ul>
 
-    <p>至少我们一起走过一段路。至少我们一起看过同一片天空，听过同一堂课，吃过同一个食堂的菜。至少我们在彼此最美好的年纪里，出现过。</p>
+      <h2>Making It Happen</h2>
 
-    <p>这些记忆，不会因为毕业就消失。它们只是被暂时封存了起来，等某个合适的时刻，再重新发光。</p>
+      <p>Create your graduation time capsule now:</p>
 
-    <p>所以，在毕业之前，做一个时间胶囊吧。</p>
+      <ol>
+        <li><strong>Choose your photo:</strong> Graduation day photo, ceremony shot, or celebration</li>
+        <li><strong>Write your message:</strong> Be honest, specific, vulnerable</li>
+        <li><strong>Set your unlock date:</strong> When will this message matter most?</li>
+        <li><strong>Create the capsule:</strong> Hide your message in the photo</li>
+        <li><strong>Protect it:</strong> Store safely, make backups</li>
+        <li><strong>Plan the opening:</strong> Put it on your calendar</li>
+      </ol>
 
-    <p>把青春最滚烫的样子，封存在一张照片里。然后带着它，往前走。</p>
+      <h2>The Reward</h2>
 
-    <p>十年后，再打开它。</p>
+      <p>When you eventually open your graduation capsule, you'll encounter the person you used to be. You'll read their hopes, some of which came true, some of which didn't. You'll see their fears, many of which were unfounded, some of which were prescient. You'll understand who they were becoming.</p>
 
-    <p>你会发现，原来那些你以为已经忘了的事情，其实一直都好好地藏在你心里。</p>
+      <p>And you'll realize how far you've come.</p>
 
-    <p>而那段闪闪发光的日子，从来没有真正离开过。</p>
+      <div class="highlight-box">
+        <h4>✨ Your Future Self Is Waiting</h4>
+        <p>The person you will become—the one with 10 more years of experience, with career victories and failures, with relationships formed and lost, with wisdom earned—deserves to hear from the person you are right now. Take 30 minutes today to write a message across time. Your future self will thank you.</p>
+      </div>
+    </article>
 
     <div class="cta-section">
-      <h3>封存你的毕业季</h3>
-      <p>免费、无需注册、所有加密在浏览器本地完成<br>青春只有一次，值得被好好保存。</p>
-      <a href="/#seal" class="cta-btn">开始制作时间胶囊 →</a>
+      <h3>Capture Your Graduation Moment</h3>
+      <p>Create a graduation time capsule and preserve this milestone forever.<br>Your past self has a message for your future self.</p>
+      <a href="/#seal" class="cta-btn">Create Your Graduation Capsule →</a>
     </div>
-  </article>
+  </main>
 
   <footer class="footer">
-    <p>© 2026 TimeVault · 写一封信给明天</p>
-    <p style="margin-top: 0.5rem;"><a href="/blog">查看更多文章</a> · <a href="/">返回首页</a></p>
+    <p>© 2026 TimeVault · Send Love Through Time</p>
+    <p style="margin-top: 0.5rem;"><a href="/">Return to Home</a></p>
   </footer>
 </body>
 </html>

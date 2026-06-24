@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>End-to-End Encryption for Time Capsules: Why Security Matters | TimeVault</title>
+  <meta name="description" content="Learn why end-to-end encryption matters for time capsules. Discover how security features protect your most sensitive messages.">
+  <meta name="keywords" content="end-to-end encryption, time capsule security, encrypted messages, secure communication, encryption for time capsules">
+  <meta property="og:title" content="End-to-End Encryption for Time Capsules: Why Security Matters">
+  <meta property="og:description" content="Understand the importance of encryption in time capsules and how it protects your messages.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="https://timevault.online/blog/end-to-end-encryption-time-capsule">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0612;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 1rem 2rem;
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(10, 6, 18, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .nav a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+    .nav a:hover { color: rgba(255, 255, 255, 0.9); }
+    .nav .logo {
+      font-family: Georgia, serif;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .article-header {
+      padding: 140px 2rem 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .article-header::before {
+      content: '';
+      position: absolute;
+      top: 10%; left: 50%; transform: translateX(-50%);
+      width: 700px; height: 500px;
+      background: radial-gradient(circle, rgba(236,72,153,0.12) 0%, rgba(168,85,247,0.08) 30%, transparent 70%);
+      pointer-events: none;
+    }
+    .article-header .tag {
+      color: rgba(244, 114, 182, 0.5);
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      font-weight: 300;
+    }
+    .article-header h1 {
+      font-family: Georgia, serif;
+      font-size: 2.6rem;
+      font-weight: 300;
+      line-height: 1.3;
+      margin-bottom: 1.5rem;
+      position: relative;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .article-header h1 .gradient {
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .article-header .meta {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 2rem 6rem;
+    }
+    .article-content {
+      font-size: 1.05rem;
+      line-height: 1.9;
+    }
+    .article-content h2 {
+      font-family: Georgia, serif;
+      font-size: 1.8rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 3rem 0 1.5rem;
+      font-weight: 300;
+    }
+    .article-content h3 {
+      font-family: Georgia, serif;
+      font-size: 1.4rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin: 2rem 0 1rem;
+      font-weight: 300;
+    }
+    .article-content p {
+      margin-bottom: 1.5rem;
+    }
+    .article-content ul, .article-content ol {
+      margin: 1.5rem 0;
+      padding-left: 1.5rem;
+    }
+    .article-content li {
+      margin-bottom: 0.75rem;
+    }
+    .article-content a {
+      color: rgba(244, 114, 182, 0.8);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(244, 114, 182, 0.3);
+      transition: all 0.3s;
+    }
+    .article-content a:hover {
+      color: rgba(244, 114, 182, 1);
+      border-bottom-color: rgba(244, 114, 182, 0.6);
+    }
+    .highlight-box {
+      background: linear-gradient(135deg, rgba(236,72,153,0.1) 0%, rgba(168,85,247,0.08) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+    .highlight-box h4 {
+      font-family: Georgia, serif;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 1rem;
+      font-weight: 300;
+    }
+    .concept-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .concept-card h4 {
+      font-family: Georgia, serif;
+      color: rgba(244, 114, 182, 0.8);
+      margin-bottom: 0.75rem;
+    }
+    .cta-section {
+      max-width: 720px;
+      margin: 4rem auto 0;
+      background: linear-gradient(135deg, rgba(236,72,153,0.1) 0%, rgba(168,85,247,0.08) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1.5rem;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+    .cta-section h3 {
+      font-family: Georgia, serif;
+      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 1rem;
+    }
+    .cta-section p {
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 1rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      border: none;
+    }
+    .cta-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 60px rgba(219,39,119,0.4);
+    }
+    .footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 0.85rem;
+    }
+    .footer a {
+      color: rgba(244, 114, 182, 0.5);
+      text-decoration: none;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 2rem;
+      color: rgba(244, 114, 182, 0.6);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 768px) {
+      .article-header h1 { font-size: 2rem; }
+      .container { padding: 0 1.5rem 4rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="logo">TimeVault</a>
+    <a href="/blog">← Back to Blog</a>
+  </nav>
+
+  <header class="article-header">
+    <p class="tag">Security</p>
+    <h1><span class="gradient">End-to-End Encryption</span> for Time Capsules: Why Security Matters</h1>
+    <p class="meta"><span>June 2026</span> · <span>11 min read</span></p>
+  </header>
+
+  <main class="container">
+    <a href="/blog" class="back-link">← Back to all articles</a>
+
+    <article class="article-content">
+      <p>When you create a time capsule, you're not just preserving memories—you're entrusting sensitive information to digital systems. Your love letters, private reflections, and personal thoughts deserve protection. <strong>End-to-end encryption</strong> ensures that what you hide in your time capsules stays hidden, readable only by those you intend.</p>
+
+      <p>But what exactly does encryption mean for time capsules, and why should you care? Let's break it down.</p>
+
+      <h2>What is End-to-End Encryption?</h2>
+
+      <p>End-to-end encryption (E2EE) is a security method where data is encrypted on the sender's device and can only be decrypted by the intended recipient's device. In between—during transmission and storage—the data is completely unreadable to anyone else.</p>
+
+      <div class="concept-card">
+        <h4>🔐 How E2EE Works in Time Capsules</h4>
+        <p>When you create an encrypted time capsule:</p>
+        <ol>
+          <li>Your message is encrypted on YOUR device before anything leaves</li>
+          <li>The encrypted data is what gets stored or transmitted</li>
+          <li>Only someone with the correct decryption key can read the message</li>
+          <li>Even TimeVault's servers cannot access your message</li>
+        </ol>
+      </div>
+
+      <h2>Why Encryption Matters for Time Capsules</h2>
+
+      <h3>Your Messages Are Sensitive</h3>
+
+      <p>Time capsules often contain your most intimate thoughts:</p>
+
+      <ul>
+        <li>Love letters to your partner</li>
+        <li>Reflections on difficult times</li>
+        <li>Personal confessions and fears</li>
+        <li>Future hopes and dreams</li>
+        <li>Sometimes information about others</li>
+      </ul>
+
+      <p>These aren't meant for anyone else's eyes. Encryption ensures they stay private.</p>
+
+      <h3>Data Breaches Are Real</h3>
+
+      <p>Even major companies with sophisticated security get breached. Without encryption, your time capsule messages would be exposed in such breaches. With encryption, they're useless to attackers.</p>
+
+      <h3>Privacy from the Service Provider</h3>
+
+      <p>This is crucial: without encryption, the service provider technically has access to your messages. Do you want TimeVault (or any other service) reading your love letters? Encryption ensures that even if we wanted to, we couldn't.</p>
+
+      <h3>Legal Requests</h3>
+
+      <p>Companies can be compelled to provide user data to authorities. With proper E2EE, even if legal requests are made, the company has nothing readable to provide.</p>
+
+      <h2>Types of Encryption Used in Time Vaults</h2>
+
+      <h3>Symmetric Encryption</h3>
+
+      <p>Uses the same key to encrypt and decrypt. Fast and efficient, but requires both parties to securely share the key.</p>
+
+      <h3>Asymmetric Encryption</h3>
+
+      <p>Uses a pair of keys: public and private. The public key encrypts, the private key decrypts. More complex but enables secure communication without pre-shared secrets.</p>
+
+      <h3>AES-256: The Gold Standard</h3>
+
+      <p>AES-256 is currently considered unbreakable with current computing technology. It's used by governments and security professionals worldwide. TimeVault uses AES-256 for encrypting time capsule content.</p>
+
+      <h2>Steganography vs. Encryption: Different Protections</h2>
+
+      <p>As we discuss in our article on <a href="/blog/steganography-vs-encryption">steganography versus encryption</a>, these provide different types of protection:</p>
+
+      <ul>
+        <li><strong>Steganography</strong> hides the existence of your message (invisible)</li>
+        <li><strong>Encryption</strong> makes your message unreadable without the key (opaque)</li>
+      </ul>
+
+      <p>For maximum security, use both: encrypt your message, then hide it in a photo.</p>
+
+      <h2>What TimeVault Protects</h2>
+
+      <p>TimeVault's security approach:</p>
+
+      <ul>
+        <li><strong>Local encryption:</strong> Messages are encrypted in your browser before transmission</li>
+        <li><strong>Zero-knowledge architecture:</strong> We can't read your messages even if we wanted to</li>
+        <li><strong>Secure key derivation:</strong> Passwords are never stored, only derived keys are used</li>
+        <li><strong>No metadata exposure:</strong> Even system operators can't see who messages whom</li>
+      </ul>
+
+      <h2>Common Security Concerns</h2>
+
+      <h3>"What if I forget my password?"</h3>
+
+      <p>Without your password, your encrypted messages cannot be recovered. This is a feature, not a bug—it means attackers can't decrypt your messages either. Consider using a password manager to store your encryption keys securely.</p>
+
+      <h3>"Can TimeVault see my photos?"</h3>
+
+      <p>TimeVault processes images entirely in your browser. Your photos never leave your device unprocessed. We never see, store, or have access to your original photos or the hidden messages within them.</p>
+
+      <h3>"Is my data safe on cloud storage?"</h3>
+
+      <p>Your encrypted time capsules can be stored anywhere—even in places with questionable security. Because they're encrypted, they're useless to anyone who accesses them without your key.</p>
+
+      <h2>Best Practices for Time Capsule Security</h2>
+
+      <div class="highlight-box">
+        <h4>🛡️ Security Checklist</h4>
+        <ul>
+          <li><strong>Use strong passwords:</strong> At least 12 characters, mix of types</li>
+          <li><strong>Never share keys:</strong> Keep decryption passwords private</li>
+          <li><strong>Use unique passwords:</strong> Don't reuse passwords across services</li>
+          <li><strong>Store backups:</strong> Keep copies of encrypted capsules in multiple locations</li>
+          <li><strong>Consider key recovery:</strong> Plan for how your partner will access if something happens to you</li>
+        </ul>
+      </div>
+
+      <h2>The Security Layers of TimeVault</h2>
+
+      <p>TimeVault implements security at multiple levels:</p>
+
+      <ol>
+        <li><strong>Steganography:</strong> Messages are invisible inside photos (first layer of protection)</li>
+        <li><strong>Encryption:</strong> Content is encrypted with AES-256 (second layer)</li>
+        <li><strong>Local processing:</strong> Everything happens in your browser (third layer)</li>
+        <li><strong>No server storage:</strong> Encrypted data stays with you (fourth layer)</li>
+      </ol>
+
+      <p>This defense-in-depth approach means that even if one layer fails, others still protect you.</p>
+
+      <h2>When Encryption Is Especially Important</h2>
+
+      <p>While all time capsules benefit from encryption, it's critical for:</p>
+
+      <ul>
+        <li><strong>Business secrets:</strong> Time capsules containing sensitive business information</li>
+        <li><strong>Legal documents:</strong> Information that could be used in litigation</li>
+        <li><strong>Health information:</strong> Personal health details deserve strong protection</li>
+        <li><strong>Information about others:</strong> If your time capsule contains sensitive information about people other than yourself</li>
+        <li><strong>High-value communications:</strong> Messages that could cause significant harm if exposed</li>
+      </ul>
+
+      <h2>Understanding the Limits</h2>
+
+      <p>While encryption is powerful, it's not absolute:</p>
+
+      <ul>
+        <li><strong>Password brute-forcing:</strong> Weak passwords can be guessed</li>
+        <li><strong>Keyloggers:</strong> Malware on your device can capture passwords</li>
+        <li><strong>Social engineering:</strong> People can be manipulated into revealing keys</li>
+        <li><strong>Physical access:</strong> Someone with your device and password can decrypt</li>
+      </ul>
+
+      <p>Encryption solves the digital security problem, but physical and psychological security remain important.</p>
+
+      <div class="highlight-box">
+        <h4>💡 The Security Mindset</h4>
+        <p>Think of encryption as one part of a complete security strategy. Use strong passwords, keep devices secure, be aware of social engineering attempts, and remember that the strongest encryption is useless if you write your password on a sticky note.</p>
+      </div>
+
+      <h2>Making Security Work for You</h2>
+
+      <p>You don't need to be a security expert to benefit from encryption. TimeVault handles the technical complexity; you just need to:</p>
+
+      <ol>
+        <li>Choose a strong password or passphrase</li>
+        <li>Enable encryption when creating sensitive capsules</li>
+        <li>Keep your password secure and accessible only to intended recipients</li>
+        <li>Test your ability to decrypt before storing important capsules</li>
+      </ol>
+
+      <p>That's it. The security is built in; you just need to use it.</p>
+    </article>
+
+    <div class="cta-section">
+      <h3>Your Messages Deserve Protection</h3>
+      <p>TimeVault uses industry-standard encryption to protect your most sensitive messages. Experience secure time capsules today.<br>Your secrets, protected.</p>
+      <a href="/#seal" class="cta-btn">Create Secure Capsules →</a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 TimeVault · Send Love Through Time</p>
+    <p style="margin-top: 0.5rem;"><a href="/">Return to Home</a></p>
+  </footer>
+</body>
+</html>
