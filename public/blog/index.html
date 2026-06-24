@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimeVault 博客｜用时间胶囊封存爱与记忆</title>
+  <meta name="description" content="探索用时间胶囊封存爱情、亲情与友情的方式。20个浪漫故事，教会你如何把秘密藏在照片里，寄给未来的自己或爱的人。">
+  <meta name="keywords" content="时间胶囊,爱情故事,浪漫博客,异地恋,纪念日礼物,情侣礼物,TimeVault博客">
+  <meta property="og:title" content="TimeVault 博客｜用时间胶囊封存爱与记忆">
+  <meta property="og:description" content="20个浪漫故事，教会你如何把秘密藏在照片里。">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: #0a0612;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 6, 18, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .nav a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+    .nav a:hover { color: rgba(255, 255, 255, 0.9); }
+    .nav .logo {
+      font-family: Georgia, serif;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero {
+      padding: 140px 2rem 60px;
+      text-align: center;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(236,72,153,0.15) 0%, rgba(168,85,247,0.08) 30%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero .tag {
+      color: rgba(244, 114, 182, 0.5);
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      font-weight: 300;
+    }
+    .hero h1 {
+      font-family: Georgia, serif;
+      font-size: 3rem;
+      font-weight: 300;
+      line-height: 1.3;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.4);
+      max-width: 600px;
+      margin: 0 auto;
+      font-weight: 300;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 2rem 6rem;
+    }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+      justify-content: center;
+    }
+    .filter-btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.02);
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    .filter-btn:hover,
+    .filter-btn.active {
+      border-color: rgba(244, 114, 182, 0.4);
+      background: rgba(244, 114, 182, 0.1);
+      color: rgba(255, 255, 255, 0.85);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 1.25rem;
+      padding: 1.75rem;
+      transition: all 0.4s ease;
+      text-decoration: none;
+      display: block;
+    }
+    .card:hover {
+      border-color: rgba(244, 114, 182, 0.25);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+      transform: translateY(-4px);
+    }
+    .card .tag {
+      display: inline-block;
+      color: rgba(244, 114, 182, 0.6);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      font-weight: 400;
+    }
+    .card h2 {
+      font-family: Georgia, serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 0.75rem;
+      line-height: 1.5;
+    }
+    .card p {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.4);
+      line-height: 1.7;
+      margin-bottom: 1rem;
+      font-weight: 300;
+    }
+    .card .meta {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.25);
+    }
+    .footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 0.85rem;
+    }
+    .footer a {
+      color: rgba(244, 114, 182, 0.5);
+      text-decoration: none;
+    }
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .grid { grid-template-columns: 1fr; }
+      .container { padding: 1.5rem 1rem 4rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="logo">TimeVault</a>
+    <a href="/">← 返回首页</a>
+  </nav>
+
+  <section class="hero">
+    <p class="tag">Blog · Stories · Ideas</p>
+    <h1><span class="gradient">把爱与记忆</span><br>封存在时间里</h1>
+    <p class="subtitle">20个关于时间胶囊的浪漫故事，关于爱情、亲情、友情，关于等待，关于重逢。</p>
+  </section>
+
+  <div class="container">
+    <div class="filters">
+      <a href="#" class="filter-btn active" data-filter="all">全部</a>
+      <a href="#" class="filter-btn" data-filter="love">💑 情侣爱情</a>
+      <a href="#" class="filter-btn" data-filter="family">👨‍👩‍👧 家庭亲情</a>
+      <a href="#" class="filter-btn" data-filter="friend">👯 友情</a>
+      <a href="#" class="filter-btn" data-filter="growth">🌱 个人成长</a>
+      <a href="#" class="filter-btn" data-filter="heal">🦋 治愈</a>
+      <a href="#" class="filter-btn" data-filter="gift">🎁 礼物创意</a>
+    </div>
+
+    <div class="grid" id="articles">
+      <!-- 情侣爱情类 -->
+      <a href="long-distance-relationship-love-letter.html" class="card" data-category="love">
+        <span class="tag">💑 异地恋</span>
+        <h2>异地恋礼物推荐｜把思念封存在照片里，等见面那天打开</h2>
+        <p>讲述一段跨越时差的爱情，如何用时间胶囊维持异地恋的浪漫与温度。</p>
+        <span class="meta">2026年6月 · 8分钟阅读</span>
+      </a>
+
+      <a href="anniversary-gift-ideas-time-capsule.html" class="card" data-category="love">
+        <span class="tag">💑 纪念日</span>
+        <h2>一周年纪念日礼物创意｜比玫瑰更长久的，是你写的信</h2>
+        <p>为什么时间胶囊是2026年最有意义的纪念日礼物？给不同年限的情侣创意指南。</p>
+        <span class="meta">2026年6月 · 9分钟阅读</span>
+      </a>
+
+      <a href="couple-mode-two-hearts-one-lock.html" class="card" data-category="love">
+        <span class="tag">💑 情侣模式</span>
+        <h2>情侣模式｜两个人各持一半照片，要一起才能解锁的秘密</h2>
+        <p>介绍TimeVault独特的情侣模式，两个人各持一半照片，只有在一起才能看到完整的秘密。</p>
+        <span class="meta">2026年6月 · 7分钟阅读</span>
+      </a>
+
+      <a href="wedding-vows-hidden-in-photo.html" class="card" data-category="love">
+        <span class="tag">💑 婚礼</span>
+        <h2>婚纱照里的秘密｜婚礼当天写给彼此的信，十年后再打开</h2>
+        <p>在婚纱照里藏下只属于两个人的誓言，这是最浪漫的结婚礼物创意。</p>
+        <span class="meta">2026年6月 · 8分钟阅读</span>
+      </a>
+
+      <a href="proposal-idea-time-capsule.html" class="card" data-category="love">
+        <span class="tag">💑 求婚</span>
+        <h2>最浪漫的求婚方式｜把"嫁给我"藏在照片里，等她自己发现</h2>
+        <p>这9个创意求婚方式，比单膝下跪更让人难忘。时间胶囊求婚的浪漫与感动。</p>
+        <span class="meta">2026年6月 · 10分钟阅读</span>
+      </a>
+
+      <a href="valentines-day-gift-2026.html" class="card" data-category="love">
+        <span class="tag">💑 情人节</span>
+        <h2>2026年情人节礼物推荐｜这9个创意比玫瑰花更难忘</h2>
+        <p>告别俗套的情人节礼物清单，这9个创意让爱更有仪式感，时间胶囊是首选。</p>
+        <span class="meta">2026年6月 · 9分钟阅读</span>
+      </a>
+
+      <!-- 家庭亲情类 -->
+      <a href="letter-to-baby-time-capsule.html" class="card" data-category="family">
+        <span class="tag">👨‍👩‍👧 亲子</span>
+        <h2>写给宝宝的第一封信｜用时间胶囊记录你来到这个世界的第一年</h2>
+        <p>一位新手妈妈记录宝宝成长的故事，从出生到18岁的家庭时间胶囊计划。</p>
+        <span class="meta">2026年6月 · 9分钟阅读</span>
+      </a>
+
+      <a href="family-legacy-time-capsule.html" class="card" data-category="family">
+        <span class="tag">👨‍👩‍👧 传承</span>
+        <h2>爷爷奶奶的智慧｜把他们的故事封存在照片里，代代相传</h2>
+        <p>祖辈写给孙辈的信，关于家族的智慧与记忆，这是最有意义的家庭传承礼物。</p>
+        <span class="meta">2026年6月 · 8分钟阅读</span>
+      </a>
+
+      <a href="pet-memory-time-capsule.html" class="card" data-category="family">
+        <span class="tag">👨‍👩‍👧 宠物</span>
+        <h2>写给毛孩子的一封信｜谢谢你陪我走过的那些年</h2>
+        <p>关于宠物陪伴的感人故事，如何用时间胶囊保存和毛孩子的美好回忆。</p>
+        <span class="meta">2026年6月 · 7分钟阅读</span>
+      </a>
+
+      <!-- 友情类 -->
+      <a href="best-friend-time-capsule.html" class="card" data-category="friend">
+        <span class="tag">👯 闺蜜</span>
+        <h2>闺蜜时间胶囊｜给十年后的我们，愿你我还是老样子</h2>
+        <p>一段跨越十年的闺蜜友情，如何用时间胶囊见证彼此的成长与变化。</p>
+        <span class="meta">2026年6月 · 8分钟阅读</span>
+      </a>
+
+      <a href="graduation-time-capsule.html" class="card" data-category="friend">
+        <span class="tag">👯 毕业</span>
+        <h2>毕业季时间胶囊｜把青春最滚烫的样子，封存进这张照片</h2>
+        <p>毕业不是终点，是新故事的开始。和同学一起制作毕业时间胶囊，十年后再相聚。</p>
+        <span class="meta">2026年6月 · 9分钟阅读</span>
+      </a>
+
+      <a href="retirement-gift-time-capsule.html" class="card" data-category="friend">
+        <span class="tag">👯 退休</span>
+        <h2>退休礼物创意｜给职业生涯画上一个温柔的句号</h2>
+        <p>退休是人生重要的里程碑，如何用时间胶囊保存职业生涯的珍贵回忆与同事的祝福。</p>
+        <span class="meta">2026年6月 · 7分钟阅读</span>
+      </a>
+
+      <!-- 个人成长类 -->
+      <a href="letter-to-future-self-time-capsule.html" class="card" data-category="growth">
+        <span class="tag">🌱 自我</span>
+        <h2>给未来自己的一封信｜为什么时间胶囊是最好的成年礼</h2>
+        <p>写给一年后、五年后、十年后的自己。时间胶囊如何帮助你记住现在、期待未来。</p>
+        <span class="meta">2026年6月 · 8分钟阅读</span>
+      </a>
+
+      <a href="new-years-resolutions-that-stick.html" class="card" data-category="growth">
+        <span class="tag">🌱 新年</span>
+        <h2>新年决心的正确打开方式｜让12月31日的你，检验1月1日的你</h2>
+        <p>为什么大多数新年计划会失败？用时间胶囊来坚持你的新年决心，让年底的自己来打分。</p>
+        <span class="meta">2026年6月 · 8分钟阅读</span>
+      </a>
+
+      <a href="self-love-letter-time-capsule.html" class="card" data-category="growth">
+        <span class="tag">🌱 自爱</span>
+        <h2>给自己的一封情书｜在你爱别人之前，请先好好爱自己</h2>
+        <p>关于自我接纳和自爱的话题，给自己写情书的意义，如何用时间胶囊记录自我成长。</p>
+        <span class="meta">2026年6月 · 9分钟阅读</span>
+      </a>
+
+      <a href="travel-memory-time-capsule.html" class="card" data-category="growth">
+        <span class="tag">🌱 旅行</span>
+        <h2>旅行的意义｜把那个夏天的故事，封存在一张照片里</h2>
+        <p>一次改变人生的旅行，一段难忘的异国故事。如何用时间胶囊保存每一次旅行的意义。</p>
+        <span class="meta">2026年6月 · 8分钟阅读</span>
+      </a>
+
+      <!-- 治愈类 -->
+      <a href="breakup-letter-time-capsule.html" class="card" data-category="heal">
+        <span class="tag">🦋 治愈</span>
+        <h2>写给前任的一封信｜有些话，需要等一等再说出口</h2>
+        <p>分手后如何治愈自己？如何用时间胶囊来处理分手时的情绪，写给一年后的自己的信。</p>
+        <span class="meta">2026年6月 · 9分钟阅读</span>
+      </a>
+
+      <a href="grief-letter-time-capsule.html" class="card" data-category="heal">
+        <span class="tag">🦋 思念</span>
+        <h2>写给去世亲人的一封信｜有些话，需要时间才能说出口</h2>
+        <p>温柔地探讨失去与怀念的话题，写给天堂里亲人、时间里的思念与治愈。</p>
+        <span class="meta">2026年6月 · 10分钟阅读</span>
+      </a>
+
+      <!-- 礼物创意类 -->
+      <a href="birthday-surprise-time-capsule.html" class="card" data-category="gift">
+        <span class="tag">🎁 生日</span>
+        <h2>生日惊喜新玩法｜让ta每年解锁一封，感动一整年</h2>
+        <p>如何用时间胶囊打造不一样的生日惊喜？从18岁到80岁的生日仪式感创意。</p>
+        <span class="meta">2026年6月 · 7分钟阅读</span>
+      </a>
+
+      <a href="photo-steganography-hidden-message.html" class="card" data-category="gift">
+        <span class="tag">🎁 科普</span>
+        <h2>把消息藏在照片里｜数字时代的浪漫密码</h2>
+        <p>从隐写术到现代科技，如何把秘密藏在照片里？关于图片隐写的浪漫科普。</p>
+        <span class="meta">2026年6月 · 8分钟阅读</span>
+      </a>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>© 2026 TimeVault · 把秘密藏在照片里，寄给未来</p>
+    <p style="margin-top: 0.5rem;"><a href="/">返回首页</a> · <a href="/#seal">开始制作</a></p>
+  </footer>
+
+  <script>
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.card');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const filter = btn.dataset.filter;
+
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        cards.forEach(card => {
+          if (filter === 'all' || card.dataset.category === filter) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
