@@ -51,6 +51,7 @@ export function Footer({ navigate }: { navigate: (to: Page) => void }) {
               <FooterLink navigate={navigate} to="home" label="Home" />
               <FooterLink navigate={navigate} to="how-it-works" label="How It Works" />
               <FooterLink navigate={navigate} to="stories" label="Stories & Use Cases" />
+              <FooterLink href="/blog/" label="Blog" />
               <FooterLink navigate={navigate} to="faq" label="FAQ" />
               <FooterLink navigate={navigate} to="about" label="About" />
             </ul>
@@ -108,7 +109,19 @@ export function Footer({ navigate }: { navigate: (to: Page) => void }) {
   );
 }
 
-function FooterLink({ navigate, to, label }: { navigate?: (to: Page) => void; to?: Page; label: string }) {
+function FooterLink({ navigate, to, label, href }: { navigate?: (to: Page) => void; to?: Page; label: string; href?: string }) {
+  if (href) {
+    return (
+      <li>
+        <a
+          href={href}
+          className="text-white/15 text-xs hover:text-white/40 transition-colors duration-300 flex items-center gap-1.5 font-light leading-relaxed no-underline group">
+          <span>{label}</span>
+          <ChevronRight className="w-2.5 h-2.5 opacity-0 -translate-x-1 group-hover:opacity-50 group-hover:translate-x-0 transition-all duration-300 flex-shrink-0" />
+        </a>
+      </li>
+    );
+  }
   return (
     <li>
       <button

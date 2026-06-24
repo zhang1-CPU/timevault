@@ -10,6 +10,10 @@ const NAV_LINKS: { to: Page; label: string; accent?: boolean; heart?: boolean }[
   { to: 'about', label: 'About' },
 ];
 
+const EXTERNAL_LINKS: { href: string; label: string }[] = [
+  { href: '/blog/', label: 'Blog' },
+];
+
 const ACTION_LINKS: { to: Page; label: string; accent?: boolean; heart?: boolean }[] = [
   { to: 'unlock', label: 'Unlock', heart: false },
   { to: 'seal', label: 'Seal a Message', accent: true },
@@ -82,6 +86,15 @@ export function NavBar({ page, navigate }: { page: Page; navigate: (to: Page) =>
                   <span className="absolute bottom-0 left-3 right-3 h-px bg-gradient-to-r from-transparent via-rose-300/40 to-transparent" />
                 )}
               </button>
+            ))}
+            {EXTERNAL_LINKS.map(({ href, label }) => (
+              <a
+                key={href}
+                href={href}
+                className="relative px-3.5 py-2 text-[13px] font-light tracking-wide transition-all duration-300 rounded-lg bg-transparent border-none cursor-pointer text-white/35 hover:text-white/70 no-underline"
+              >
+                {label}
+              </a>
             ))}
           </div>
 
@@ -158,6 +171,15 @@ export function NavBar({ page, navigate }: { page: Page; navigate: (to: Page) =>
               {heart && <Heart className="w-3.5 h-3.5 inline mr-1" fill="currentColor" />}
               {label}
             </button>
+          ))}
+          {EXTERNAL_LINKS.map(({ href, label }) => (
+            <a
+              key={href}
+              href={href}
+              className="px-4 py-3.5 text-sm font-light rounded-xl transition-all duration-200 text-left text-white/45 hover:text-white/80 hover:bg-white/[0.04] no-underline block"
+            >
+              {label}
+            </a>
           ))}
         </div>
       </div>
