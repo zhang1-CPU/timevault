@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>情侣模式｜两个人各持一半照片，要一起才能解锁的秘密 - TimeVault 博客</title>
+  <meta name="description" content="情侣模式：两个人各持一半照片，要一起才能解锁的秘密。探索TimeVault情侣模式的浪漫设计，为什么一人一半的仪式感更让人心动。">
+  <meta name="keywords" content="情侣模式,情侣互动游戏,情侣秘密,情侣创意,两人共同解锁,情侣仪式感,TimeVault">
+  <meta property="og:title" content="情侣模式｜两个人各持一半照片，要一起才能解锁的秘密">
+  <meta property="og:description" content="一人一半，合在一起才完整。就像爱情本身。">
+  <meta property="og:type" content="article">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: #0a0612;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 6, 18, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .nav a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+    .nav a:hover { color: rgba(255, 255, 255, 0.9); }
+    .nav .logo {
+      font-family: Georgia, serif;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero {
+      padding: 120px 2rem 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(236,72,153,0.12) 0%, rgba(168,85,247,0.08) 30%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero .tag {
+      color: rgba(244, 114, 182, 0.5);
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      font-weight: 300;
+    }
+    .hero h1 {
+      font-family: Georgia, serif;
+      font-size: 3rem;
+      font-weight: 300;
+      line-height: 1.3;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.4);
+      max-width: 600px;
+      margin: 0 auto;
+      font-weight: 300;
+    }
+    .hero .meta {
+      margin-top: 2rem;
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 0.85rem;
+    }
+    .article {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+    .article p {
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 2;
+    }
+    .article h2 {
+      font-family: Georgia, serif;
+      font-size: 1.75rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.75);
+      margin: 3rem 0 1.5rem;
+      line-height: 1.4;
+    }
+    .article h3 {
+      font-family: Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.65);
+      margin: 2rem 0 1rem;
+    }
+    .article blockquote {
+      border-left: 2px solid rgba(244, 114, 182, 0.4);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.45);
+      font-family: Georgia, serif;
+      font-size: 1.05rem;
+    }
+    .article .highlight-box {
+      background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(168,85,247,0.06) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin: 2.5rem 0;
+    }
+    .article .highlight-box p { margin-bottom: 0.75rem; }
+    .article .highlight-box p:last-child { margin-bottom: 0; }
+    .article ul {
+      margin: 1.5rem 0 1.5rem 1.5rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 300;
+    }
+    .article ul li {
+      margin-bottom: 0.75rem;
+      line-height: 1.8;
+    }
+    .article a {
+      color: rgba(244, 114, 182, 0.7);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(244, 114, 182, 0.3);
+      transition: all 0.3s;
+    }
+    .article a:hover {
+      color: rgba(244, 114, 182, 1);
+      border-bottom-color: rgba(244, 114, 182, 0.6);
+    }
+    .cta-section {
+      background: linear-gradient(135deg, rgba(236,72,153,0.1) 0%, rgba(168,85,247,0.08) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1.5rem;
+      padding: 3rem 2rem;
+      text-align: center;
+      margin: 4rem 0;
+    }
+    .cta-section h3 {
+      font-family: Georgia, serif;
+      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 1rem;
+    }
+    .cta-section p {
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 1rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      border: none;
+    }
+    .cta-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 60px rgba(219,39,119,0.4);
+    }
+    .footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 0.85rem;
+    }
+    .footer a {
+      color: rgba(244, 114, 182, 0.5);
+      text-decoration: none;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.4);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      transition: color 0.3s;
+    }
+    .back-link:hover { color: rgba(255, 255, 255, 0.7); }
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .article { padding: 2rem 1.5rem 4rem; }
+      .article h2 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="logo">TimeVault</a>
+    <a href="/#stories">← 返回故事</a>
+  </nav>
+
+  <section class="hero">
+    <p class="tag">情侣模式 · 仪式感</p>
+    <h1>情侣模式<br><span class="gradient">两个人各持一半照片，要一起才能解锁的秘密</span></h1>
+    <p class="subtitle">一人一半，合在一起才完整。就像爱情本身。</p>
+    <p class="meta">2026年6月 · 阅读时间 8 分钟</p>
+  </section>
+
+  <article class="article">
+    <a href="/blog" class="back-link">← 所有文章</a>
+
+    <p>我有一个很奇怪的小习惯。</p>
+
+    <p>每次和男朋友拍了合照，我都会把照片裁成两半——左边一半给他，右边一半给我。然后各自存在自己的手机里。</p>
+
+    <p>他一开始觉得我有病。"好好的照片为什么要剪开？"他问。</p>
+
+    <p>我说不清楚。就是觉得，一人一半的话，好像我们之间就有了某种联结。单独看的时候，每张照片都不完整。但只要放在一起，就是完整的我们。</p>
+
+    <p>直到我发现TimeVault的情侣模式——我才知道，原来不止我一个人这么想。</p>
+
+    <h2>什么是情侣模式</h2>
+
+    <p>情侣模式是TimeVault里我最喜欢的一个功能。简单来说就是：一张照片，被分成两半。你存一半，ta存另一半。只有当两张半张的照片凑在一起的时候，藏在里面的信才能打开。</p>
+
+    <p>一个人不行。必须两个人一起。</p>
+
+    <p>我第一次用这个功能的时候，鸡皮疙瘩都起来了。这哪里是一个功能啊，这分明就是浪漫本身。</p>
+
+    <blockquote>"好的爱情，就是两个人凑在一起，才完整。"</blockquote>
+
+    <p>那天晚上我拉着我男朋友，一起做了我们的第一封情侣胶囊。我们选了一张在海边拍的合照——那天风很大，我们都笑得很傻。</p>
+
+    <p>然后我们各自写了一段话，藏在那张照片里。我写的是："希望十年后，我们还能一起来看海。"他写的是："希望那时候，你还在我身边。"</p>
+
+    <p>解锁日期设在了我们的五周年纪念日。</p>
+
+    <p>照片被分成了两半。左半边在他手机里，右半边在我手机里。谁都打不开。除非——我们在一起。</p>
+
+    <h2>为什么"一人一半"的设计更有意义</h2>
+
+    <p>我跟很多朋友推荐过这个功能。有人觉得很酷，有人觉得没必要——"直接写一封两个人都能打开的信不行吗？"</p>
+
+    <p>不行。真的不行。</p>
+
+    <p>"一人一半"的意义，不只是一个有趣的玩法。它背后有更深的东西。</p>
+
+    <h3>它提醒我们：爱情是两个人的事</h3>
+    <p>我们这一代人，好像都很擅长独立。一个人吃饭，一个人看电影，一个人旅行，一个人扛过所有难捱的时刻。久而久之，我们甚至忘了，谈恋爱是两个人的事。</p>
+    <p>但情侣模式在告诉你：你一个人不行。你需要ta，ta也需要你。你们要一起，才能解锁属于你们的秘密。</p>
+    <p>这种"我需要你"的感觉，在爱情里太重要了。</p>
+
+    <h3>它创造了一种"共同等待"的仪式感</h3>
+    <p>等待是一件很孤独的事。但如果是两个人一起等，就不一样了。</p>
+    <p>你知道在这个世界的某个地方，有一个人，和你一样，也在等着那一天。ta也会偶尔拿出那半张照片看看，也会好奇你写了什么，也会倒数日子。</p>
+    <p>这种"我们在一起等待"的感觉，本身就是一种浪漫。</p>
+
+    <h3>它让"在一起"这件事本身，变成了钥匙</h3>
+    <p>想打开那封信吗？那你们得见面。得在一起。得把两半照片拼在一起。</p>
+    <p>这就像一个小小的约定——无论你们吵得多凶，无论你们隔得多远，到了那一天，你们都要见面。因为有一封信，在等你们一起打开。</p>
+
+    <div class="highlight-box">
+      <p><strong>情侣模式的三种玩法：</strong></p>
+      <p>1. <strong>合照拆分</strong>——选一张你们的合照，分成两半，各自保存</p>
+      <p>2. <strong>一人写一半</strong>——你写上半段，ta写下半段，凑在一起才是完整的信</p>
+      <p>3. <strong>互相提问</strong>——你问ta一个问题，ta问你一个问题，见面那天一起回答</p>
+    </div>
+
+    <h2>我们用情侣模式做过的事</h2>
+
+    <p>我和我男朋友用情侣模式做了好多好玩的事。分享给你们，说不定能给你们一点灵感。</p>
+
+    <h3>周年纪念胶囊</h3>
+    <p>这是最经典的用法。每周年的纪念日，我们都做一个情侣胶囊，设成下一个周年解锁。</p>
+    <p>第一年的时候，我们把胶囊设在了两周年。两周年那天，我们在我们第一次约会的餐厅，拼好了两半照片，一起打开了那封信。</p>
+    <p>读完信之后，我们又做了一个新的，设在了三周年。</p>
+    <p>现在我们已经有四个了。每年拆一个，再做一个。像一个循环，也像一个承诺。</p>
+
+    <h3>吵架和好胶囊</h3>
+    <p>我们也吵架。吵得凶的时候，谁也不理谁。</p>
+    <p>后来我们约定：每次吵架和好之后，都做一个情侣胶囊。各自写一写这次吵架的感受——为什么生气，为什么难过，为什么又和好了。</p>
+    <p>解锁日期设在半年后。</p>
+    <p>半年后再打开看的时候，你会发现：当初吵得天翻地覆的事，其实根本不算什么。而你们还在一起，这件事才最重要。</p>
+
+    <h3>"下一次旅行"胶囊</h3>
+    <p>每次计划旅行的时候，我们都会提前做一个情侣胶囊。各自写一写对这次旅行的期待——最想去哪里，最想做什么，最想和对方一起体验什么。</p>
+    <p>然后设成旅行最后一天解锁。</p>
+    <p>旅行最后一天的晚上，我们会坐在酒店的阳台上，拼好照片，一起打开。然后聊聊——这次旅行，哪些期待实现了，哪些没有。然后再一起计划下一次旅行。</p>
+    <p>这样，每一次旅行，都有始有终。</p>
+
+    <h3>给未来的宝宝的信</h3>
+    <p>这个是去年做的。我们还没有宝宝，但我们提前写了一封信——给我们未来的孩子。</p>
+    <p>他写了他想教孩子打球，我写了我想带孩子去看海。我们还写了，希望ta是一个什么样的人。</p>
+    <p>解锁日期设在了……十年后。</p>
+    <p>不知道那时候，我们的宝宝几岁了。也不知道ta会不会喜欢这封信。但我知道，等我们一起打开它的那天，一定会哭的。</p>
+
+    <blockquote>"最浪漫的不是信本身，而是——要两个人一起，才能打开它。"</blockquote>
+
+    <h2>怎么开始你们的第一个情侣胶囊</h2>
+
+    <p>如果你也想试试，其实很简单。</p>
+
+    <ul>
+      <li><strong>选一张照片</strong>——最好是你们的合照，或者对你们有特殊意义的照片。照片要选横版的，这样分开的两半才好看。</li>
+      <li><strong>各自写一段话</strong>——不用很长。真心话就好。可以是对未来的期待，可以是藏在心里没说出口的话，可以是一句简单的"我爱你"。</li>
+      <li><strong>设置解锁日期</strong>——从一个月到十年都可以。建议第一次不要设太久，先体验一下那种"一起等待"的感觉。</li>
+      <li><strong>各自保存半张照片</strong>——你存左半张，ta存右半张。或者反过来。随便你们。</li>
+      <li><strong>等待</strong>——然后就等着那一天吧。记得，一定要两个人一起才能打开哦。</li>
+    </ul>
+
+    <h2>写在最后</h2>
+
+    <p>前几天整理手机相册，我翻到了我存的那六张半张的照片。</p>
+
+    <p>六张，都是右半边。每一张都不完整。但我知道，它们的另一半，在另一个人的手机里。</p>
+
+    <p>就像我一样。我一个人的时候，也是不完整的。但只要和他在一起，就完整了。</p>
+
+    <p>我想，这大概就是爱情最好的样子吧。不是一个人对另一个人的完全占有，也不是两个人变成一个人。而是两个独立的个体，因为爱，愿意把自己的一半分给对方。然后凑在一起，变成一个更完整的"我们"。</p>
+
+    <p>一人一半。合在一起，才是完整的。</p>
+
+    <p>就像这些半张的照片。就像情侣模式。就像爱情本身。</p>
+
+    <p>找个时间，和你爱的人，做一个属于你们的情侣胶囊吧。给你们的爱情，加一点仪式感。</p>
+
+    <div class="cta-section">
+      <h3>和ta一起做第一个情侣胶囊</h3>
+      <p>免费、无需注册、所有加密在浏览器本地完成<br>一人一半，合在一起才完整。</p>
+      <a href="/#seal" class="cta-btn">开始制作情侣胶囊 →</a>
+    </div>
+  </article>
+
+  <footer class="footer">
+    <p>© 2026 TimeVault · 写一封信给明天</p>
+    <p style="margin-top: 0.5rem;"><a href="/blog">查看更多文章</a> · <a href="/">返回首页</a></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimeVault 博客｜写一封信给明天</title>
+  <meta name="description" content="TimeVault 博客，分享关于时间胶囊、爱与回忆的故事。婚礼誓言、毕业纪念、宠物回忆、自我成长……每一封信，都是一段时光的印记。">
+  <meta name="keywords" content="时间胶囊,给未来的信,照片隐藏消息,TimeVault博客,浪漫故事,治愈系">
+  <meta property="og:title" content="TimeVault 博客｜写一封信给明天">
+  <meta property="og:description" content="用一张照片，藏一段话。让时间替你保管，那些最珍贵的记忆。">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: #0a0612;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 6, 18, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .nav a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+    .nav a:hover { color: rgba(255, 255, 255, 0.9); }
+    .nav .logo {
+      font-family: Georgia, serif;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero {
+      padding: 140px 2rem 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(236,72,153,0.12) 0%, rgba(168,85,247,0.08) 30%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero .tag {
+      color: rgba(244, 114, 182, 0.5);
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      font-weight: 300;
+    }
+    .hero h1 {
+      font-family: Georgia, serif;
+      font-size: 3rem;
+      font-weight: 300;
+      line-height: 1.3;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.4);
+      max-width: 600px;
+      margin: 0 auto;
+      font-weight: 300;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem 6rem;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-bottom: 4rem;
+    }
+    .tag-btn {
+      padding: 0.5rem 1.25rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 300;
+    }
+    .tag-btn:hover,
+    .tag-btn.active {
+      background: linear-gradient(135deg, rgba(236,72,153,0.15) 0%, rgba(168,85,247,0.1) 100%);
+      border-color: rgba(244, 114, 182, 0.3);
+      color: rgba(244, 114, 182, 0.9);
+    }
+    .posts {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+    .post-card {
+      background: linear-gradient(135deg, rgba(236,72,153,0.04) 0%, rgba(168,85,247,0.03) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 1.25rem;
+      padding: 2rem;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.3s;
+      display: block;
+    }
+    .post-card:hover {
+      border-color: rgba(244, 114, 182, 0.2);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(219,39,119,0.1);
+    }
+    .post-card .post-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(244, 114, 182, 0.5);
+      margin-bottom: 1rem;
+      font-weight: 300;
+    }
+    .post-card h2 {
+      font-family: Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+    .post-card p {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.4);
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+      font-weight: 300;
+    }
+    .post-card .post-meta {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.25);
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .post-card .post-meta .dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 4rem;
+    }
+    .page-btn {
+      width: 2.5rem;
+      height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 0.75rem;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    .page-btn:hover {
+      border-color: rgba(244, 114, 182, 0.3);
+      color: rgba(244, 114, 182, 0.9);
+    }
+    .page-btn.active {
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      color: white;
+      border-color: transparent;
+    }
+    .cta-section {
+      max-width: 720px;
+      margin: 4rem auto 0;
+      background: linear-gradient(135deg, rgba(236,72,153,0.1) 0%, rgba(168,85,247,0.08) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1.5rem;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+    .cta-section h3 {
+      font-family: Georgia, serif;
+      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 1rem;
+    }
+    .cta-section p {
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 1rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      border: none;
+    }
+    .cta-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 60px rgba(219,39,119,0.4);
+    }
+    .footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 0.85rem;
+    }
+    .footer a {
+      color: rgba(244, 114, 182, 0.5);
+      text-decoration: none;
+    }
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .posts { grid-template-columns: 1fr; }
+      .container { padding: 0 1.5rem 4rem; }
+      .post-card h2 { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="logo">TimeVault</a>
+    <a href="/#stories">← 返回故事</a>
+  </nav>
+
+  <section class="hero">
+    <p class="tag">故事 · 回忆 · 时光</p>
+    <h1>写一封信给明天<br><span class="gradient">每一句话，都是时光的印记</span></h1>
+    <p class="subtitle">用一张照片，藏一段话。让时间替你保管，那些最珍贵的记忆。</p>
+  </section>
+
+  <div class="container">
+    <div class="tags">
+      <button class="tag-btn active" onclick="filterPosts('all')">全部</button>
+      <button class="tag-btn" onclick="filterPosts('情侣')">情侣爱情</button>
+      <button class="tag-btn" onclick="filterPosts('家庭')">家庭亲情</button>
+      <button class="tag-btn" onclick="filterPosts('友情')">友情</button>
+      <button class="tag-btn" onclick="filterPosts('个人成长')">个人成长</button>
+      <button class="tag-btn" onclick="filterPosts('治愈')">治愈</button>
+      <button class="tag-btn" onclick="filterPosts('礼物')">礼物创意</button>
+      <button class="tag-btn" onclick="filterPosts('科普')">科普</button>
+    </div>
+
+    <div class="posts" id="posts">
+      <a href="wedding-vows-hidden-in-photo.html" class="post-card" data-category="情侣 礼物">
+        <span class="post-tag">婚礼 · 结婚礼物</span>
+        <h2>婚纱照里的秘密｜婚礼当天写给彼此的信，十年后再打开</h2>
+        <p>有些誓言，不必当众说出口。有些承诺，让时间替你们作证。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 9 分钟</span>
+        </div>
+      </a>
+
+      <a href="proposal-idea-time-capsule.html" class="post-card" data-category="情侣 礼物">
+        <span class="post-tag">求婚 · 浪漫创意</span>
+        <h2>最浪漫的求婚方式｜把"嫁给我"藏在照片里，等她自己发现</h2>
+        <p>最好的求婚，不是最昂贵的，而是最懂她的。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 10 分钟</span>
+        </div>
+      </a>
+
+      <a href="valentines-day-gift-2026.html" class="post-card" data-category="情侣 礼物">
+        <span class="post-tag">情人节 · 礼物指南</span>
+        <h2>2026年情人节礼物推荐｜这9个创意比玫瑰花更难忘</h2>
+        <p>最好的礼物从来不是最贵的，而是——你真的懂ta。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 12 分钟</span>
+        </div>
+      </a>
+
+      <a href="anniversary-gift-ideas-time-capsule.html" class="post-card" data-category="情侣 礼物">
+        <span class="post-tag">纪念日 · 情侣礼物</span>
+        <h2>一周年纪念日礼物创意｜比玫瑰更长久的，是你写的信</h2>
+        <p>玫瑰会枯萎，巧克力会融化，但你写下的话，会永远留在那里。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 9 分钟</span>
+        </div>
+      </a>
+
+      <a href="long-distance-relationship-love-letter.html" class="post-card" data-category="情侣">
+        <span class="post-tag">异地恋 · 情侣礼物</span>
+        <h2>异地恋礼物推荐｜把思念封存在照片里，等见面那天打开</h2>
+        <p>距离之于爱情，就像风之于火——它吹熄那些微弱的，却助长那些强烈的。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 10 分钟</span>
+        </div>
+      </a>
+
+      <a href="couple-mode-two-hearts-one-lock.html" class="post-card" data-category="情侣">
+        <span class="post-tag">情侣模式 · 仪式感</span>
+        <h2>情侣模式｜两个人各持一半照片，要一起才能解锁的秘密</h2>
+        <p>一人一半，合在一起才完整。就像爱情本身。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 8 分钟</span>
+        </div>
+      </a>
+
+      <a href="best-friend-time-capsule.html" class="post-card" data-category="友情 礼物">
+        <span class="post-tag">友情 · 闺蜜</span>
+        <h2>闺蜜时间胶囊｜给十年后的我们，愿你我还是老样子</h2>
+        <p>朋友是自己选的家人。而闺蜜，是一辈子的事。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 10 分钟</span>
+        </div>
+      </a>
+
+      <a href="graduation-time-capsule.html" class="post-card" data-category="友情 个人成长">
+        <span class="post-tag">毕业季 · 青春纪念</span>
+        <h2>毕业季时间胶囊｜把青春最滚烫的样子，封存进这张照片</h2>
+        <p>那时候天总是很蓝，日子总过得太慢。你总说毕业遥遥无期，转眼就各奔东西。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 10 分钟</span>
+        </div>
+      </a>
+
+      <a href="family-legacy-time-capsule.html" class="post-card" data-category="家庭">
+        <span class="post-tag">家庭 · 传承</span>
+        <h2>爷爷奶奶的智慧｜把他们的故事封存在照片里，代代相传</h2>
+        <p>他们的故事，不应该被遗忘。他们的智慧，值得代代相传。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 11 分钟</span>
+        </div>
+      </a>
+
+      <a href="letter-to-baby-time-capsule.html" class="post-card" data-category="家庭">
+        <span class="post-tag">亲子 · 宝宝成长</span>
+        <h2>写给宝宝的第一封信｜用时间胶囊记录你来到这个世界的第一年</h2>
+        <p>你会长大，但你成长的每一个瞬间，我都想替你记住。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 10 分钟</span>
+        </div>
+      </a>
+
+      <a href="pet-memory-time-capsule.html" class="post-card" data-category="家庭 治愈">
+        <span class="post-tag">宠物 · 陪伴</span>
+        <h2>写给毛孩子的一封信｜谢谢你陪我走过的那些年</h2>
+        <p>它只是你生命中的一部分，但你，是它的一生。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 9 分钟</span>
+        </div>
+      </a>
+
+      <a href="grief-letter-time-capsule.html" class="post-card" data-category="家庭 治愈">
+        <span class="post-tag">治愈 · 告别</span>
+        <h2>写给去世亲人的一封信｜有些话，需要时间才能说出口</h2>
+        <p>失去不是终点，遗忘才是。好好告别，是我们能给ta最后的温柔。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 10 分钟</span>
+        </div>
+      </a>
+
+      <a href="breakup-letter-time-capsule.html" class="post-card" data-category="治愈 情侣">
+        <span class="post-tag">治愈 · 分手</span>
+        <h2>写给前任的一封信｜有些话，需要等一等再说出口</h2>
+        <p>有些话，现在说出来是伤害。一年后再说，可能就是释怀。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 9 分钟</span>
+        </div>
+      </a>
+
+      <a href="self-love-letter-time-capsule.html" class="post-card" data-category="个人成长 治愈">
+        <span class="post-tag">自我成长 · 自爱</span>
+        <h2>给自己的一封情书｜在你爱别人之前，请先好好爱自己</h2>
+        <p>你不需要完美，你只需要是你自己。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 11 分钟</span>
+        </div>
+      </a>
+
+      <a href="letter-to-future-self-time-capsule.html" class="post-card" data-category="个人成长">
+        <span class="post-tag">个人成长 · 时间胶囊</span>
+        <h2>给未来自己的一封信｜为什么时间胶囊是最好的成年礼</h2>
+        <p>有些话，只有时间过去之后，我们才能真正听懂。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 8 分钟</span>
+        </div>
+      </a>
+
+      <a href="new-years-resolutions-that-stick.html" class="post-card" data-category="个人成长">
+        <span class="post-tag">自我成长 · 新年仪式</span>
+        <h2>新年决心的正确打开方式｜让12月31日的你，检验1月1日的你</h2>
+        <p>新年决心不是说说而已。让年底的你，来检验年初的你。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 8 分钟</span>
+        </div>
+      </a>
+
+      <a href="travel-memory-time-capsule.html" class="post-card" data-category="个人成长">
+        <span class="post-tag">旅行 · 回忆</span>
+        <h2>旅行的意义｜把那个夏天的故事，封存在一张照片里</h2>
+        <p>你以为你忘了，其实没有。那些风的味道，海的声音，都藏在某一张照片里。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 9 分钟</span>
+        </div>
+      </a>
+
+      <a href="retirement-gift-time-capsule.html" class="post-card" data-category="礼物">
+        <span class="post-tag">退休 · 职场纪念</span>
+        <h2>退休礼物创意｜给职业生涯画上一个温柔的句号</h2>
+        <p>几十年的职业生涯，值得一个有温度的告别。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 8 分钟</span>
+        </div>
+      </a>
+
+      <a href="birthday-surprise-time-capsule.html" class="post-card" data-category="礼物">
+        <span class="post-tag">生日礼物 · 仪式感</span>
+        <h2>生日惊喜新玩法｜把信藏在照片里，让ta每年解锁一封</h2>
+        <p>最好的生日礼物，不是某一样东西，而是——我记得你的每一年。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 9 分钟</span>
+        </div>
+      </a>
+
+      <a href="photo-steganography-hidden-message.html" class="post-card" data-category="科普">
+        <span class="post-tag">科普 · 浪漫科技</span>
+        <h2>把消息藏在照片里｜数字时代的浪漫密码</h2>
+        <p>最安全的秘密，是别人根本不知道它存在。这就是隐写术的魅力。</p>
+        <div class="post-meta">
+          <span>2026年6月</span>
+          <span class="dot"></span>
+          <span>阅读 11 分钟</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="pagination">
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">→</button>
+    </div>
+
+    <div class="cta-section">
+      <h3>现在就封存你的第一封时光信</h3>
+      <p>免费、无需注册、所有加密在浏览器本地完成<br>你的秘密，只有你能打开。</p>
+      <a href="/#seal" class="cta-btn">开始制作时间胶囊 →</a>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>© 2026 TimeVault · 写一封信给明天</p>
+    <p style="margin-top: 0.5rem;"><a href="/">返回首页</a></p>
+  </footer>
+
+  <script>
+    function filterPosts(category) {
+      const cards = document.querySelectorAll('.post-card');
+      const buttons = document.querySelectorAll('.tag-btn');
+
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      cards.forEach(card => {
+        if (category === 'all') {
+          card.style.display = 'block';
+        } else {
+          const cardCategory = card.getAttribute('data-category');
+          if (cardCategory && cardCategory.includes(category)) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

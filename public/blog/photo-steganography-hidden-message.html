@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>把消息藏在照片里｜数字时代的浪漫密码 - TimeVault 博客</title>
+  <meta name="description" content="照片隐写术是什么？从古代的藏头诗到现代的数字隐写术，人类一直痴迷于把秘密藏在显而易见的地方。这篇文章带你了解隐写术的历史，以及它在数字时代的浪漫用途。">
+  <meta name="keywords" content="照片隐藏消息,隐写术,图片藏文字,秘密信息,数字密信,浪漫科技,TimeVault">
+  <meta property="og:title" content="把消息藏在照片里｜数字时代的浪漫密码">
+  <meta property="og:description" content="最安全的秘密，是别人根本不知道它存在。这就是隐写术的魅力。">
+  <meta property="og:type" content="article">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: #0a0612;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 6, 18, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .nav a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+    .nav a:hover { color: rgba(255, 255, 255, 0.9); }
+    .nav .logo {
+      font-family: Georgia, serif;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero {
+      padding: 120px 2rem 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(236,72,153,0.12) 0%, rgba(168,85,247,0.08) 30%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero .tag {
+      color: rgba(244, 114, 182, 0.5);
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      font-weight: 300;
+    }
+    .hero h1 {
+      font-family: Georgia, serif;
+      font-size: 3rem;
+      font-weight: 300;
+      line-height: 1.3;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.4);
+      max-width: 600px;
+      margin: 0 auto;
+      font-weight: 300;
+    }
+    .hero .meta {
+      margin-top: 2rem;
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 0.85rem;
+    }
+    .article {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+    .article p {
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 2;
+    }
+    .article h2 {
+      font-family: Georgia, serif;
+      font-size: 1.75rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.75);
+      margin: 3rem 0 1.5rem;
+      line-height: 1.4;
+    }
+    .article h3 {
+      font-family: Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.65);
+      margin: 2rem 0 1rem;
+    }
+    .article blockquote {
+      border-left: 2px solid rgba(244, 114, 182, 0.4);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.45);
+      font-family: Georgia, serif;
+      font-size: 1.05rem;
+    }
+    .article .highlight-box {
+      background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(168,85,247,0.06) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin: 2.5rem 0;
+    }
+    .article .highlight-box p { margin-bottom: 0.75rem; }
+    .article .highlight-box p:last-child { margin-bottom: 0; }
+    .article ul {
+      margin: 1.5rem 0 1.5rem 1.5rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 300;
+    }
+    .article ul li {
+      margin-bottom: 0.75rem;
+      line-height: 1.8;
+    }
+    .article a {
+      color: rgba(244, 114, 182, 0.7);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(244, 114, 182, 0.3);
+      transition: all 0.3s;
+    }
+    .article a:hover {
+      color: rgba(244, 114, 182, 1);
+      border-bottom-color: rgba(244, 114, 182, 0.6);
+    }
+    .cta-section {
+      background: linear-gradient(135deg, rgba(236,72,153,0.1) 0%, rgba(168,85,247,0.08) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1.5rem;
+      padding: 3rem 2rem;
+      text-align: center;
+      margin: 4rem 0;
+    }
+    .cta-section h3 {
+      font-family: Georgia, serif;
+      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 1rem;
+    }
+    .cta-section p {
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 1rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      border: none;
+    }
+    .cta-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 60px rgba(219,39,119,0.4);
+    }
+    .footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 0.85rem;
+    }
+    .footer a {
+      color: rgba(244, 114, 182, 0.5);
+      text-decoration: none;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.4);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      transition: color 0.3s;
+    }
+    .back-link:hover { color: rgba(255, 255, 255, 0.7); }
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .article { padding: 2rem 1.5rem 4rem; }
+      .article h2 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="logo">TimeVault</a>
+    <a href="/#stories">← 返回故事</a>
+  </nav>
+
+  <section class="hero">
+    <p class="tag">科普 · 浪漫科技</p>
+    <h1>把消息藏在照片里<br><span class="gradient">数字时代的浪漫密码</span></h1>
+    <p class="subtitle">最安全的秘密，是别人根本不知道它存在。这就是隐写术的魅力。</p>
+    <p class="meta">2026年6月 · 阅读时间 11 分钟</p>
+  </section>
+
+  <article class="article">
+    <a href="/blog" class="back-link">← 所有文章</a>
+
+    <p>你有没有想过，你手机里那张普普通通的风景照，可能藏着一整封情书？</p>
+
+    <p>不是什么高深的黑科技，这是一门古老的学问——隐写术（Steganography）。简单来说，就是把一封信、一张图、一段音视频，藏在另一张看起来完全正常的图片、音频或视频里。</p>
+
+    <p>外人看到的，是一张普通的照片。只有知道秘密的人，才能把藏在里面的信息取出来。</p>
+
+    <p>听起来像是间谍电影里的情节对不对？但其实，它的历史比你想象的要长得多。而且，它也不止用于情报传递——普通人用起隐写术来，浪漫得多。</p>
+
+    <h2>隐写术：一个古老的游戏</h2>
+
+    <p>隐写术的历史，可以追溯到公元前440年。</p>
+
+    <p>古希腊有个叫希罗多德的历史学家，在他的《历史》一书中记载了这样一个故事：一个叫希斯提埃伊欧斯的人，想要给远在米利都的阿里斯塔格拉斯送一封密信，商量起义的事。但一路上关卡重重，信件根本送不出去。</p>
+
+    <p>怎么办呢？他想了一个办法——把一个奴隶的头发剃光，在头皮上纹上字，等头发长出来以后，再把这个奴隶送到米利都。到了目的地，阿里斯塔格拉斯剃掉奴隶的头发，就看到了信的内容。</p>
+
+    <p>这大概是人类历史上有记载的最早的隐写术了。</p>
+
+    <blockquote>"把秘密藏在显而易见的地方，反而最安全。" —— 这就是隐写术的核心思想。</blockquote>
+
+    <p>后来的人们，玩出了更多花样。</p>
+
+    <p>中国古代有藏头诗，把秘密藏在每句诗的第一个字里；有隐形墨水，用洋葱汁或柠檬汁写字，加热后才会显现；还有把信写在丝绸上，揉成小球，藏在信使的身体里……</p>
+
+    <p>到了近代，隐写术变得更加精细。有人会在信纸上用针尖扎小孔，扎在不同的字下面，组成新的信息；有人会在一幅画的角落里，用极细的笔画写下秘密；甚至还有人会修改乐谱，把信息藏在音符里。</p>
+
+    <p>人类对"藏秘密"这件事的热情，似乎是刻在DNA里的。</p>
+
+    <h2>数字时代的隐写术：照片藏字是什么原理？</h2>
+
+    <p>进入数字时代以后，隐写术迎来了它的黄金时代。</p>
+
+    <p>你可能会好奇：一张照片里怎么能藏下一封信？肉眼完全看不出来吗？</p>
+
+    <p>原理其实很简单，说穿了就是一句话——<strong>利用人眼的局限性。</strong></p>
+
+    <h3>最低有效位（LSB）算法</h3>
+    <p>我们知道，一张数字照片，是由无数个像素组成的。每个像素的颜色，又可以分解成红、绿、蓝三个通道，每个通道的值在0-255之间。</p>
+
+    <p>比如说，一个像素的红色值是123，绿色值是45，蓝色值是178。把它们组合起来，就是这个像素的颜色。</p>
+
+    <p>而LSB算法的核心思路是：修改每个颜色通道二进制表示的最后一位。</p>
+
+    <p>什么意思呢？举个例子，123的二进制是01111011，最后一位是1。如果我把它改成0，那这个值就变成了122。</p>
+
+    <p>从123到122，变化了多少？只有1/255，也就是不到0.4%的差异。</p>
+
+    <p>人的眼睛，根本分辨不出这么细微的差别。</p>
+
+    <p>但就是这微不足道的"最后一位"，可以用来存储信息。一张1000x1000像素的照片，有300万个颜色通道，每个通道能存1位数据，那就能存下大约375KB的信息——足够装下几十封长信了。</p>
+
+    <div class="highlight-box">
+      <p><strong>举个简单的例子：</strong></p>
+      <p>假设你要藏的字是"你好"，每个字用2个字节（16位）表示，两个字就是32位。</p>
+      <p>你只需要修改前32个像素的红色通道的最后一位，把它们改成你要藏的信息。这32个像素的颜色会发生极其微小的变化，但人眼完全看不出来。</p>
+      <p>整张照片看起来和原来一模一样，但秘密已经藏进去了。</p>
+    </div>
+
+    <p>当然，这只是最基础的算法。现代的隐写技术要复杂得多，安全性也更高。但基本原理是一样的——在不影响观感的前提下，把信息偷偷塞进照片的"缝隙"里。</p>
+
+    <h3>时间锁：让秘密在正确的时间打开</h3>
+    <p>如果说隐写术是"藏"的艺术，那么时间锁就是"等"的艺术。</p>
+
+    <p>传统的隐写术，只要你知道方法，随时都能把信息取出来。但如果我想让某封信在特定的日期才能打开呢？</p>
+
+    <p>这就是 TimeVault 做的事情。它把隐写术和时间锁结合在了一起——你不仅可以把信藏在照片里，还可以设置一个解锁日期。在那之前，就算是你自己，也打不开它。</p>
+
+    <p>怎么做到的？简单来说，就是用你设置的解锁日期，生成一个加密密钥，把信加密以后再藏进照片里。日期不到，密钥就"不完整"，谁也解不开。</p>
+
+    <p>听起来很技术，但用起来很简单。选一张照片，写一段话，设一个日期，就搞定了。</p>
+
+    <h2>隐写术的浪漫用法：不只是间谍的游戏</h2>
+
+    <p>很多人听到"隐写术"三个字，第一反应是间谍、情报、黑客……但其实，普通人用起隐写术来，要浪漫得多。</p>
+
+    <p>我收集了一些 TimeVault 用户分享的故事，每一个都让我觉得，原来科技也可以这么温柔。</p>
+
+    <h3>求婚的秘密</h3>
+    <p>有个男生，和女朋友在一起五周年那天，带她去了他们第一次约会的公园。他让女朋友帮他拍一张照——就站在他们第一次见面的那棵树下。</p>
+
+    <p>拍完以后，他说："你用 TimeVault 打开这张照片试试。"</p>
+
+    <p>女朋友一脸疑惑地打开了，然后就看到了藏在照片里的信，还有一张钻戒的照片。</p>
+
+    <p>信的最后一句话是："你愿意嫁给我吗？"</p>
+
+    <p>她抬头，看见他已经单膝跪地了。</p>
+
+    <h3>给孩子的十八岁礼物</h3>
+    <p>有一对父母，从孩子出生那天起，每年孩子生日的时候，都会写一封信给十八岁的ta。然后把信藏进一张当年的生日照片里。</p>
+
+    <p>第一年，是孩子躺在婴儿床上的照片；第二年，是孩子刚学会走路的照片；第三年，是孩子第一次上幼儿园的照片……</p>
+
+    <p>十八封信，十八张照片，十八个藏在时光里的秘密。</p>
+
+    <p>等孩子十八岁生日那天，他们把一个U盘交给ta，里面是这十八张照片。</p>
+
+    <p>"从一岁到十八岁，"爸爸说，"我们每年都有话想对你说。现在，你可以一封一封地打开了。"</p>
+
+    <h3>异地恋的解药</h3>
+    <p>有一对异地恋的情侣，约定每天给对方拍一张照片。可以是早上的早餐，可以是下班路上的天空，可以是晚上书桌前的台灯。</p>
+
+    <p>每张照片里，都藏着一句话。可能是"今天想你了"，可能是"今天遇到一件好笑的事"，可能只是"晚安"。</p>
+
+    <p>他们说，这样就好像，虽然不在同一个城市，但每天都参与了对方的生活。</p>
+
+    <p>距离是真的，想念也是真的。但好在，我们还有办法，把思念藏进照片里，隔着千山万水，悄悄告诉你。</p>
+
+    <h3>外婆的食谱</h3>
+    <p>有个女生，外婆去世以后，在整理遗物的时候发现了一本旧相册。每一页都贴着一张老照片，照片背后都写着一行小字，是外婆的笔迹。</p>
+
+    <p>她把这些照片都扫描进了电脑，然后用 TimeVault，在外婆每张照片里，都藏了一道外婆做过的菜的做法。</p>
+
+    <p>"外婆走了，"她说，"但她的味道，我想永远留着。"</p>
+
+    <p>以后她有了孩子，她就可以给孩子看外婆的照片，然后打开藏在里面的食谱，做给孩子吃。</p>
+
+    <p>就好像，外婆从来没有离开过。</p>
+
+    <h2>如何用 TimeVault 制作一张藏有秘密的照片？</h2>
+
+    <p>说起来非常简单，三步搞定：</p>
+
+    <ol>
+      <li><strong>选一张照片：</strong>任何照片都可以。风景照、人像照、美食照……建议选择画面丰富、颜色比较多的照片，藏进去的信息更多，也更不容易被发现。</li>
+      <li><strong>写下你想藏的话：</strong>可以是一封信，可以是一句话，可以是一个秘密。什么都可以，只要是你想说的。</li>
+      <li><strong>设置解锁日期（可选）：</strong>如果你希望它在特定的日子才能打开，就设一个日期。如果不需要，也可以不设，随时都能打开。</li>
+    </ol>
+
+    <p>然后，点击"封存"，你就得到了一张看起来普普通通，但藏着秘密的照片。</p>
+
+    <p>把它发给你想分享的人，或者存在自己的手机里，或者打印出来挂在墙上。没有人会知道这张照片的秘密——除了你和那个你告诉的人。</p>
+
+    <h2>写在最后</h2>
+
+    <p>我有时候会想，我们为什么这么喜欢藏秘密？</p>
+
+    <p>是因为安全感吗？因为有些话，不能让所有人知道。</p>
+
+    <p>还是因为仪式感？因为"只有我们知道"这件事本身，就足够浪漫。</p>
+
+    <p>我觉得都有。但更多的，可能是因为——我们希望有些东西，是专属的。专属的记忆，专属的情感，专属的秘密。</p>
+
+    <p>在这个什么都可以分享、什么都可以公开的时代，能有一些只有你和ta知道的小秘密，其实是件很珍贵的事。</p>
+
+    <p>它就像你们之间的一个暗号，一个默契，一个只有你们能进入的小世界。</p>
+
+    <p>而隐写术，就是通往这个小世界的钥匙。</p>
+
+    <p>如果你也有想说但不好意思直说的话，如果你也有想藏起来的小秘密，不妨试试。</p>
+
+    <p>选一张照片，写一段话，藏起来。</p>
+
+    <p>剩下的，交给时间。</p>
+
+    <div class="cta-section">
+      <h3>现在就藏一个秘密在照片里</h3>
+      <p>免费、无需注册、所有加密在浏览器本地完成<br>你的秘密，只有你知道。</p>
+      <a href="/#seal" class="cta-btn">开始制作时间胶囊 →</a>
+    </div>
+  </article>
+
+  <footer class="footer">
+    <p>© 2026 TimeVault · 写一封信给明天</p>
+    <p style="margin-top: 0.5rem;"><a href="/blog">查看更多文章</a> · <a href="/">返回首页</a></p>
+  </footer>
+</body>
+</html>

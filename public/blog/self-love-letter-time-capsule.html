@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>给自己的一封情书｜在你爱别人之前，请先好好爱自己 - TimeVault 博客</title>
+  <meta name="description" content="你有多久没有好好爱自己了？在爱别人之前，请先学会爱自己。给自己写一封情书吧，用时间胶囊记录自我成长的旅程。这是你能给自己的、最好的礼物。">
+  <meta name="keywords" content="爱自己,自我成长,自我接纳,治愈自己,内心强大,个人成长,TimeVault">
+  <meta property="og:title" content="给自己的一封情书｜在你爱别人之前，请先好好爱自己">
+  <meta property="og:description" content="你不需要完美，你只需要是你自己。">
+  <meta property="og:type" content="article">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: #0a0612;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 6, 18, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .nav a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+    .nav a:hover { color: rgba(255, 255, 255, 0.9); }
+    .nav .logo {
+      font-family: Georgia, serif;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero {
+      padding: 120px 2rem 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(236,72,153,0.12) 0%, rgba(168,85,247,0.08) 30%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero .tag {
+      color: rgba(244, 114, 182, 0.5);
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      font-weight: 300;
+    }
+    .hero h1 {
+      font-family: Georgia, serif;
+      font-size: 3rem;
+      font-weight: 300;
+      line-height: 1.3;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.4);
+      max-width: 600px;
+      margin: 0 auto;
+      font-weight: 300;
+    }
+    .hero .meta {
+      margin-top: 2rem;
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 0.85rem;
+    }
+    .article {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+    .article p {
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 2;
+    }
+    .article h2 {
+      font-family: Georgia, serif;
+      font-size: 1.75rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.75);
+      margin: 3rem 0 1.5rem;
+      line-height: 1.4;
+    }
+    .article h3 {
+      font-family: Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.65);
+      margin: 2rem 0 1rem;
+    }
+    .article blockquote {
+      border-left: 2px solid rgba(244, 114, 182, 0.4);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.45);
+      font-family: Georgia, serif;
+      font-size: 1.05rem;
+    }
+    .article .highlight-box {
+      background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(168,85,247,0.06) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin: 2.5rem 0;
+    }
+    .article .highlight-box p { margin-bottom: 0.75rem; }
+    .article .highlight-box p:last-child { margin-bottom: 0; }
+    .article ul {
+      margin: 1.5rem 0 1.5rem 1.5rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 300;
+    }
+    .article ul li {
+      margin-bottom: 0.75rem;
+      line-height: 1.8;
+    }
+    .article a {
+      color: rgba(244, 114, 182, 0.7);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(244, 114, 182, 0.3);
+      transition: all 0.3s;
+    }
+    .article a:hover {
+      color: rgba(244, 114, 182, 1);
+      border-bottom-color: rgba(244, 114, 182, 0.6);
+    }
+    .cta-section {
+      background: linear-gradient(135deg, rgba(236,72,153,0.1) 0%, rgba(168,85,247,0.08) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1.5rem;
+      padding: 3rem 2rem;
+      text-align: center;
+      margin: 4rem 0;
+    }
+    .cta-section h3 {
+      font-family: Georgia, serif;
+      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 1rem;
+    }
+    .cta-section p {
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 1rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      border: none;
+    }
+    .cta-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 60px rgba(219,39,119,0.4);
+    }
+    .footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 0.85rem;
+    }
+    .footer a {
+      color: rgba(244, 114, 182, 0.5);
+      text-decoration: none;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.4);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      transition: color 0.3s;
+    }
+    .back-link:hover { color: rgba(255, 255, 255, 0.7); }
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .article { padding: 2rem 1.5rem 4rem; }
+      .article h2 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="logo">TimeVault</a>
+    <a href="/#stories">← 返回故事</a>
+  </nav>
+
+  <section class="hero">
+    <p class="tag">自我成长 · 自爱</p>
+    <h1>给自己的一封情书<br><span class="gradient">在你爱别人之前，请先好好爱自己</span></h1>
+    <p class="subtitle">你不需要完美，你只需要是你自己。</p>
+    <p class="meta">2026年6月 · 阅读时间 11 分钟</p>
+  </section>
+
+  <article class="article">
+    <a href="/blog" class="back-link">← 所有文章</a>
+
+    <p>你有多久，没有好好看过自己了？</p>
+
+    <p>不是照镜子那种匆匆一瞥，是认认真真地、好好地，看看自己。看看你脸上的笑纹，看看你眼角的疲惫，看看你眼睛里的光。</p>
+
+    <p>你有多久，没有跟自己说说话了？</p>
+
+    <p>不是心里那种乱糟糟的念头，是安安静静地、诚实地，跟自己聊聊天。问问你最近过得好不好，问问你想要什么，问问你开不开心。</p>
+
+    <p>我们好像总是很忙。忙着工作，忙着恋爱，忙着照顾家人，忙着应付朋友。我们把时间和精力都给了别人，却唯独忘了，留一点点给自己。</p>
+
+    <p>我们总说"要爱自己"，但什么是爱自己呢？</p>
+
+    <p>是买很贵的护肤品吗？是吃一顿好的吗？是一场说走就走的旅行吗？</p>
+
+    <p>这些都是。但又不完全是。</p>
+
+    <p>真正的爱自己，是接纳。接纳你本来的样子，接纳你的不完美，接纳你的脆弱和迷茫。是不管你好不好，都愿意跟自己站在一起。</p>
+
+    <h2>为什么我们总是忘了爱自己</h2>
+
+    <p>从小到大，我们被教育要懂事，要听话，要为别人着想。</p>
+
+    <p>小时候，大人说："你要乖，不然爸爸妈妈就不喜欢你了。"</p>
+
+    <p>上学了，老师说："你要努力，不然就是没有出息。"</p>
+
+    <p>工作了，老板说："你要拼搏，不然就会被淘汰。"</p>
+
+    <p>谈恋爱了，对方说："你要懂事，不然我们就走不下去。"</p>
+
+    <p>于是我们慢慢地，把自己活成了别人期待的样子。我们努力地变好，努力地优秀，努力地让人喜欢。我们以为，只要我们足够好，就会被爱。</p>
+
+    <blockquote>"我们终其一生，都在寻找别人的认可。却忘了，最该认可我们的人，是我们自己。"</blockquote>
+
+    <p>可是啊，别人的爱总是有条件的。你要乖，你要优秀，你要懂事，你要漂亮，你要有趣……你要满足各种各样的条件，才能换来一点点爱。</p>
+
+    <p>只有你自己的爱，可以是无条件的。</p>
+
+    <p>不管你好不好，不管你优不优秀，不管你有没有用，你都值得被爱。被你自己爱。</p>
+
+    <p>这不是鸡汤。这是事实。</p>
+
+    <h2>给自己写一封情书吧</h2>
+
+    <p>去年生日的时候，我做了一件事——给自己写了一封情书。</p>
+
+    <p>不是那种自恋的、夸自己的话。是认认真真地，像写给一个深爱的人那样，跟自己说了很多话。</p>
+
+    <p>我找了一张我最喜欢的照片——是去年夏天在海边拍的，我站在阳光下，笑得很开心，眼睛都眯成了一条缝。我把信藏进了那张照片里，设置了一年后解锁。</p>
+
+    <p>写信的时候，我哭了很久。</p>
+
+    <p>因为我发现，我从来没有那样认真地、温柔地，跟自己说过话。我对自己总是很苛刻。做得好是应该的，做得不好就是我没用。我从来没有跟自己说过"辛苦了"，从来没有跟自己说过"没关系"，从来没有跟自己说过"我爱你"。</p>
+
+    <p>但那天我说了。</p>
+
+    <p>我说："谢谢你，一直陪着我。不管多难，你都没有放弃。"</p>
+
+    <p>我说："对不起，以前总是对你那么苛刻。总是要求你完美，总是逼你做你不想做的事。"</p>
+
+    <p>我说："我爱你。不管你是什么样子，我都爱你。"</p>
+
+    <p>写完以后，我感觉心里有什么东西，轻轻地放下了。</p>
+
+    <h2>给自己的情书，可以写些什么？</h2>
+
+    <p>如果你也想写，但不知道从何下笔，也许这些方向可以帮到你：</p>
+
+    <h3>谢谢你</h3>
+    <ul>
+      <li>谢谢你一直以来的坚持和努力</li>
+      <li>谢谢你在最难的时候，没有放弃</li>
+      <li>谢谢你用小小的肩膀，扛下了那么多</li>
+      <li>谢谢你就算受过伤，还是愿意相信爱</li>
+    </ul>
+
+    <p>我们总是对别人说"谢谢"，却很少对自己说。但你想想，这一路走来，最不容易的人，不就是你自己吗？</p>
+
+    <p>那些深夜的眼泪，那些咬着牙撑过去的日子，那些没有人知道的委屈和心酸……都是你一个人扛过来的。</p>
+
+    <p>你真的很厉害了。真的。</p>
+
+    <h3>对不起</h3>
+    <ul>
+      <li>对不起，总是对你那么苛刻</li>
+      <li>对不起，总是拿你和别人比</li>
+      <li>对不起，忽略了你的感受，逼你做了很多不想做的事</li>
+      <li>对不起，没有好好照顾你，让你受了很多委屈</li>
+    </ul>
+
+    <p>我们总是很容易原谅别人，却很难原谅自己。做错了一件事，会在心里反复地骂自己。说错了一句话，会懊恼好几天。</p>
+
+    <p>但你也是第一次做人啊。你也会犯错，也会迷茫，也会有做不好的事情。这很正常。</p>
+
+    <p>跟自己说一声"对不起"吧。然后，试着原谅自己。</p>
+
+    <h3>你已经很好了</h3>
+    <ul>
+      <li>你不需要完美，你已经足够好了</li>
+      <li>你不需要讨好所有人，喜欢你的人自然会喜欢你</li>
+      <li>你不需要变得更优秀才值得被爱，你本来就值得</li>
+      <li>你可以慢一点，可以累一点，可以停下来休息</li>
+    </ul>
+
+    <p>我们总觉得，自己还不够好。不够漂亮，不够聪明，不够能干，不够有趣……所以我们拼命地努力，想变成更好的自己。</p>
+
+    <p>但"更好"是没有尽头的。你要到什么时候，才愿意停下来，抱抱自己，说一句"你已经很好了"呢？</p>
+
+    <p>现在就说吧。现在就够了。</p>
+
+    <h3>我想和你一起做的事</h3>
+    <ul>
+      <li>以后，我想带你去看更多的风景</li>
+      <li>以后，我想让你吃更多好吃的</li>
+      <li>以后，我想让你多睡一会儿，不用那么早起</li>
+      <li>以后，我想陪你一起，慢慢变成更好的人</li>
+    </ul>
+
+    <div class="highlight-box">
+      <p><strong>我在那封信的最后写了这样一段话：</strong></p>
+      <p>"亲爱的，生日快乐。"</p>
+      <p>"以后的日子，我会好好爱你。就像你一直期待的那样。"</p>
+      <p>"我会陪你一起，慢慢变老。"</p>
+      <p>"永远爱你的，你自己。"</p>
+    </div>
+
+    <p>写这段话的时候，我哭得稀里哗啦的。好像心里憋了很多年的话，终于说出口了。</p>
+
+    <p>你知道吗？你才是那个会陪你一辈子的人。从出生到死亡，从青丝到白发，不管发生什么，你永远都在。</p>
+
+    <p>所以，为什么不对ta好一点呢？</p>
+
+    <h2>为什么要把信藏进照片里，设置一个未来的日期？</h2>
+
+    <p>有人可能会问：写给自己的信，为什么要设置解锁日期？现在看不就好了吗？</p>
+
+    <p>因为爱自己不是一件一蹴而就的事。它是一个过程，是一场漫长的修行。</p>
+
+    <p>今天的你，可能刚开始学着爱自己。你可能还是会自我怀疑，还是会自我否定，还是会在深夜里偷偷掉眼泪。</p>
+
+    <p>但没关系。慢慢来。</p>
+
+    <p>一年后的你，会比现在更懂得怎么爱自己。三年后的你，会比现在更从容、更淡定。五年后的你，会比现在更温柔、更强大。</p>
+
+    <p>把信藏进照片里，设置一个一年后的日期。等一年后再打开，你会看到——一年前的你，是那样笨拙地、认真地，想要好好爱自己。</p>
+
+    <p>那时候的你，可能已经走过了那段最难的路。那时候的你，再看到这封信，会笑着说："谢谢你啊，那时候的我。是你，让我变成了现在的样子。"</p>
+
+    <h3>几个"爱自己"的小练习</h3>
+    <ul>
+      <li><strong>每天跟自己说一句"我爱你"：</strong>对着镜子说，或者在心里说。刚开始可能会觉得奇怪，但说多了，你会相信的。</li>
+      <li><strong>每周留一点时间给自己：</strong>做什么都好，只要是你喜欢的。看电影、散步、发呆……什么都不做也可以。</li>
+      <li><strong>不要再拿自己和别人比了：</strong>你有你的节奏，别人有别人的。没有谁比谁更好，你们只是不一样而已。</li>
+      <li><strong>接受自己的不完美：</strong>你可以有缺点，可以做不好，可以犯错。这很正常。正是这些不完美，才让你成为了你。</li>
+      <li><strong>照顾好你的身体：</strong>好好吃饭，好好睡觉，多运动。你的身体陪了你这么久，你要好好对它。</li>
+    </ul>
+
+    <h2>写在最后</h2>
+
+    <p>前阵子，那封我写给自己的信，解锁了。</p>
+
+    <p>我打开来看，看着一年前的自己写的那些话，又哭了。但这一次，是温暖的眼泪。</p>
+
+    <p>因为我发现，一年后的我，真的比那时候更爱自己了。我不再总是自我否定了，我不再总是逼自己了，我开始学会说"不"了，我开始懂得照顾自己的感受了。</p>
+
+    <p>虽然还是会有迷茫的时候，还是会有难过的时候，还是会有觉得自己不够好的时候。但没关系，我知道，我会陪着自己，慢慢走过去的。</p>
+
+    <p>因为我知道，不管怎么样，我都不会放弃自己。</p>
+
+    <p>亲爱的，如果你正在看这篇文章，我想告诉你：</p>
+
+    <p>你真的很棒了。你已经做得很好了。你值得被爱，值得被好好对待。不是因为你有多好，只是因为，你是你。</p>
+
+    <p>在你爱别人之前，请先好好爱自己。</p>
+
+    <p>这不是自私。这是你能给自己的、最好的礼物。</p>
+
+    <p>去写一封情书吧。写给你自己。</p>
+
+    <p>找一张你最喜欢的照片，写下你最想对自己说的话，藏进照片里。设置一个一年后的日期。</p>
+
+    <p>等那一天到来的时候，你会收到一份来自过去的礼物——一份来自你自己的、最深沉的爱。</p>
+
+    <div class="cta-section">
+      <h3>给自己写一封情书</h3>
+      <p>免费、无需注册、所有加密在浏览器本地完成<br>你值得被好好爱着。</p>
+      <a href="/#seal" class="cta-btn">开始制作时间胶囊 →</a>
+    </div>
+  </article>
+
+  <footer class="footer">
+    <p>© 2026 TimeVault · 写一封信给明天</p>
+    <p style="margin-top: 0.5rem;"><a href="/blog">查看更多文章</a> · <a href="/">返回首页</a></p>
+  </footer>
+</body>
+</html>

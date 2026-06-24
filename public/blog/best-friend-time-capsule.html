@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>闺蜜时间胶囊｜给十年后的我们，愿你我还是老样子 - TimeVault 博客</title>
+  <meta name="description" content="闺蜜时间胶囊：给十年后的我们，愿你我还是老样子。和好朋友一起制作时间胶囊，毕业、婚礼等重要时刻的友情纪念方式，闺蜜礼物推荐。">
+  <meta name="keywords" content="闺蜜礼物,友情纪念,给闺蜜的信,毕业礼物,闺蜜仪式感,朋友生日礼物,时间胶囊,TimeVault">
+  <meta property="og:title" content="闺蜜时间胶囊｜给十年后的我们，愿你我还是老样子">
+  <meta property="og:description" content>
+  <meta property="og:type" content="article">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: #0a0612;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 6, 18, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .nav a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+    .nav a:hover { color: rgba(255, 255, 255, 0.9); }
+    .nav .logo {
+      font-family: Georgia, serif;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero {
+      padding: 120px 2rem 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(236,72,153,0.12) 0%, rgba(168,85,247,0.08) 30%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero .tag {
+      color: rgba(244, 114, 182, 0.5);
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      font-weight: 300;
+    }
+    .hero h1 {
+      font-family: Georgia, serif;
+      font-size: 3rem;
+      font-weight: 300;
+      line-height: 1.3;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.4);
+      max-width: 600px;
+      margin: 0 auto;
+      font-weight: 300;
+    }
+    .hero .meta {
+      margin-top: 2rem;
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 0.85rem;
+    }
+    .article {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+    .article p {
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 2;
+    }
+    .article h2 {
+      font-family: Georgia, serif;
+      font-size: 1.75rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.75);
+      margin: 3rem 0 1.5rem;
+      line-height: 1.4;
+    }
+    .article h3 {
+      font-family: Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.65);
+      margin: 2rem 0 1rem;
+    }
+    .article blockquote {
+      border-left: 2px solid rgba(244, 114, 182, 0.4);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.45);
+      font-family: Georgia, serif;
+      font-size: 1.05rem;
+    }
+    .article .highlight-box {
+      background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(168,85,247,0.06) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin: 2.5rem 0;
+    }
+    .article .highlight-box p { margin-bottom: 0.75rem; }
+    .article .highlight-box p:last-child { margin-bottom: 0; }
+    .article ul {
+      margin: 1.5rem 0 1.5rem 1.5rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 300;
+    }
+    .article ul li {
+      margin-bottom: 0.75rem;
+      line-height: 1.8;
+    }
+    .article a {
+      color: rgba(244, 114, 182, 0.7);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(244, 114, 182, 0.3);
+      transition: all 0.3s;
+    }
+    .article a:hover {
+      color: rgba(244, 114, 182, 1);
+      border-bottom-color: rgba(244, 114, 182, 0.6);
+    }
+    .cta-section {
+      background: linear-gradient(135deg, rgba(236,72,153,0.1) 0%, rgba(168,85,247,0.08) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1.5rem;
+      padding: 3rem 2rem;
+      text-align: center;
+      margin: 4rem 0;
+    }
+    .cta-section h3 {
+      font-family: Georgia, serif;
+      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 1rem;
+    }
+    .cta-section p {
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 1rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      border: none;
+    }
+    .cta-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 60px rgba(219,39,119,0.4);
+    }
+    .footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 0.85rem;
+    }
+    .footer a {
+      color: rgba(244, 114, 182, 0.5);
+      text-decoration: none;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.4);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      transition: color 0.3s;
+    }
+    .back-link:hover { color: rgba(255, 255, 255, 0.7); }
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .article { padding: 2rem 1.5rem 4rem; }
+      .article h2 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="logo">TimeVault</a>
+    <a href="/#stories">← 返回故事</a>
+  </nav>
+
+  <section class="hero">
+    <p class="tag">友情 · 闺蜜</p>
+    <h1>闺蜜时间胶囊<br><span class="gradient">给十年后的我们，愿你我还是老样子</span></h1>
+    <p class="subtitle">朋友是自己选的家人。而闺蜜，是一辈子的事。</p>
+    <p class="meta">2026年6月 · 阅读时间 10 分钟</p>
+  </section>
+
+  <article class="article">
+    <a href="/blog" class="back-link">← 所有文章</a>
+
+    <p>上个月，我参加了我最好朋友的婚礼。</p>
+
+    <p>她穿着白纱，挽着她爸爸的手，缓缓走过来。我站在台下，哭得稀里哗啦。旁边的人都在笑，说"新娘还没哭呢，你怎么哭成这样"。</p>
+
+    <p>我也不知道我为什么哭。就是觉得……时间过得好快啊。</p>
+
+    <p>好像昨天我们还在高中的教室里，偷偷传小纸条，吐槽数学老师，聊隔壁班的男生。好像昨天我们还在大学的宿舍里，熬夜追剧，分享一包薯片，说着对未来的憧憬。</p>
+
+    <p>怎么一眨眼，她就结婚了呢？</p>
+
+    <p>婚礼前一天晚上，我们躺在酒店的大床上，像以前一样，聊到了凌晨三点。聊过去，聊现在，聊未来。</p>
+
+    <p>然后她突然说："我们做个时间胶囊吧。给十年后的我们。"</p>
+
+    <h2>朋友是自己选的家人</h2>
+
+    <p>我有一个发小，从小学一年级就认识了。到今天，已经快二十年了。</p>
+
+    <p>二十年啊。人生能有几个二十年？</p>
+
+    <p>我们一起经历了好多好多事。一起升初中，一起升高中，一起高考，一起上大学，一起找工作，一起失恋，一起成长。</p>
+
+    <p>她见过我最丑的样子——素面朝天，戴着牙套，满脸青春痘。她见过我最狼狈的样子——失恋了在她家里哭了一整夜，鼻涕眼泪蹭了她一枕头。她也见过我最风光的样子——拿到offer的时候，第一个打电话给她。</p>
+
+    <p>我们之间没有秘密。什么话都可以说。</p>
+
+    <blockquote>"好的友情，就是你知道不管发生什么，那个人都会在。"</blockquote>
+
+    <p>但不知道从什么时候开始，我们见面的次数越来越少了。</p>
+
+    <p>工作忙了，圈子变了，距离远了。以前天天黏在一起，现在半年才能见一次。每次见面，都有说不完的话。但分开之后，又要好久才能再见。</p>
+
+    <p>我有时候会害怕——怕我们的友情，会被时间和距离冲淡。</p>
+
+    <p>但她告诉我："真正的朋友，不会因为不常联系就变淡的。"</p>
+
+    <p>我希望是这样。</p>
+
+    <h2>和好朋友一起做时间胶囊吧</h2>
+
+    <p>婚礼前一天晚上，我们真的做了时间胶囊。</p>
+
+    <p>我们选了一张十年前的合照——那时候我们刚上大学，在军训的操场上拍的。两个人都晒得黝黑，笑得很傻。</p>
+
+    <p>然后各自写了一封信。写给十年后的对方，也写给十年后的我们。</p>
+
+    <div class="highlight-box">
+      <p><strong>闺蜜时间胶囊里，我们写了什么：</strong></p>
+      <p>• 给十年后的对方的一段话</p>
+      <p>• 希望十年后的我们，是什么样子</p>
+      <p>• 十个"一定要一起做的事"</p>
+      <p>• 给对方的三个忠告</p>
+      <p>• 约定：十年后的今天，一定要见面</p>
+    </div>
+
+    <p>解锁日期设在了十年后。也就是，我们认识三十周年的那天。</p>
+
+    <p>写完之后，我们把照片各自存了一份。</p>
+
+    <p>"十年后，我们要一起打开。"她说。</p>
+    <p>"好。"我说。</p>
+
+    <p>虽然只是一个小小的约定，但不知道为什么，我觉得特别安心。就好像，不管这十年里发生什么，我们都还有一个约会要赴。</p>
+
+    <h2>重要时刻的友情纪念方式</h2>
+
+    <p>其实不只是婚礼。人生中有很多重要的时刻，都可以和好朋友一起做时间胶囊。</p>
+
+    <h3>毕业季：致我们终将逝去的青春</h3>
+    <p>毕业的时候，是最适合做时间胶囊的。</p>
+    <p>那时候的你们，对未来充满了期待，也充满了迷茫。你们以为会经常见面，但其实，有些人可能这辈子都不会再见了。</p>
+    <p>所以趁还在一起的时候，写封信吧。</p>
+    <ul>
+      <li>写给毕业五年后的你们——那时候大家都在做什么呢？</li>
+      <li>写给毕业十年后的你们——那时候还有联系吗？</li>
+      <li>列一个"同学聚会必做清单"——等下次聚会的时候，一件一件完成</li>
+    </ul>
+    <p>等五年后、十年后再打开的时候，你一定会哭的。相信我。</p>
+
+    <h3>生日：又老了一岁，但还好你还在</h3>
+    <p>每年生日，除了伴侣，别忘了也给你的好朋友准备一份惊喜。</p>
+    <p>不用很贵重。一封信就够了。</p>
+    <p>告诉ta：</p>
+    <ul>
+      <li>你为什么觉得ta是你最好的朋友</li>
+      <li>ta做过的让你最感动的一件事</li>
+      <li>你们一起做过的最傻的事</li>
+      <li>你希望你们的友情，能持续到什么时候</li>
+    </ul>
+    <p>把信藏在一张你们的合照里，设成明年ta的生日解锁。</p>
+    <p>每年一封。这样，你们的友情，就有了时间的重量。</p>
+
+    <h3>婚礼：你一定要幸福啊</h3>
+    <p>好朋友结婚的时候，你是什么心情？</p>
+    <p>开心是肯定的。但会不会也有一点点失落？就好像，你最心爱的玩具，被别人抢走了一样。</p>
+    <p>但没关系。ta结婚了，不代表你们的友情就结束了。只是ta的人生里，多了一个重要的人而已。</p>
+    <p>婚礼的时候，给ta写一封信吧。</p>
+    <ul>
+      <li>告诉ta，你有多为ta高兴</li>
+      <li>告诉ta，就算结婚了，你也还是ta最好的朋友</li>
+      <li>告诉ta，如果受了委屈，随时可以来找你</li>
+      <li>告诉ta，你们的约定，永远作数</li>
+    </ul>
+    <p>把信藏在一张你们的合照里，作为新婚礼物送给ta。</p>
+    <p>等ta结婚十周年的时候，让ta再打开。那时候，你们应该都老了一点，但友情应该还是老样子吧。</p>
+
+    <h3>分别的时候：不管走多远，都要记得我</h3>
+    <p>人生中有很多分别。毕业是分别，换工作是分别，搬家是分别，出国是分别。</p>
+    <p>分别的时候，除了说"再见"，还可以做点别的。</p>
+    <p>比如，一起做一个时间胶囊。约定一个日子——一年后，三年后，五年后。到那天，不管你们在哪里，都要一起打开。</p>
+    <p>这样，分别就不是结束了。而是下一次见面的约定。</p>
+
+    <blockquote>"真正的友情，不会因为距离而变淡。只会因为想念，而变得更浓。"</blockquote>
+
+    <h2>闺蜜时间胶囊创意清单</h2>
+
+    <p>不知道写什么？这里有一些点子，给你们参考。</p>
+
+    <ul>
+      <li><strong>给十年后的对方写一封信</strong>——想说什么就说什么，不用客气</li>
+      <li><strong>各自列一个"十年目标清单"</strong>——然后交换，十年后检验</li>
+      <li><strong>十个"一定要一起做的事"</strong>——比如一起去看极光，一起跳伞，一起住养老院……</li>
+      <li><strong>给对方的三个忠告</strong>——以你对ta的了解，你觉得ta需要注意什么</li>
+      <li><strong>"如果……"的约定</strong>——如果十年后我们都还单身，就一起去旅行；如果我们都结婚了，就让孩子们定娃娃亲……</li>
+      <li><strong>吐槽时间</strong>——把对方的糗事都写下来，十年后再看，一定很好笑</li>
+      <li><strong>彼此的优缺点</strong>——真诚地告诉对方，你欣赏ta什么，也希望ta改进什么</li>
+      <li><strong>对未来的猜测</strong>——你觉得十年后的ta会是什么样子？在做什么工作？有没有结婚？有没有孩子？</li>
+    </ul>
+
+    <p>怎么好玩怎么来。不用很正式。反正是给你们自己看的。</p>
+
+    <h2>写在最后</h2>
+
+    <p>婚礼那天，我把我准备的时间胶囊照片，偷偷塞给了她。</p>
+
+    <p>"这是什么？"她问。</p>
+
+    <p>"给你的新婚礼物。"我说，"但你现在不能打开。要等十年后的今天。"</p>
+
+    <p>"里面写了什么？"</p>
+
+    <p>"不告诉你。到时候你就知道了。"</p>
+
+    <p>她抱着我，又哭了。</p>
+
+    <p>"谢谢你。"她说，"谢谢你一直在。"</p>
+
+    <p>"傻瓜，"我说，"我们是一辈子的朋友啊。"</p>
+
+    <p>是啊。一辈子的朋友。</p>
+
+    <p>可能以后我们会越来越忙。可能我们见面的次数会越来越少。可能我们会有各自的家庭，各自的生活。</p>
+
+    <p>但我知道，不管过了多少年，不管隔了多远，只要一转身，她就在那里。</p>
+
+    <p>就像十年前一样。就像二十年前一样。</p>
+
+    <p>朋友是自己选的家人。而闺蜜，是一辈子的事。</p>
+
+    <p>如果你也有这样的好朋友，去找ta吧。跟ta说，我们做个时间胶囊吧。给十年后的我们。</p>
+
+    <p>然后约定：十年后，一定要一起打开。</p>
+
+    <div class="cta-section">
+      <h3>和你的闺蜜，做一个时间胶囊</h3>
+      <p>免费、无需注册、所有加密在浏览器本地完成<br>给十年后的我们，愿你我还是老样子。</p>
+      <a href="/#seal" class="cta-btn">开始制作闺蜜胶囊 →</a>
+    </div>
+  </article>
+
+  <footer class="footer">
+    <p>© 2026 TimeVault · 写一封信给明天</p>
+    <p style="margin-top: 0.5rem;"><a href="/blog">查看更多文章</a> · <a href="/">返回首页</a></p>
+  </footer>
+</body>
+</html>

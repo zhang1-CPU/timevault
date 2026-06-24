@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>写给去世亲人的一封信｜有些话，需要时间才能说出口 - TimeVault 博客</title>
+  <meta name="description" content="写给去世亲人的一封信，用时间胶囊封存未说出口的话。失去不是终点，遗忘才是。有些话需要时间沉淀，等准备好的时候再打开。这是一种温柔的告别方式。">
+  <meta name="keywords" content="给去世亲人的信,悼念亲人,走出悲伤,亲人离世,思念亲人,治愈系,TimeVault">
+  <meta property="og:title" content="写给去世亲人的一封信｜有些话，需要时间才能说出口">
+  <meta property="og:description" content="失去不是终点，遗忘才是。用时间胶囊，好好地和ta说再见。">
+  <meta property="og:type" content="article">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: #0a0612;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 6, 18, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .nav a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+    .nav a:hover { color: rgba(255, 255, 255, 0.9); }
+    .nav .logo {
+      font-family: Georgia, serif;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero {
+      padding: 120px 2rem 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(236,72,153,0.12) 0%, rgba(168,85,247,0.08) 30%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero .tag {
+      color: rgba(244, 114, 182, 0.5);
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      font-weight: 300;
+    }
+    .hero h1 {
+      font-family: Georgia, serif;
+      font-size: 3rem;
+      font-weight: 300;
+      line-height: 1.3;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.4);
+      max-width: 600px;
+      margin: 0 auto;
+      font-weight: 300;
+    }
+    .hero .meta {
+      margin-top: 2rem;
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 0.85rem;
+    }
+    .article {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+    .article p {
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 2;
+    }
+    .article h2 {
+      font-family: Georgia, serif;
+      font-size: 1.75rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.75);
+      margin: 3rem 0 1.5rem;
+      line-height: 1.4;
+    }
+    .article h3 {
+      font-family: Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.65);
+      margin: 2rem 0 1rem;
+    }
+    .article blockquote {
+      border-left: 2px solid rgba(244, 114, 182, 0.4);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.45);
+      font-family: Georgia, serif;
+      font-size: 1.05rem;
+    }
+    .article .highlight-box {
+      background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(168,85,247,0.06) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin: 2.5rem 0;
+    }
+    .article .highlight-box p { margin-bottom: 0.75rem; }
+    .article .highlight-box p:last-child { margin-bottom: 0; }
+    .article ul {
+      margin: 1.5rem 0 1.5rem 1.5rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 300;
+    }
+    .article ul li {
+      margin-bottom: 0.75rem;
+      line-height: 1.8;
+    }
+    .article a {
+      color: rgba(244, 114, 182, 0.7);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(244, 114, 182, 0.3);
+      transition: all 0.3s;
+    }
+    .article a:hover {
+      color: rgba(244, 114, 182, 1);
+      border-bottom-color: rgba(244, 114, 182, 0.6);
+    }
+    .cta-section {
+      background: linear-gradient(135deg, rgba(236,72,153,0.1) 0%, rgba(168,85,247,0.08) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1.5rem;
+      padding: 3rem 2rem;
+      text-align: center;
+      margin: 4rem 0;
+    }
+    .cta-section h3 {
+      font-family: Georgia, serif;
+      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 1rem;
+    }
+    .cta-section p {
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 1rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      border: none;
+    }
+    .cta-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 60px rgba(219,39,119,0.4);
+    }
+    .footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 0.85rem;
+    }
+    .footer a {
+      color: rgba(244, 114, 182, 0.5);
+      text-decoration: none;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.4);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      transition: color 0.3s;
+    }
+    .back-link:hover { color: rgba(255, 255, 255, 0.7); }
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .article { padding: 2rem 1.5rem 4rem; }
+      .article h2 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="logo">TimeVault</a>
+    <a href="/#stories">← 返回故事</a>
+  </nav>
+
+  <section class="hero">
+    <p class="tag">治愈 · 告别</p>
+    <h1>写给去世亲人的一封信<br><span class="gradient">有些话，需要时间才能说出口</span></h1>
+    <p class="subtitle">失去不是终点，遗忘才是。好好告别，是我们能给ta最后的温柔。</p>
+    <p class="meta">2026年6月 · 阅读时间 10 分钟</p>
+  </section>
+
+  <article class="article">
+    <a href="/blog" class="back-link">← 所有文章</a>
+
+    <p>外婆走的那年，我高三。</p>
+
+    <p>接到电话的时候，我正在上晚自习。窗外下着很大的雨，班主任站在教室门口朝我招手，我心里咯噔一下，像是预感到了什么。</p>
+
+    <p>赶到医院的时候，她已经走了。很安详，像是睡着了一样。我站在病床边，没有哭，甚至没有特别难过的感觉。整个人木木的，像一具被抽走了灵魂的躯壳。</p>
+
+    <p>后来的很多年，我都以为自己接受了这件事。</p>
+
+    <p>直到三年前的某一天，我在超市里看到一种橘子糖，黄色的包装纸，上面印着一只大老虎。那是外婆最喜欢吃的糖。我站在货架前，突然就哭了，哭得停不下来。</p>
+
+    <p>那时候我才明白，原来悲伤不是一次性的洪水。它是藏在你生活缝隙里的潮水，会在某个你完全没有防备的时刻，突然漫上来，把你整个人淹没。</p>
+
+    <h2>有些话，当时说不出口</h2>
+
+    <p>外婆的葬礼上，我什么都没说。</p>
+
+    <p>不是不想说，是说不出来。那时候的我，根本不知道该说什么。"谢谢"？太轻了。"我爱你"？太重了，重到我张不开嘴。"对不起"？对不起什么呢？对不起没有多陪陪她？对不起总是嫌她啰嗦？对不起没来得及见她最后一面？</p>
+
+    <p>好像说什么都不对，好像说什么都太晚了。</p>
+
+    <blockquote>"我们总以为还有时间。总以为下次见面再说也不迟。可是有些人，一转身就是一辈子。"</blockquote>
+
+    <p>我后来才知道，这种"说不出口"的感觉，是很多人在面对失去时都会有的。我们被突如其来的悲伤打懵了，大脑一片空白，心里有千言万语，却一个字也吐不出来。</p>
+
+    <p>然后，时间慢慢过去，生活恢复了正常。但那些没说出口的话，并没有消失。它们沉淀在你心底的某个角落，像一块石头，沉甸甸的，硌得你生疼。</p>
+
+    <h2>给天堂的信，是写给自己的</h2>
+
+    <p>去年清明，我去给外婆扫墓。在墓前坐了很久，说了很多话。说我大学毕业了，说我找到工作了，说我搬了新家，说我养了一只猫。</p>
+
+    <p>说了很多很多，但总觉得不够。好像还有什么重要的话，被我忘掉了。</p>
+
+    <p>回家以后，我做了一个决定。我找了一张外婆的照片——是她六十岁生日那天拍的，穿着一件枣红色的毛衣，笑得眼睛都眯成了一条缝。我用 TimeVault 给她写了一封信，设置了一年后解锁。</p>
+
+    <p>我知道她收不到。我知道这封信最后还是我自己看。</p>
+
+    <p>但我还是写了。因为我发现，有些话，不是说给她听的，是说给我自己听的。我需要一个出口，需要一个仪式，需要认认真真地，把那些藏了很多年的情绪，好好地安放。</p>
+
+    <h2>写给去世亲人的信，可以写些什么？</h2>
+
+    <p>如果你也有未说出口的话，如果你也想写这样一封信，但不知道从何下笔，我想分享一些我自己的感受。</p>
+
+    <h3>告诉ta你最近的生活</h3>
+    <ul>
+      <li>你现在住在哪里？做什么工作？</li>
+      <li>你最近遇到了什么开心的事？什么烦恼的事？</li>
+      <li>你身边有了哪些新的人？失去了哪些旧的人？</li>
+      <li>你现在的样子，是ta当年期待的样子吗？</li>
+    </ul>
+
+    <p>说这些不是为了什么，只是想让ta知道——你在好好生活。你带着ta的那份期待，在认真地往前走。我想，不管是谁，不管去了哪里，最牵挂的，永远是留在这个世界上的人，过得好不好。</p>
+
+    <h3>告诉ta你记得的事</h3>
+    <ul>
+      <li>你最怀念和ta在一起的哪个瞬间？</li>
+      <li>ta教过你什么？说过哪些让你记到现在的话？</li>
+      <li>ta身上有哪些品质，是你觉得最珍贵的？</li>
+      <li>有哪些小事，是你从来没跟ta说过，但一直记在心里的？</li>
+    </ul>
+
+    <p>我在信里写了很多小事。写外婆夏天给我买的冰棍，写她藏在枕头底下的橘子糖，写她坐在阳台上戴着老花镜织毛衣的样子，写她每次送我到楼下都要站在那里看很久，直到我拐过弯看不见了才回去。</p>
+
+    <p>写着写着我就哭了，哭完又笑了。原来我记得这么多。原来她从来没有真正离开过。</p>
+
+    <h3>告诉ta你没来得及说的话</h3>
+    <ul>
+      <li>有哪些感谢，是你一直没说出口的？</li>
+      <li>有哪些抱歉，是你一直耿耿于怀的？</li>
+      <li>有哪些爱，是你那时候不好意思说的？</li>
+      <li>如果再给你一次机会，你最想跟ta说什么？</li>
+    </ul>
+
+    <div class="highlight-box">
+      <p><strong>我在信的最后写了这样一段话：</strong></p>
+      <p>"外婆，我现在过得很好。你放心。我会好好吃饭，好好睡觉，好好照顾自己。我会记住你教我的所有道理，做一个善良的人。"</p>
+      <p>"还有，我想你了。很想很想。"</p>
+    </div>
+
+    <p>写这句话的时候，我终于哭出了声。像是憋了很多年的眼泪，终于找到了出口。哭完以后，我感觉心里那块沉甸甸的石头，好像轻了一点点。</p>
+
+    <h2>为什么要设置一个"未来的解锁日期"？</h2>
+
+    <p>有人可能会问：既然是写给自己看的，为什么还要设置解锁日期？为什么不现在就打开？</p>
+
+    <p>因为我觉得，悲伤是需要时间沉淀的。</p>
+
+    <p>刚失去的时候，你是懵的，是麻木的，你甚至感受不到悲伤。过了几个月，悲伤开始一点一点地渗出来，你可能会在某个深夜突然崩溃。再过一年，你以为自己好了，但某个不经意的瞬间，还是会被击中。</p>
+
+    <p>然后，慢慢的，慢慢的，你开始学会和它共处。它不再是洪水猛兽，而是你身体的一部分。</p>
+
+    <p>我把解锁日期设在一年后，是因为我想看看，一年后的我，再看到这些话的时候，会是什么感觉。是会再次崩溃大哭？还是会平静地看完，然后轻轻叹一口气？</p>
+
+    <p>我不知道。但我期待那一天的到来。</p>
+
+    <h3>几个关于"告别"的小建议</h3>
+    <ul>
+      <li><strong>不要强迫自己"走出来"：</strong>悲伤没有时间表。有人三个月就好了，有人三年都走不出来。没关系的，按你自己的节奏来。</li>
+      <li><strong>不要觉得"忘记"就是背叛：</strong>有一天你会发现，你记不清ta的声音了，记不清ta走路的样子了。不要自责。遗忘是正常的，而爱不会因为遗忘而消失。</li>
+      <li><strong>找一个属于你们的仪式：</strong>可以是写一封信，可以是去你们常去的地方坐一坐，可以是做一道ta教你的菜。仪式感能帮助我们更好地告别。</li>
+      <li><strong>带着ta的那份，好好生活：</strong>这不是鸡汤，是真的。离开的人，最希望看到的，一定是你好好地、幸福地活着。</li>
+    </ul>
+
+    <h2>写在最后</h2>
+
+    <p>去年冬天的一个晚上，我做了一个梦。</p>
+
+    <p>梦里我回到了外婆家，还是老样子，阳台上晒着衣服，厨房里飘着饭菜香。外婆坐在沙发上织毛衣，看到我来了，抬起头笑了笑，说："回来了？饭马上就好。"</p>
+
+    <p>我站在门口，看着她，突然就哭了。我想说点什么，却怎么也发不出声音。</p>
+
+    <p>然后我就醒了。枕头湿了一大片。</p>
+
+    <p>但奇怪的是，那天我并没有觉得很难过。反而有一种很平静的、暖暖的感觉。就好像她真的来看过我了，就好像她在跟我说："我很好，你也要好好的。"</p>
+
+    <p>我想，这就是时间的魔力吧。它会把尖锐的疼痛，慢慢磨成柔软的思念。它会把那些你以为永远过不去的坎，变成你生命里最温暖的底色。</p>
+
+    <p>如果你也正在经历失去，如果你也有很多话没来得及说，不妨试试写这样一封信。</p>
+
+    <p>找一张ta的照片，写一写你想说的话，然后把它藏进照片里。设置一个你觉得合适的日期——三个月后，半年后，一年后，都可以。</p>
+
+    <p>等到那一天，你打开它的时候，也许会哭，也许会笑，也许只是平静地看完。</p>
+
+    <p>但无论如何，那都是你和ta之间，最温柔的一次告别。</p>
+
+    <div class="cta-section">
+      <h3>写一封信，好好告别</h3>
+      <p>免费、无需注册、所有加密在浏览器本地完成<br>你的思念，只有你知道。</p>
+      <a href="/#seal" class="cta-btn">开始制作时间胶囊 →</a>
+    </div>
+  </article>
+
+  <footer class="footer">
+    <p>© 2026 TimeVault · 写一封信给明天</p>
+    <p style="margin-top: 0.5rem;"><a href="/blog">查看更多文章</a> · <a href="/">返回首页</a></p>
+  </footer>
+</body>
+</html>

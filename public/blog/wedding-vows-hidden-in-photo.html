@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>婚纱照里的秘密｜婚礼当天写给彼此的信，十年后再打开 - TimeVault 博客</title>
+  <meta name="description" content="婚礼誓言不一定要当众说出口。把写给彼此的信藏在婚纱照里，作为结婚礼物，等十年、二十年后再打开。这是我见过最浪漫的婚礼创意。">
+  <meta name="keywords" content="婚礼誓言,婚纱照创意,结婚礼物,婚礼惊喜,给未来的信,婚姻纪念,TimeVault">
+  <meta property="og:title" content="婚纱照里的秘密｜婚礼当天写给彼此的信，十年后再打开">
+  <meta property="og:description" content="把誓言藏在照片里，让时间替你们保管。这是我见过最浪漫的结婚礼物创意。">
+  <meta property="og:type" content="article">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: #0a0612;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 6, 18, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .nav a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+    .nav a:hover { color: rgba(255, 255, 255, 0.9); }
+    .nav .logo {
+      font-family: Georgia, serif;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero {
+      padding: 120px 2rem 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(236,72,153,0.12) 0%, rgba(168,85,247,0.08) 30%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero .tag {
+      color: rgba(244, 114, 182, 0.5);
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      font-weight: 300;
+    }
+    .hero h1 {
+      font-family: Georgia, serif;
+      font-size: 3rem;
+      font-weight: 300;
+      line-height: 1.3;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.4);
+      max-width: 600px;
+      margin: 0 auto;
+      font-weight: 300;
+    }
+    .hero .meta {
+      margin-top: 2rem;
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 0.85rem;
+    }
+    .article {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+    .article p {
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 2;
+    }
+    .article h2 {
+      font-family: Georgia, serif;
+      font-size: 1.75rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.75);
+      margin: 3rem 0 1.5rem;
+      line-height: 1.4;
+    }
+    .article h3 {
+      font-family: Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.65);
+      margin: 2rem 0 1rem;
+    }
+    .article blockquote {
+      border-left: 2px solid rgba(244, 114, 182, 0.4);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.45);
+      font-family: Georgia, serif;
+      font-size: 1.05rem;
+    }
+    .article .highlight-box {
+      background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(168,85,247,0.06) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin: 2.5rem 0;
+    }
+    .article .highlight-box p { margin-bottom: 0.75rem; }
+    .article .highlight-box p:last-child { margin-bottom: 0; }
+    .article ul {
+      margin: 1.5rem 0 1.5rem 1.5rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 300;
+    }
+    .article ul li {
+      margin-bottom: 0.75rem;
+      line-height: 1.8;
+    }
+    .article a {
+      color: rgba(244, 114, 182, 0.7);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(244, 114, 182, 0.3);
+      transition: all 0.3s;
+    }
+    .article a:hover {
+      color: rgba(244, 114, 182, 1);
+      border-bottom-color: rgba(244, 114, 182, 0.6);
+    }
+    .cta-section {
+      background: linear-gradient(135deg, rgba(236,72,153,0.1) 0%, rgba(168,85,247,0.08) 100%);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1.5rem;
+      padding: 3rem 2rem;
+      text-align: center;
+      margin: 4rem 0;
+    }
+    .cta-section h3 {
+      font-family: Georgia, serif;
+      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 1rem;
+    }
+    .cta-section p {
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #e11d48 0%, #8b5cf6 50%, #6366f1 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 1rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      border: none;
+    }
+    .cta-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 60px rgba(219,39,119,0.4);
+    }
+    .footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 0.85rem;
+    }
+    .footer a {
+      color: rgba(244, 114, 182, 0.5);
+      text-decoration: none;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.4);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      transition: color 0.3s;
+    }
+    .back-link:hover { color: rgba(255, 255, 255, 0.7); }
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .article { padding: 2rem 1.5rem 4rem; }
+      .article h2 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="logo">TimeVault</a>
+    <a href="/#stories">← 返回故事</a>
+  </nav>
+
+  <section class="hero">
+    <p class="tag">婚礼 · 结婚礼物</p>
+    <h1>婚纱照里的秘密<br><span class="gradient">婚礼当天写给彼此的信，十年后再打开</span></h1>
+    <p class="subtitle">有些誓言，不必当众说出口。有些承诺，让时间替你们作证。</p>
+    <p class="meta">2026年6月 · 阅读时间 9 分钟</p>
+  </section>
+
+  <article class="article">
+    <a href="/blog" class="back-link">← 所有文章</a>
+
+    <p>上周参加了朋友小夏的婚礼，回家的时候，她偷偷塞给我一张婚纱照。</p>
+
+    <p>"帮我保管一下，"她眼睛亮晶晶的，"十年后的今天，再还给我。"</p>
+
+    <p>我以为是什么重要的信物，接过来一看，就是一张普通得不能再普通的婚纱照——她和先生站在海边，落日把天空染成橘粉色，两个人笑得眼睛都眯成了一条缝。</p>
+
+    <p>"这张照片有什么特别的吗？"我问。</p>
+
+    <p>她笑了笑，没正面回答，只说："到时候你就知道了。"</p>
+
+    <p>后来我才知道，那张照片里藏着两封信。一封是她写给十年后的先生的，另一封是先生写给十年后的她的。婚礼当天，他们各自在酒店房间里写完，然后用 TimeVault 藏进了同一张婚纱照里。</p>
+
+    <p>解锁日期，定在他们结婚十周年的那天。</p>
+
+    <h2>为什么要把誓言藏在婚纱照里</h2>
+
+    <p>婚礼上的誓言，说的时候是真心的。但说过了，也就过了。</p>
+
+    <p>你可能记得婚礼那天有多少桌酒席，记得婚纱是什么牌子的，记得司仪说了什么笑话，但你未必记得ta站在你对面，手在微微发抖，声音有点哽咽，说"我愿意"的时候，眼睛里的光。</p>
+
+    <p>那些最珍贵的东西，往往最容易被时间冲淡。</p>
+
+    <blockquote>"婚礼誓言不是说给宾客听的，是说给未来的你们听的。"</blockquote>
+
+    <p>所以才有了这个创意——把最想说的话，写在信里，藏在婚纱照里。它不像当众宣誓那样轰轰烈烈，但它更长久。它安安静静地待在你们的相框里，待在你们的相册里，待在你们每天都能看到的地方，等待着那个约定好的日子。</p>
+
+    <p>十年后，当你们一起打开它的时候，也许会笑，也许会哭，也许会想起——原来我们曾经那样认真地爱过对方。</p>
+
+    <h2>婚纱照里的信，可以写些什么？</h2>
+
+    <p>很多人说，婚礼誓词我都想好了，但要写一封十年后才打开的信，反而不知道从何下笔。</p>
+
+    <p>其实很简单。就写此刻你最真实的感受。</p>
+
+    <h3>关于此刻的心情</h3>
+    <ul>
+      <li>你现在是什么心情？紧张？期待？还是不敢相信这一天真的来了？</li>
+      <li>你是什么时候确定，就是这个人了？</li>
+      <li>你们之间，最让你心动的那个瞬间是什么？</li>
+      <li>ta身上的哪个小缺点，你觉得其实也挺可爱的？</li>
+    </ul>
+
+    <p>这些细碎的、带着温度的细节，才是最动人的。十年后的ta看到这些，会想起婚礼那天的你，会想起你们年轻时候的样子。而那时候，你们可能已经有了孩子，可能已经搬过好几次家，可能生活里全是鸡毛蒜皮——但这封信会提醒你们，一切是怎么开始的。</p>
+
+    <h3>关于未来的期许</h3>
+    <ul>
+      <li>你希望十年后的你们，是什么样子的？</li>
+      <li>你想和ta一起去哪些地方？做哪些事？</li>
+      <li>你对你们的婚姻，有什么样的期待？</li>
+      <li>如果遇到困难，你希望你们怎么面对？</li>
+    </ul>
+
+    <p>我特别建议你们，写一点"接地气"的东西。不要全是山盟海誓，也写一点对平凡生活的想象。比如"我希望我们每天晚上都能一起散步"，比如"周末你做饭我洗碗"，比如"吵架了不许冷战，第二天必须和好"。</p>
+
+    <p>这些小小的约定，比"爱你一万年"更真实，也更有力量。</p>
+
+    <h3>给十年后的ta的一句话</h3>
+    <ul>
+      <li>如果那时候我们很幸福，你想对ta说什么？</li>
+      <li>如果那时候我们正在经历困难，你想对ta说什么？</li>
+      <li>有一件什么事，你希望ta永远不要忘记？</li>
+    </ul>
+
+    <div class="highlight-box">
+      <p><strong>小夏说，她在信的最后写了这样一句话：</strong></p>
+      <p>"如果你正在看这封信，无论我们现在过得怎么样，请你转过身去，抱一抱身边的那个人。告诉ta，谢谢你陪我走到今天。"</p>
+    </div>
+
+    <p>我听完鼻子一酸。十年后的他们，会在什么样的场景下打开这封信呢？是在结婚十周年的晚餐桌上？是在某个普通的周末午后？还是在某个吵完架的深夜？</p>
+
+    <p>无论如何，当那句话出现在屏幕上的时候，我相信他们都会转过身，给彼此一个拥抱。</p>
+
+    <h2>怎么把信藏进婚纱照里？</h2>
+
+    <p>说起来很简单，用 TimeVault 三步就能搞定：</p>
+
+    <ol>
+      <li>选一张你们最喜欢的婚纱照（建议选横版、画面干净的）</li>
+      <li>各自写下想对十年后的彼此说的话</li>
+      <li>设置解锁日期（结婚一周年、五周年、十周年都可以），封存</li>
+    </ol>
+
+    <p>然后，把这张照片洗出来，装进相框，挂在卧室里。或者设成手机壁纸。或者发给双方父母帮忙保管。</p>
+
+    <p>没有人会知道这张普通的照片里，藏着那样滚烫的秘密。它就像一个只有你们两个人知道的暗号，安静地存在于你们生活的每个角落。</p>
+
+    <h3>几个创意玩法</h3>
+    <ul>
+      <li><strong>逐年解锁版：</strong>写10封信，分别设置在结婚1周年到10周年。每年结婚纪念日，解锁一封。</li>
+      <li><strong>互为惊喜版：</strong>不告诉ta你藏了信，到了解锁那天，让ta自己发现。</li>
+      <li><strong>多人见证版：</strong>把这张照片分享给最好的朋友和家人，请他们也各自写一段祝福藏进去。十年后大家一起打开。</li>
+      <li><strong>银婚金婚版：</strong>除了十年，再设一个二十五年、五十年的。银婚、金婚的时候再打开。</li>
+    </ul>
+
+    <h2>写在最后</h2>
+
+    <p>我参加过很多婚礼，见过很多昂贵的钻戒、华丽的场地、精心编排的仪式。但小夏的这场婚礼，是我心里最特别的一场。</p>
+
+    <p>因为她给婚姻准备的，不是一场盛大的庆典，而是一个十年的约定。</p>
+
+    <p>婚姻是什么呢？是一纸证书，是一场婚礼，还是日复一日的柴米油盐？</p>
+
+    <p>我觉得都对，但也都不对。婚姻是两个人决定一起往前走，是把各自的未来，拧成一股绳。而这封藏在婚纱照里的信，就是你们给彼此的、第一份关于未来的承诺。</p>
+
+    <p>它不贵重，但它足够真诚。它不耀眼，但它足够长久。</p>
+
+    <p>如果你也快要结婚了，或者你的朋友快要结婚了，不妨试试这个创意。</p>
+
+    <p>选一张最好的照片，写一封最真的信，然后交给时间。</p>
+
+    <p>十年后，你们会感谢今天的自己。</p>
+
+    <div class="cta-section">
+      <h3>为你的婚纱照藏一个秘密</h3>
+      <p>免费、无需注册、所有加密在浏览器本地完成<br>你们的誓言，只有你们能打开。</p>
+      <a href="/#seal" class="cta-btn">开始制作时间胶囊 →</a>
+    </div>
+  </article>
+
+  <footer class="footer">
+    <p>© 2026 TimeVault · 写一封信给明天</p>
+    <p style="margin-top: 0.5rem;"><a href="/blog">查看更多文章</a> · <a href="/">返回首页</a></p>
+  </footer>
+</body>
+</html>
